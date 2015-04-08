@@ -1,0 +1,96 @@
+<!doctype html>
+<!-- The DOCTYPE declaration above will set the     -->
+<!-- browser's rendering engine into                -->
+<!-- "Standards Mode". Replacing this declaration   -->
+<!-- with a "Quirks Mode" doctype is not supported. -->
+
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+<!--                                                               -->
+<!-- Consider inlining CSS to reduce the number of requested files -->
+<!--                                                               -->
+<link type="text/css" rel="stylesheet" href="Plategka_hrd.css">
+
+<!--                                           -->
+<!-- Any title is fine                         -->
+<!--                                           -->
+<title>Web Application Starter Project</title>
+
+<!--                                           -->
+<!-- This script loads your compiled module.   -->
+<!-- If you add any GWT meta tags, they must   -->
+<!-- be added before this line.                -->
+<!--                                           -->
+<script type="text/javascript" src="plategka_hrd/plategka_hrd.nocache.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+</head>
+
+<!--                                           -->
+<!-- The body can have arbitrary html, or      -->
+<!-- you can leave the body empty if you want  -->
+<!-- to create a completely dynamic UI.        -->
+<!--                                           -->
+<body>
+
+	<!-- OPTIONAL: include this if you want history support -->
+	<iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1'
+		style="position: absolute; width: 0; height: 0; border: 0"></iframe>
+
+	<!-- RECOMMENDED if your web app will not function without JavaScript enabled -->
+	<noscript>
+		<div
+			style="width: 22em; position: absolute; left: 50%; margin-left: -11em; color: red; background-color: white; border: 1px solid red; padding: 4px; font-family: sans-serif">
+			Your web browser must have JavaScript enabled in order for this
+			application to display correctly.</div>
+	</noscript>
+
+<style>
+#loading {
+	position: absolute;
+	left: 45%;
+	top: 40%;
+	padding: 2px;
+	margin-left: -45px;
+	z-index: 20001;
+	border: 1px solid #ccc;
+}
+
+#loading .loading-indicator {
+	background: #eef;
+	font: bold 13px tahoma, arial, helvetica;
+	padding: 10px;
+	margin: 0;
+	height: auto;
+	color: #444;
+}
+
+#loading .loading-indicator img {
+	margin-right: 8px;
+	float: center;
+	vertical-align: top;
+}
+
+#loading-msg {
+	font: normal 10px arial, tahoma, sans-serif;
+}
+</style>
+<script type="text/javascript">
+$(window).load(function() {
+	  $('#loading').remove();
+	  });
+</script>
+	<div id="loading">
+		<div class="loading-indicator" align="center">
+			<img src="images/loading-balls.gif" /></br>Платежка 2.0</div>
+		<div id="poweredBy" align="center">
+			<img
+				src="http://code.google.com/appengine/images/appengine-noborder-120x30.gif"
+				alt="Технология Google App Engine" />
+		</div>
+	</div>
+	
+	
+</body>
+</html>
