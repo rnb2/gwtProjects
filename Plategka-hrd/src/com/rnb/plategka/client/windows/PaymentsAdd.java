@@ -18,6 +18,7 @@ import com.rnb.plategka.client.messages.MyMessages;
 import com.rnb.plategka.client.utils.DateUtil;
 import com.rnb.plategka.data.Payments;
 import com.rnb.plategka.shared.AppUtils;
+import com.sencha.gxt.core.client.util.DateWrapper;
 import com.sencha.gxt.widget.core.client.Window;
 import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
@@ -135,7 +136,7 @@ public class PaymentsAdd extends Window {
 	    date = new DateField();
 	    Date valueDate = new Date();
 		date.setValue(selected != null ? new Date(selected.getDateOfPay()) : valueDate);
-	    date.addValidator(new MinDateValidator(valueDate));
+	    date.addValidator(new MinDateValidator(new DateWrapper(2009, 1, 1).asDate()));
 	    date.addParseErrorHandler(new ParseErrorHandler() {
 	      @Override
 	      public void onParseError(ParseErrorEvent event) {
@@ -318,7 +319,7 @@ public class PaymentsAdd extends Window {
 		return new AsyncCallback<Payments>() {			
 			@Override
 			public void onSuccess(Payments result) {
-				Info.display(messages.constantAdd(), messages.dataAdded());
+				Info.display(messages.paymentsAdd(), messages.dataAdded());
 				okResult = true;
 				hide();
 			}

@@ -16,6 +16,7 @@ import com.rnb.plategka.client.images.Images;
 import com.rnb.plategka.client.messages.MyMessages;
 import com.rnb.plategka.client.widgets.TableConstants;
 import com.rnb.plategka.client.widgets.TablePayments;
+import com.rnb.plategka.client.windows.About;
 import com.rnb.plategka.data.ConstantsProxy;
 import com.sencha.gxt.core.client.resources.ThemeStyles;
 import com.sencha.gxt.core.client.util.Margins;
@@ -171,7 +172,10 @@ public class Plategka_hrd implements EntryPoint, IsWidget {
 						break;
 
 					case ID_MENU_ABOUT:
-						Info.display(messages.about(), ID_MENU_ABOUT);
+							
+							About about = new About(messages);
+							about.show();
+							
 						break;
 
 					default:
@@ -185,12 +189,8 @@ public class Plategka_hrd implements EntryPoint, IsWidget {
 
 		
 	protected void initYearlist() {
-		if(yearList == null){
-			yearList = new ArrayList<Integer>();
-			serviceConstant.getYears(callbackYearList());
-		}else{
-			showPaymentsForm(yearList);
-		}
+		yearList = new ArrayList<Integer>();
+		serviceConstant.getYears(callbackYearList());
 	}
 
 	private AsyncCallback<List<Integer>> callbackYearList() {

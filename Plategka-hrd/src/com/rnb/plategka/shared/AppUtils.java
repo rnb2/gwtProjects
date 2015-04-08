@@ -31,7 +31,7 @@ public class AppUtils {
 	public static Double getRaschetLight(final Integer lightPredel, final Double light, final Double lightMore, final Integer oddsLight){
 		double resultLight = 0d;
 		double resultLightMore = 0d;
-		if(oddsLight > lightPredel){
+		if(lightPredel > 0 && oddsLight > lightPredel){
 			resultLight = getRoundingValue(2, RoundingMode.UP, lightPredel * light);
 			resultLightMore = getRoundingValue(2, RoundingMode.UP,(oddsLight - lightPredel) * lightMore);
 		}else{

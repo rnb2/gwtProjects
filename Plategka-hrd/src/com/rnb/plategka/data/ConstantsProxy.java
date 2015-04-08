@@ -19,12 +19,13 @@ public class ConstantsProxy implements Serializable {
 	private double light = 0.0;
 	private double lightMore = 0.0;
 	private Integer yearOfPay = 0;
+	private String date;
 
 	public ConstantsProxy() {
 	}
 
 	public ConstantsProxy(Long id, Integer lightPredel, double water,
-			double light, double lightMore, Integer yearOfPay) {
+			double light, double lightMore, Integer yearOfPay, String date) {
 		super();
 		this.id = id;
 		this.lightPredel = lightPredel;
@@ -32,6 +33,7 @@ public class ConstantsProxy implements Serializable {
 		this.light = light;
 		this.lightMore = lightMore;
 		this.yearOfPay = yearOfPay;
+		this.date = date;
 	}
 
 	public void setId(Long id) {
@@ -80,6 +82,14 @@ public class ConstantsProxy implements Serializable {
 
 	public void setLightPredel(Integer lightPredel) {
 		this.lightPredel = lightPredel;
+	}
+
+	public String getDate() {
+		return date;
+	}
+
+	public void setDate(String date) {
+		this.date = date;
 	}
 
 }

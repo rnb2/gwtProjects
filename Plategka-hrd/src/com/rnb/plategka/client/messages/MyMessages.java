@@ -274,4 +274,10 @@ public interface MyMessages extends Messages {
 	 */
 	String itog();
 
+	/**
+	 * Загрузка данных...
+	 * @return
+	 */
+	String loadData();
+
 }

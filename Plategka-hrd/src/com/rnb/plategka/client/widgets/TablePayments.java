@@ -22,9 +22,11 @@ import com.rnb.plategka.client.model.combo.YearProperties;
 import com.rnb.plategka.client.windows.PaymentsAdd;
 import com.rnb.plategka.data.Payments;
 import com.sencha.gxt.cell.core.client.form.ComboBoxCell.TriggerAction;
+import com.sencha.gxt.core.client.resources.ThemeStyles;
 import com.sencha.gxt.core.client.util.Margins;
 import com.sencha.gxt.data.shared.LabelProvider;
 import com.sencha.gxt.data.shared.ListStore;
+import com.sencha.gxt.data.shared.ModelKeyProvider;
 import com.sencha.gxt.widget.core.client.ContentPanel;
 import com.sencha.gxt.widget.core.client.Dialog.PredefinedButton;
 import com.sencha.gxt.widget.core.client.Resizable;
@@ -48,6 +50,7 @@ import com.sencha.gxt.widget.core.client.grid.HeaderGroupConfig;
 import com.sencha.gxt.widget.core.client.info.Info;
 import com.sencha.gxt.widget.core.client.tips.QuickTip;
 import com.sencha.gxt.widget.core.client.toolbar.FillToolItem;
+import com.sencha.gxt.widget.core.client.toolbar.LabelToolItem;
 import com.sencha.gxt.widget.core.client.toolbar.SeparatorToolItem;
 import com.sencha.gxt.widget.core.client.toolbar.ToolBar;
 
@@ -63,7 +66,7 @@ public class TablePayments implements IsWidget {
 	private final PaymentsProperties props = GWT.create(PaymentsProperties.class);
 	private Collection<? extends Payments> items;
 	private List<Integer> yearList;
-	private Status status;
+	private Status status, statusBusy;
 	private MyMessages messages;
 	private final PaymentsServiceAsync service = GWT.create(PaymentsService.class);
 	
@@ -99,8 +102,13 @@ public class TablePayments implements IsWidget {
 		    root.addStyleName("margin-10");
 		    
 		   //
-		    YearProperties keyProvider = GWT.create(YearProperties.class);
-			ListStore<Integer> store = new ListStore<Integer>(keyProvider.key());
+		   // YearProperties keyProvider = GWT.create(YearProperties.class);
+			ListStore<Integer> store = new ListStore<Integer>(new ModelKeyProvider<Integer>() {
+				@Override
+				public String getKey(Integer item) {
+					return item.toString();
+				}
+			});
 			store.addAll(yearList);
 			comboBox = new ComboBox<Integer>(store, new LabelProvider<Integer>() {
 				@Override
@@ -137,13 +145,20 @@ public class TablePayments implements IsWidget {
 			grid.setStateId("gridExample");
 			grid.getSelectionModel().addSelectionHandler(selection);
 	  
-		    
+		  
 		    ToolBar toolBarStatus = new ToolBar();
+		    toolBarStatus.addStyleName(ThemeStyles.get().style().borderTop());
+
+		    statusBusy = new Status();
+		    statusBusy.setText("");
+
 		    status = new Status();
-		    StringBuilder sb = feelStatus(items);
-			status.setText(sb.toString());
-		    status.setWidth(150);
+			status.setText(feelStatus(items));
+
+		    
 		    toolBarStatus.add(status);
+		    toolBarStatus.add(new LabelToolItem(" "));		    
+		    toolBarStatus.add(statusBusy);
 		    toolBarStatus.add(new FillToolItem());
 		    
 		    //
@@ -156,6 +171,7 @@ public class TablePayments implements IsWidget {
 		    toolBarAction.add(buttonAdd);
 		    toolBarAction.add(new SeparatorToolItem());
 		    toolBarAction.add(buttonDelete);
+		    toolBarAction.setWidth(100);
 
 		    HorizontalLayoutContainer containerButton = new HorizontalLayoutContainer();
 		    containerButton.add(toolBarAction, new HorizontalLayoutData(1, 1));
@@ -176,12 +192,12 @@ public class TablePayments implements IsWidget {
 	}
 
 
-	private StringBuilder feelStatus(Collection<? extends Payments> items2) {
+	private String feelStatus(Collection<? extends Payments> items2) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(messages.count());
 		sb.append(": ");
 		sb.append(items2.size());
-		return sb;
+		return sb.toString();
 	}
 	
 	
@@ -190,6 +206,7 @@ public class TablePayments implements IsWidget {
 			
 			@Override
 			public void onSelection(SelectionEvent<Integer> event) {
+				statusBusy.setBusy(messages.loadData());
 				service.getPayments(event.getSelectedItem(), callbackGetPayments());			
 			}
 		};
@@ -204,12 +221,15 @@ public class TablePayments implements IsWidget {
 				listStore.clear();
 				listStore.addAll(result);
 				grid.getView().refresh(true);
-				feelStatus(result);								
+				status.setText(feelStatus(result));
+				statusBusy.clearStatus("");
 			}
 			
 			@Override
 			public void onFailure(Throwable caught) {
 				caught.printStackTrace();
+				statusBusy.clearStatus("");
+				status.setText(caught.getLocalizedMessage());
 			}
 		};
 	}

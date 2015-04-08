@@ -5,7 +5,6 @@ package com.rnb.plategka.client.widgets;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 import com.google.gwt.core.shared.GWT;
@@ -16,12 +15,10 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
 import com.rnb.plategka.client.ConstantService;
 import com.rnb.plategka.client.ConstantServiceAsync;
-import com.rnb.plategka.client.forms.Config;
 import com.rnb.plategka.client.images.Images;
 import com.rnb.plategka.client.messages.MyMessages;
 import com.rnb.plategka.client.model.ConstantsProperties;
 import com.rnb.plategka.client.windows.ConstantsAdd;
-import com.rnb.plategka.data.Constants;
 import com.rnb.plategka.data.ConstantsProxy;
 import com.sencha.gxt.core.client.util.Margins;
 import com.sencha.gxt.data.shared.ListStore;
@@ -31,14 +28,13 @@ import com.sencha.gxt.widget.core.client.Resizable;
 import com.sencha.gxt.widget.core.client.Resizable.Dir;
 import com.sencha.gxt.widget.core.client.Status;
 import com.sencha.gxt.widget.core.client.box.ConfirmMessageBox;
-import com.sencha.gxt.widget.core.client.box.MessageBox;
 import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.container.HorizontalLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.HorizontalLayoutContainer.HorizontalLayoutData;
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer.VerticalLayoutData;
-import com.sencha.gxt.widget.core.client.event.DialogHideEvent.DialogHideHandler;
 import com.sencha.gxt.widget.core.client.event.DialogHideEvent;
+import com.sencha.gxt.widget.core.client.event.DialogHideEvent.DialogHideHandler;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
 import com.sencha.gxt.widget.core.client.event.SelectEvent.SelectHandler;
 import com.sencha.gxt.widget.core.client.grid.ColumnConfig;
@@ -172,12 +168,12 @@ public class TableConstants implements IsWidget {
 	}
 
 	protected DialogHideHandler handlerHide() {
-		// TODO Auto-generated method stub
+
 		return new DialogHideHandler() {
 			
 			@Override
 			public void onDialogHide(DialogHideEvent event) {
-				if(PredefinedButton.YES == event.getHideButton().YES){
+				if(PredefinedButton.YES == event.getHideButton()){
 					serviceConstant.delete(selected.getId(), callbackDelete());
 				}
 			}
@@ -185,7 +181,6 @@ public class TableConstants implements IsWidget {
 	}
 
 	protected AsyncCallback<Void> callbackDelete() {
-		// TODO Auto-generated method stub
 		return new AsyncCallback<Void>() {
 			
 			@Override
@@ -197,7 +192,6 @@ public class TableConstants implements IsWidget {
 			
 			@Override
 			public void onFailure(Throwable caught) {
-				// TODO Auto-generated method stub
 				caught.printStackTrace();
 			}
 		};
@@ -233,7 +227,7 @@ public class TableConstants implements IsWidget {
 	private List<ColumnConfig<ConstantsProxy, ?>> getConfigColumnList(
 			ConstantsProperties props2) {
 		
-		//ColumnConfig<Constants, Date> col1 = new ColumnConfig<Constants, Date>(props2.date(), 100, messages.data());
+		ColumnConfig<ConstantsProxy, String> col1 = new ColumnConfig<ConstantsProxy, String>(props2.date(), 100, messages.data());
 		ColumnConfig<ConstantsProxy, Integer> col2 = new ColumnConfig<ConstantsProxy, Integer>(props2.yearOfPay(), 80, messages.yearOfPay());
 		ColumnConfig<ConstantsProxy, Integer> col3 = new ColumnConfig<ConstantsProxy, Integer>(props2.lightPredel(), 80, messages.lightPredel());
 		ColumnConfig<ConstantsProxy, Double> col4 = new ColumnConfig<ConstantsProxy, Double>(props2.light(), 80, messages.light());
@@ -241,7 +235,7 @@ public class TableConstants implements IsWidget {
 		ColumnConfig<ConstantsProxy, Double> col6 = new ColumnConfig<ConstantsProxy, Double>(props2.water(), 80, messages.water());
 		 
 		List<ColumnConfig<ConstantsProxy, ?>> configList =  new ArrayList<ColumnConfig<ConstantsProxy,?>>();
-		//configList.add(col1);
+		configList.add(col1);
 		configList.add(col2);
 		configList.add(col3);
 		configList.add(col4);

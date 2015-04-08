@@ -21,5 +21,5 @@ public interface ConstantsProperties extends PropertyAccess<ConstantsProxy> {
 	
 	ValueProvider<ConstantsProxy, Integer> yearOfPay();
 
-	//ValueProvider<Constants, Date> date();
+	ValueProvider<ConstantsProxy, String> date();
 }

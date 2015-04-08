@@ -6,6 +6,7 @@ package com.rnb.plategka.client.windows;
 import java.util.Date;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.rnb.plategka.client.ConstantService;
 import com.rnb.plategka.client.ConstantServiceAsync;
@@ -13,6 +14,7 @@ import com.rnb.plategka.client.images.Images;
 import com.rnb.plategka.client.messages.MyMessages;
 import com.rnb.plategka.client.utils.DateUtil;
 import com.rnb.plategka.data.Constants;
+import com.sencha.gxt.core.client.util.DateWrapper;
 import com.sencha.gxt.widget.core.client.Window;
 import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
@@ -92,7 +94,7 @@ public class ConstantsAdd extends Window {
 	    
 	    
 	    date = new DateField();
-	    Date valueDate = new Date();
+	    Date valueDate = new DateWrapper(2009, 1, 1).asDate();
 		date.setValue(valueDate);
 	    date.addValidator(new MinDateValidator(valueDate));
 	    date.addParseErrorHandler(new ParseErrorHandler() {
@@ -143,7 +145,7 @@ public class ConstantsAdd extends Window {
 			@Override
 			public void onSelect(SelectEvent event) {
 					Constants app = new Constants();
-					//app.setDate(date.getValue());
+					app.setDate(DateTimeFormat.getFormat(DateUtil.DEFAULT_DATE_FORMAT).format(date.getValue()));
 					app.setLight(light.getValue());
 					app.setLightMore(lightMore.getValue());
 					app.setLightPredel(lightPredel.getValue());

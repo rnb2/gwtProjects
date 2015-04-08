@@ -1,7 +1,6 @@
 package com.rnb.plategka.data;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
@@ -17,10 +16,11 @@ import javax.jdo.annotations.PrimaryKey;
  */
 @PersistenceCapable(identityType = IdentityType.APPLICATION, detachable = "true")
 public class Constants implements Serializable {
+
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 2028613826268041314L;
+	private static final long serialVersionUID = -8273958642004245909L;
 
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
@@ -39,7 +39,7 @@ public class Constants implements Serializable {
 	private double lightMore = 0.0;
 
 	@Persistent
-	private Date date = new Date();
+	private String date;
 
 	@Persistent
 	private Integer yearOfPay = 0;
@@ -67,11 +67,11 @@ public class Constants implements Serializable {
 		return id;
 	}
 
-	public void setDate(Date date) {
+	public void setDate(String date) {
 		this.date = date;
 	}
 
-	public Date getDate() {
+	public String getDate() {
 		return date;
 	}
 
