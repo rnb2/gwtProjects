@@ -13,7 +13,9 @@ import com.rnb.plategka.client.ConstantServiceAsync;
 import com.rnb.plategka.client.images.Images;
 import com.rnb.plategka.client.messages.MyMessages;
 import com.rnb.plategka.client.utils.DateUtil;
+import com.rnb.plategka.client.widgets.TableConstants;
 import com.rnb.plategka.data.Constants;
+import com.rnb.plategka.data.ConstantsProxy;
 import com.sencha.gxt.core.client.util.DateWrapper;
 import com.sencha.gxt.widget.core.client.Window;
 import com.sencha.gxt.widget.core.client.button.TextButton;
@@ -49,6 +51,7 @@ public class ConstantsAdd extends Window {
 	private DoubleField lightMore;
 	private DoubleField light;
 	private IntegerField lightPredel;
+	private ConstantsProxy selected;
 	/**
 	 * 
 	 */
@@ -62,8 +65,9 @@ public class ConstantsAdd extends Window {
 		super(appearance);
 	}
 
-	public ConstantsAdd(MyMessages messages) {
+	public ConstantsAdd(MyMessages messages, ConstantsProxy selected) {
 		this.messages = messages;
+		this.selected = selected;
 		init();
 	}
 
@@ -80,21 +84,27 @@ public class ConstantsAdd extends Window {
 	    lightPredel.setAllowBlank(false);
 	    lightPredel.setSelectOnFocus(true);
 	    lightPredel.setEmptyText(messages.inputValue());
+	    lightPredel.setValue(selected != null ? selected.getLightPredel() : null);
 
 	    light = new DoubleField();
 	    light.setAllowBlank(false);
 	    light.setSelectOnFocus(true);
 	    light.setEmptyText(messages.inputValue());
+	    light.setValue(selected != null ? selected.getLight() : null);
 
 	    lightMore = new DoubleField();
 	    lightMore.setAllowBlank(false);
 	    lightMore.setSelectOnFocus(true);
 	    lightMore.setEmptyText(messages.inputValue());
-	    
+	    lightMore.setValue(selected != null ? selected.getLightMore() : null);
 	    
 	    
 	    date = new DateField();
-	    Date valueDate = new DateWrapper(2009, 1, 1).asDate();
+	    Date valueDate = null;
+		
+		valueDate = selected == null ? new DateWrapper(2009, 1, 1).asDate() 
+						: DateUtil.DATE_FORMAT.parse(selected.getDate());
+		
 		date.setValue(valueDate);
 	    date.addValidator(new MinDateValidator(valueDate));
 	    date.addParseErrorHandler(new ParseErrorHandler() {
@@ -113,12 +123,14 @@ public class ConstantsAdd extends Window {
 	    yearOfPay.addValidator(new MinNumberValidator<Integer>(2008));
 	    yearOfPay.addValidator(new MaxNumberValidator<Integer>(2222));
 	    yearOfPay.setEmptyText(messages.inputValue());
+	    yearOfPay.setValue(selected == null ? null : selected.getYearOfPay());
 
 	  
 	    water = new DoubleField();
 	    water.setAllowBlank(false);
 	    water.setSelectOnFocus(true);
 	    water.setEmptyText(messages.inputValue());
+	    water.setValue(selected == null ? null : selected.getWater());
 	    
 	   
 	    VerticalLayoutContainer container = new VerticalLayoutContainer();
@@ -175,11 +187,9 @@ public class ConstantsAdd extends Window {
 			
 			@Override
 			public void onSuccess(Constants result) {
+				TableConstants tableConstants = TableConstants.getInstance();
+				tableConstants.refreshView();
 				Info.display(messages.constantAdd(), messages.dataAdded());
-				/*selectedModel = factory.createModel(result);
-				store.add(selectedModel);
-				formBinding.bind(selectedModel);
-				grid.getSelectionModel().select(selectedModel,true);*/
 				hide();
 			}
 			

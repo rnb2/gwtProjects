@@ -18,7 +18,6 @@ import com.rnb.plategka.client.PaymentsServiceAsync;
 import com.rnb.plategka.client.images.Images;
 import com.rnb.plategka.client.messages.MyMessages;
 import com.rnb.plategka.client.model.PaymentsProperties;
-import com.rnb.plategka.client.model.combo.YearProperties;
 import com.rnb.plategka.client.windows.PaymentsAdd;
 import com.rnb.plategka.data.Payments;
 import com.sencha.gxt.cell.core.client.form.ComboBoxCell.TriggerAction;
@@ -69,6 +68,8 @@ public class TablePayments implements IsWidget {
 	private Status status, statusBusy;
 	private MyMessages messages;
 	private final PaymentsServiceAsync service = GWT.create(PaymentsService.class);
+	private PaymentsAdd paymentsAdd; 
+	private static TablePayments instance;
 	
 	/**
 	 * @wbp.parser.entryPoint
@@ -81,6 +82,8 @@ public class TablePayments implements IsWidget {
 		this.items = new ArrayList<Payments>();
 		this.messages = messages;
 		this.yearList = yearList;
+		
+		instance = this;
 	}
 
 	/**
@@ -283,6 +286,7 @@ public class TablePayments implements IsWidget {
 	private SelectHandler handlerAdd() {
 		return new SelectHandler() {
 			
+
 			@Override
 			public void onSelect(SelectEvent event) {
 				if(comboBox.getValue() == null){
@@ -290,8 +294,9 @@ public class TablePayments implements IsWidget {
 					return;
 				}	
 				
-				PaymentsAdd add = new PaymentsAdd(messages, comboBox.getValue(), selected);
-				add.show();
+				paymentsAdd = new PaymentsAdd(messages, comboBox.getValue(), selected);
+				paymentsAdd.show();
+				
 			}
 		};
 	}
@@ -349,7 +354,15 @@ public class TablePayments implements IsWidget {
 		configList.add(col16);
 		return configList;
 	}
+
+
+	public static TablePayments getInstance() {
+		return instance;
+	}
 	
+	public void refreshView(int year){
+		service.getPayments(year, callbackGetPayments());		
+	}
 	
 
 }

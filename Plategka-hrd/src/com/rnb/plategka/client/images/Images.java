@@ -25,4 +25,6 @@ public interface Images extends ClientBundle {
 	ImageResource add();
 
 	ImageResource remove();
+
+	ImageResource wallet();
 }

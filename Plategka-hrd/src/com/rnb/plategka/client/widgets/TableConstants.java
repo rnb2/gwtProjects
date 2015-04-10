@@ -20,6 +20,7 @@ import com.rnb.plategka.client.messages.MyMessages;
 import com.rnb.plategka.client.model.ConstantsProperties;
 import com.rnb.plategka.client.windows.ConstantsAdd;
 import com.rnb.plategka.data.ConstantsProxy;
+import com.sencha.gxt.core.client.resources.ThemeStyles;
 import com.sencha.gxt.core.client.util.Margins;
 import com.sencha.gxt.data.shared.ListStore;
 import com.sencha.gxt.widget.core.client.ContentPanel;
@@ -42,6 +43,7 @@ import com.sencha.gxt.widget.core.client.grid.ColumnModel;
 import com.sencha.gxt.widget.core.client.grid.Grid;
 import com.sencha.gxt.widget.core.client.tips.QuickTip;
 import com.sencha.gxt.widget.core.client.toolbar.FillToolItem;
+import com.sencha.gxt.widget.core.client.toolbar.LabelToolItem;
 import com.sencha.gxt.widget.core.client.toolbar.SeparatorToolItem;
 import com.sencha.gxt.widget.core.client.toolbar.ToolBar;
 
@@ -57,19 +59,22 @@ public class TableConstants implements IsWidget {
 	private String headingText = "";
 	private final ConstantsProperties props = GWT.create(ConstantsProperties.class);
 	private Collection<? extends ConstantsProxy> items;
-	private Status status;
+	private Status status, statusBusy;
 	private MyMessages messages;
 	private final ConstantServiceAsync serviceConstant = GWT.create(ConstantService.class);
+	private static TableConstants instance;
 	
 	/**
 	 * @wbp.parser.entryPoint
 	 */
 	public TableConstants() {
+		instance = this;
 	}
 	
 	public TableConstants(List<ConstantsProxy> result, MyMessages messages) {
 		this.items = result;
 		this.messages = messages;
+		instance = this;
 	}
 
 	/**
@@ -112,17 +117,21 @@ public class TableConstants implements IsWidget {
 			grid.setStateId("gridExample");
 			grid.getSelectionModel().addSelectionHandler(selection);
 	  
+			ToolBar toolBarStatus = new ToolBar();
+			toolBarStatus.addStyleName(ThemeStyles.get().style().borderTop());
 		    
-		    ToolBar toolBarStatus = new ToolBar();
+			statusBusy = new Status();
+		    statusBusy.setText("");
+
 		    status = new Status();
-		    StringBuilder sb = new StringBuilder();
-			sb.append(messages.count());
-			sb.append(": ");
-			sb.append(items.size());
-			status.setText(sb.toString());
-		    status.setWidth(150);
+			status.setText(feelStatus(items));
+
+		    
 		    toolBarStatus.add(status);
+		    toolBarStatus.add(new LabelToolItem(" "));		    
+		    toolBarStatus.add(statusBusy);
 		    toolBarStatus.add(new FillToolItem());
+
 		    
 		    //
 		    TextButton buttonAdd = new TextButton("Add", Images.INSTANCE.add());
@@ -206,7 +215,7 @@ public class TableConstants implements IsWidget {
 				//Config config = new Config(messages);
 				//root.add(config);
 				
-				ConstantsAdd add = new ConstantsAdd(messages);
+				ConstantsAdd add = new ConstantsAdd(messages, selected);
 				add.show();
 			}
 		};
@@ -243,7 +252,43 @@ public class TableConstants implements IsWidget {
 		configList.add(col6);
 		return configList;
 	}
+
+	public static TableConstants getInstance() {
+		return instance;
+	}
 	
+	private String feelStatus(Collection<? extends ConstantsProxy> items2) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(messages.count());
+		sb.append(": ");
+		sb.append(items2.size());
+		return sb.toString();
+	}
 	
+	public void refreshView(){
+		statusBusy.setBusy(messages.loadData());
+		serviceConstant.getConstantsProxy(callbackGetConstants());
+	}
+
+	private AsyncCallback<List<ConstantsProxy>> callbackGetConstants() {
+		return new AsyncCallback<List<ConstantsProxy>>() {
+			
+			@Override
+			public void onSuccess(List<ConstantsProxy> result) {
+				grid.getSelectionModel().deselectAll();
+				listStore.clear();
+				listStore.addAll(result);
+				grid.getView().refresh(true);
+				status.setText(feelStatus(result));
+				statusBusy.clearStatus("");
+			}
+			
+			@Override
+			public void onFailure(Throwable caught) {
+				statusBusy.clearStatus("");
+				status.setText(caught.getLocalizedMessage());
+			}
+		};
+	}
 
 }

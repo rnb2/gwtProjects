@@ -1,34 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
               http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
-         version="2.5"
-         xmlns="http://java.sun.com/xml/ns/javaee">
+	version="2.5" xmlns="http://java.sun.com/xml/ns/javaee">
 
-  <!-- Servlets -->
-  <servlet>
-    <servlet-name>constantServlet</servlet-name>
-    <servlet-class>com.rnb.plategka.server.ConstantServiceBean</servlet-class>
-  </servlet>
-  
-  <servlet-mapping>
-    <servlet-name>constantServlet</servlet-name>
-    <url-pattern>/plategka_hrd/constantService</url-pattern>
-  </servlet-mapping>
-  
-  <servlet>
-    <servlet-name>paymentsServlet</servlet-name>
-    <servlet-class>com.rnb.plategka.server.PaymentsServiceBean</servlet-class>
-  </servlet>
-  
-  <servlet-mapping>
-    <servlet-name>paymentsServlet</servlet-name>
-    <url-pattern>/plategka_hrd/paymentsService</url-pattern>
-  </servlet-mapping>  
-  
-  <!-- Default page to serve -->
-  <welcome-file-list>
-    <welcome-file>Plategka_hrd.html</welcome-file>
-  </welcome-file-list>
+	<!-- Servlets -->
+	<servlet>
+		<servlet-name>loginServ</servlet-name>
+		<servlet-class>com.rnb.plategka.client.LoginServ</servlet-class>
+	</servlet>
+
+		<servlet>
+		<servlet-name>usersService</servlet-name>
+		<servlet-class>com.rnb.plategka.server.UsersServiceBean</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>constantServlet</servlet-name>
+		<servlet-class>com.rnb.plategka.server.ConstantServiceBean</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>paymentsServlet</servlet-name>
+		<servlet-class>com.rnb.plategka.server.PaymentsServiceBean</servlet-class>
+	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>loginServ</servlet-name>
+		<url-pattern>/login</url-pattern>
+	</servlet-mapping>
+
+		<servlet-mapping>
+		<servlet-name>usersService</servlet-name>
+		<url-pattern>/plategka_hrd/usersService</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>constantServlet</servlet-name>
+		<url-pattern>/plategka_hrd/constantService</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>paymentsServlet</servlet-name>
+		<url-pattern>/plategka_hrd/paymentsService</url-pattern>
+	</servlet-mapping>
+
+
+<!-- 	<security-constraint> -->
+<!-- 	<web-resource-collection> -->
+<!-- 		<url-pattern>/plategka_hrd/*</url-pattern> -->
+<!-- 	</web-resource-collection> -->
+<!-- 	<auth-constraint> -->
+<!-- 		<role-name>admin</role-name> -->
+<!-- 	</auth-constraint> -->
+<!-- 	</security-constraint> -->
+
+	<!-- Default page to serve -->
+	<welcome-file-list>
+		<welcome-file>login.jsp</welcome-file>
+	</welcome-file-list>
 
 </web-app>

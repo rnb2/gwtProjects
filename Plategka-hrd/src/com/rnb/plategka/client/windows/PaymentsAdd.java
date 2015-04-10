@@ -16,6 +16,7 @@ import com.rnb.plategka.client.PaymentsServiceAsync;
 import com.rnb.plategka.client.images.Images;
 import com.rnb.plategka.client.messages.MyMessages;
 import com.rnb.plategka.client.utils.DateUtil;
+import com.rnb.plategka.client.widgets.TablePayments;
 import com.rnb.plategka.data.Payments;
 import com.rnb.plategka.shared.AppUtils;
 import com.sencha.gxt.core.client.util.DateWrapper;
@@ -247,6 +248,7 @@ public class PaymentsAdd extends Window {
 			public void onSelect(SelectEvent event) {
 					Payments p = buildPayments(true);
 					service.addPayment(p, callbackPaymentsAdd());
+					
 			}
 		});
 			    
@@ -319,26 +321,20 @@ public class PaymentsAdd extends Window {
 		return new AsyncCallback<Payments>() {			
 			@Override
 			public void onSuccess(Payments result) {
+				TablePayments tablePayments = TablePayments.getInstance();
+				tablePayments.refreshView(result.getYearOfPay());
 				Info.display(messages.paymentsAdd(), messages.dataAdded());
-				okResult = true;
 				hide();
 			}
 			
 			@Override
 			public void onFailure(Throwable caught) {
 				caught.printStackTrace();
-				okResult = false;
 			}
 		};
 	}
 
-	public boolean okResult = false;
-
-
-	public boolean isOkResult() {
-		return okResult;
-	}	
-
+	
 	private void calculateAllSumma(){
 		Double p1 = pay1.getValue() == null ? 0 : pay1.getValue();
 		Double p2 = pay2.getValue() == null ? 0 : pay2.getValue();

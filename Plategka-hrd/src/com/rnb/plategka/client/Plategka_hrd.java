@@ -46,7 +46,9 @@ public class Plategka_hrd implements EntryPoint, IsWidget {
 	private static final String ID_MENU_PAYMENTS = "id_payments";
 	private static final String ID_MENU_CONSTANTS = "id_constants";
 	private static final String ID_MENU_ABOUT = "id_about";
+	private static final String ID_MENU_ABOUT2 = "id_about2";
 	private final ConstantServiceAsync serviceConstant = GWT.create(ConstantService.class);
+	private final UsersServiceAsync usersServiceAsync = GWT.create(UsersService.class);
 
 
 	private SimpleContainer widget;
@@ -54,6 +56,9 @@ public class Plategka_hrd implements EntryPoint, IsWidget {
 	private ContentPanel center;
 	private final MyMessages messages = GWT.create(MyMessages.class);
 	protected List<Integer> yearList;
+	private Menu menuData;
+	private Menu menuSettings;
+	private MenuItem menuItemLogOut;
 	  
 
 	public void onModuleLoad() {
@@ -71,6 +76,9 @@ public class Plategka_hrd implements EntryPoint, IsWidget {
 		ContentPanel north = new ContentPanel();
 		center = new ContentPanel();
 		center.setHeaderVisible(false);
+		
+		
+		
 		
 		north.setHeadingText(messages.application());
 		/*ToolBar toolbar = new ToolBar();
@@ -98,35 +106,43 @@ public class Plategka_hrd implements EntryPoint, IsWidget {
 				
 		MarginData centerData = new MarginData();
 		centerData.setMargins(new Margins(10));
-		
+				
 				
 		//menuBar
 		MenuItem menuItemConstants = new MenuItem(messages.constants());
 		MenuItem menuItemPayments = new MenuItem(messages.payments());
 		MenuItem menuItemAbout = new MenuItem("...");
 		
+		
+		menuItemLogOut = new MenuItem("out");
+		
+		usersServiceAsync.getUserName(callbackUser());
+
 		menuItemConstants.setId(ID_MENU_CONSTANTS);
 		menuItemPayments.setId(ID_MENU_PAYMENTS);
 		menuItemAbout.setId(ID_MENU_ABOUT);
+		menuItemLogOut.setId(ID_MENU_ABOUT2);
 
 		menuItemConstants.setIcon(Image.script());
 		menuItemPayments.setIcon(Image.table());
 		menuItemAbout.setIcon(Image.about());
 		
-		Menu menuFile = new Menu();
-	      menuFile.addSelectionHandler(handlerMenu());
-	      menuFile.add(menuItemConstants);
+		menuSettings = new Menu();
+	      menuSettings.addSelectionHandler(handlerMenu());
+	      menuSettings.add(menuItemConstants);
 	    
-	    Menu menuData = new Menu();
+	    menuData = new Menu();
 	      menuData.addSelectionHandler(handlerMenu());
 	      menuData.add(menuItemPayments);
 
 	    Menu menuAbout = new Menu();
 	    menuAbout.addSelectionHandler(handlerMenu());
 	    menuAbout.add(menuItemAbout);
+	    menuAbout.add(menuItemLogOut);
+	    
 	      
-		MenuBarItem itemSettings = new MenuBarItem(messages.settings(), menuFile);
-		MenuBarItem itemData = new MenuBarItem(messages.datas(), menuData);
+	    MenuBarItem itemSettings = new MenuBarItem(messages.settings(), menuSettings);
+	    MenuBarItem itemData = new MenuBarItem(messages.datas(), menuData);
 		MenuBarItem itemAbout = new MenuBarItem(messages.about(), menuAbout);
 		
 		
@@ -150,6 +166,37 @@ public class Plategka_hrd implements EntryPoint, IsWidget {
 		return widget;
 	}
 
+
+	private AsyncCallback<String> callbackUser() {
+	
+		return new AsyncCallback<String>() {
+			
+			@Override
+			public void onSuccess(String result) {
+				 if(result == null){
+					menuSettings.setEnabled(false);
+					menuData.setEnabled(false);
+					
+					return;
+				 }
+			 
+				/*TextBox child = new TextBox();
+				child.setText(result);
+				child.setWidth("350");
+				center.add(child);*/
+			
+				menuItemLogOut.setText("LogOut-" + result);
+				
+			}
+			
+			@Override
+			public void onFailure(Throwable caught) {
+				Info.display("Error callbackUser:", caught.getLocalizedMessage());
+				menuSettings.setEnabled(false);
+				menuData.setEnabled(false);
+			}	
+		};
+	}
 
 	/**
 	 * menu handler
@@ -178,6 +225,12 @@ public class Plategka_hrd implements EntryPoint, IsWidget {
 							
 						break;
 
+					case ID_MENU_ABOUT2:
+						
+						usersServiceAsync.logout(callbackLogOut());
+						
+						break;
+
 					default:
 						break;
 					}
@@ -187,7 +240,32 @@ public class Plategka_hrd implements EntryPoint, IsWidget {
 		};
 	}
 
+	protected AsyncCallback<String> callbackLogOut() {
 		
+		return new AsyncCallback<String>() {
+			
+			@Override
+			public void onSuccess(String result) {
+				Info.display("callbackLogOut result=", result);
+				
+				if(!result.isEmpty())
+					redirect(result);
+			}
+			
+			@Override
+			public void onFailure(Throwable caught) {
+				Info.display("Error callbackLogOut", caught.getLocalizedMessage());
+			}
+		};
+	}
+
+	private native void redirect(String url)/*-{
+	  var win = $wnd;
+	  while (win.parent != null && win.parent != win)
+	    win = win.parent;
+	  win.location = url;
+	}-*/;
+	
 	protected void initYearlist() {
 		yearList = new ArrayList<Integer>();
 		serviceConstant.getYears(callbackYearList());
