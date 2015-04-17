@@ -30,6 +30,8 @@ public final class DateUtil {
 	 * format "dd.MM.yyyy"
 	 */
 	public static final DateTimeFormat DATE_FORMAT = DateTimeFormat.getFormat(DEFAULT_DATE_FORMAT);
+
+	public static final DateTimeFormat DATE_TIME_FORMAT = DateTimeFormat.getFormat(DEFAULT_DATE_TIME_FORMAT);
 	
 	/**
 	 * 

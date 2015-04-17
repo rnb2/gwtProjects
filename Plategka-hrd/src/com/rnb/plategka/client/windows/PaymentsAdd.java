@@ -136,7 +136,7 @@ public class PaymentsAdd extends Window {
 	    
 	    date = new DateField();
 	    Date valueDate = new Date();
-		date.setValue(selected != null ? new Date(selected.getDateOfPay()) : valueDate);
+		date.setValue(selected != null ? DateUtil.DATE_TIME_FORMAT.parse(selected.getDateOfPay()) : valueDate);
 	    date.addValidator(new MinDateValidator(new DateWrapper(2009, 1, 1).asDate()));
 	    date.addParseErrorHandler(new ParseErrorHandler() {
 	      @Override
@@ -145,7 +145,7 @@ public class PaymentsAdd extends Window {
 	      }
 	    });
 	    date.setAllowBlank(true);
-	    PropertyEditor<Date> propertyEditorDate = new DateTimePropertyEditor(DateUtil.DEFAULT_DATE_FORMAT);
+	    PropertyEditor<Date> propertyEditorDate = new DateTimePropertyEditor(DateUtil.DEFAULT_DATE_TIME_FORMAT);
 		date.setPropertyEditor(propertyEditorDate);
 	
 	    
@@ -322,7 +322,7 @@ public class PaymentsAdd extends Window {
 			@Override
 			public void onSuccess(Payments result) {
 				TablePayments tablePayments = TablePayments.getInstance();
-				tablePayments.refreshView(result.getYearOfPay());
+				tablePayments.refreshView(yearOfPay);
 				Info.display(messages.paymentsAdd(), messages.dataAdded());
 				hide();
 			}

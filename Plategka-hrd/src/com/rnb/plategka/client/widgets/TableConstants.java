@@ -197,6 +197,7 @@ public class TableConstants implements IsWidget {
 				listStore.remove(selected);
 				grid.getStore().remove(selected);
 				listStore.commitChanges();
+				status.setText(feelStatus(listStore.getAll()));
 			}
 			
 			@Override

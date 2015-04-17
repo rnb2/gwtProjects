@@ -114,7 +114,7 @@ public class Plategka_hrd implements EntryPoint, IsWidget {
 		MenuItem menuItemAbout = new MenuItem("...");
 		
 		
-		menuItemLogOut = new MenuItem("out");
+		menuItemLogOut = new MenuItem("LogOut-");
 		
 		usersServiceAsync.getUserName(callbackUser());
 
@@ -185,7 +185,7 @@ public class Plategka_hrd implements EntryPoint, IsWidget {
 				child.setWidth("350");
 				center.add(child);*/
 			
-				menuItemLogOut.setText("LogOut-" + result);
+				menuItemLogOut.setText("LogOut - " + result);
 				
 			}
 			

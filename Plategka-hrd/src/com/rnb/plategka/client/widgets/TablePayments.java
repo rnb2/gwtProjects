@@ -220,6 +220,7 @@ public class TablePayments implements IsWidget {
 			
 			@Override
 			public void onSuccess(List<Payments> result) {
+				selected = null;
 				grid.getSelectionModel().deselectAll();
 				listStore.clear();
 				listStore.addAll(result);
@@ -273,6 +274,7 @@ public class TablePayments implements IsWidget {
 				grid.getStore().remove(selected);
 				listStore.commitChanges();
 				grid.getView().refresh(true);
+				status.setText(feelStatus(listStore.getAll()));
 				
 			}
 			
@@ -294,8 +296,13 @@ public class TablePayments implements IsWidget {
 					return;
 				}	
 				
-				paymentsAdd = new PaymentsAdd(messages, comboBox.getValue(), selected);
-				paymentsAdd.show();
+				try {
+					paymentsAdd = new PaymentsAdd(messages, comboBox.getValue(), selected);
+					paymentsAdd.show();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				
 			}
 		};
@@ -361,6 +368,7 @@ public class TablePayments implements IsWidget {
 	}
 	
 	public void refreshView(int year){
+		statusBusy.setBusy(messages.loadData());
 		service.getPayments(year, callbackGetPayments());		
 	}
 	

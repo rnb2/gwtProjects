@@ -1,4 +1,17 @@
-<!-- Indices written at Wed, 15 Apr 2015 15:46:53 EEST -->
+<!-- Indices written at Fri, 17 Apr 2015 16:12:30 EEST -->
 
-<datastore-indexes/>
+<datastore-indexes>
 
+    <!-- Used 16 times in query history -->
+    <datastore-index kind="Payments" ancestor="false" source="auto">
+        <property name="yearOfPay" direction="asc"/>
+        <property name="dateOfPay" direction="asc"/>
+    </datastore-index>
+
+    <!-- Used 1 time in query history -->
+    <datastore-index kind="Constants" ancestor="false" source="auto">
+        <property name="yearOfPay" direction="asc"/>
+        <property name="date" direction="desc"/>
+    </datastore-index>
+
+</datastore-indexes>
