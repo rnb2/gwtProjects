@@ -26,9 +26,9 @@ public class ConstantServiceBean extends RemoteServiceServlet implements Constan
 	private static final long serialVersionUID = 1L;
 
 	private final String QUERY_ALL_CONSTANTS = "select from " + Constants.class.getName() + " order by yearOfPay";
-	private final String QUERY_ALL_CONSTANTS_PROXY = "select a.id, a.lightPredel, a.water, a.light, a.lightMore, a.yearOfPay, a.date from " + Constants.class.getName() + " a order by a.yearOfPay";
+	private final String QUERY_ALL_CONSTANTS_PROXY = "select a.id, a.lightPredel, a.water, a.light, a.lightMore, a.yearOfPay, a.date from " + Constants.class.getName() + " a order by a.yearOfPay, a.date";
 	private final String QUERY_YEAR_CONSTANTS = "select distinct yearOfPay from " + Constants.class.getName();
-	private static final Logger log = Logger.getLogger(ConstantServiceBean.class.getName());
+	//private static final Logger log = Logger.getLogger(ConstantServiceBean.class.getName());
 
 	
 	public int getYear(Date date){

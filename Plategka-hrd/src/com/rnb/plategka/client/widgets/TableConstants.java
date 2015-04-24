@@ -227,8 +227,6 @@ public class TableConstants implements IsWidget {
 		@Override
 		public void onSelection(SelectionEvent<ConstantsProxy> event) {
 			selected = event.getSelectedItem();
-				/*new MessageBox("selected Constants:", "selected Constants: "
-						+ selected.getLightPredel() + " ("+ selected.getId()+")").show();	*/	
 		}
 	};
 	private Grid<ConstantsProxy> grid;
@@ -279,6 +277,7 @@ public class TableConstants implements IsWidget {
 				grid.getSelectionModel().deselectAll();
 				listStore.clear();
 				listStore.addAll(result);
+				
 				grid.getView().refresh(true);
 				status.setText(feelStatus(result));
 				statusBusy.clearStatus("");

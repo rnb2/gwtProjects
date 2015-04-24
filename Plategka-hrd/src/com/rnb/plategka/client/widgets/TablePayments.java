@@ -10,7 +10,11 @@ import java.util.List;
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.i18n.client.LocaleInfo;
+import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
 import com.rnb.plategka.client.PaymentsService;
@@ -42,10 +46,14 @@ import com.sencha.gxt.widget.core.client.event.DialogHideEvent.DialogHideHandler
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
 import com.sencha.gxt.widget.core.client.event.SelectEvent.SelectHandler;
 import com.sencha.gxt.widget.core.client.form.ComboBox;
+import com.sencha.gxt.widget.core.client.grid.AggregationNumberSummaryRenderer;
+import com.sencha.gxt.widget.core.client.grid.AggregationRowConfig;
+import com.sencha.gxt.widget.core.client.grid.AggregationSafeHtmlRenderer;
 import com.sencha.gxt.widget.core.client.grid.ColumnConfig;
 import com.sencha.gxt.widget.core.client.grid.ColumnModel;
 import com.sencha.gxt.widget.core.client.grid.Grid;
 import com.sencha.gxt.widget.core.client.grid.HeaderGroupConfig;
+import com.sencha.gxt.widget.core.client.grid.SummaryType.SumSummaryType;
 import com.sencha.gxt.widget.core.client.info.Info;
 import com.sencha.gxt.widget.core.client.tips.QuickTip;
 import com.sencha.gxt.widget.core.client.toolbar.FillToolItem;
@@ -126,11 +134,39 @@ public class TablePayments implements IsWidget {
 			//---
 		 
 			List<ColumnConfig<Payments, ?>> configList = getConfigColumnList(props);
+			
+			ColumnConfig<Payments, ?> column0 = configList.get(0);
+			ColumnConfig<Payments, ?> columnAll_2 = configList.get(2);
+			ColumnConfig<Payments, ?> columnAll_3 = configList.get(3);
+			ColumnConfig<Payments, ?> columnAllWater = configList.get(4);
+			ColumnConfig<Payments, ?> columnAll_7 = configList.get(7);
+			ColumnConfig<Payments, ?> columnAll_10 = configList.get(10);
+			ColumnConfig<Payments, ?> columnAll_11 = configList.get(11);
+			ColumnConfig<Payments, ?> columnAll_12 = configList.get(12);
+			ColumnConfig<Payments, ?> columnAll_13 = configList.get(13);
+			ColumnConfig<Payments, ?> columnAll_14 = configList.get(14);
 			 
 			ColumnModel<Payments> columnModel = new ColumnModel<Payments>(configList);
 			
 			columnModel.addHeaderGroup(0, 4, new HeaderGroupConfig(messages.waterShort(), 1, 3));
 			columnModel.addHeaderGroup(0, 7, new HeaderGroupConfig(messages.lightShort(), 1, 5));
+			
+			NumberFormat numberFormat = NumberFormat.getCurrencyFormat();
+			
+			AggregationRowConfig<Payments> aggregation1 = new AggregationRowConfig<Payments>();
+			
+			aggregation1.setRenderer(column0, new AggregationSafeHtmlRenderer<Payments>(messages.itog()));
+			aggregation1.setRenderer(columnAll_2, new AggregationNumberSummaryRenderer<Payments, Double>(numberFormat, new SumSummaryType<Double>()));
+			aggregation1.setRenderer(columnAll_3, new AggregationNumberSummaryRenderer<Payments, Double>(numberFormat, new SumSummaryType<Double>()));
+			aggregation1.setRenderer(columnAllWater, new AggregationNumberSummaryRenderer<Payments, Double>(numberFormat, new SumSummaryType<Double>()));
+			aggregation1.setRenderer(columnAll_7, new AggregationNumberSummaryRenderer<Payments, Double>(numberFormat, new SumSummaryType<Double>()));
+			aggregation1.setRenderer(columnAll_10, new AggregationNumberSummaryRenderer<Payments, Double>(numberFormat, new SumSummaryType<Double>()));
+			aggregation1.setRenderer(columnAll_11, new AggregationNumberSummaryRenderer<Payments, Double>(numberFormat, new SumSummaryType<Double>()));
+			aggregation1.setRenderer(columnAll_12, new AggregationNumberSummaryRenderer<Payments, Double>(numberFormat, new SumSummaryType<Double>()));
+			aggregation1.setRenderer(columnAll_13, new AggregationNumberSummaryRenderer<Payments, Double>(numberFormat, new SumSummaryType<Double>()));
+			aggregation1.setRenderer(columnAll_14, new AggregationNumberSummaryRenderer<Payments, Double>(numberFormat, new SumSummaryType<Double>()));
+			
+			columnModel.addAggregationRow(aggregation1);
 			
 			listStore = new ListStore<Payments>(props.id());
 			listStore.addAll(items);
@@ -359,6 +395,26 @@ public class TablePayments implements IsWidget {
 		configList.add(col14);
 		configList.add(col15);
 		configList.add(col16);
+		
+		col2.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		col3.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		col4.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		col5.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		col14.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		col15.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		col16.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		
+		col2.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+		col3.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+		col4.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+		col5.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+		col14.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+		col15.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+		col16.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+		
+		col2.setWidth(60);
+		col3.setWidth(100);
+		
 		return configList;
 	}
 
