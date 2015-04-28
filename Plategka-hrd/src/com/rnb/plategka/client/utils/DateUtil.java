@@ -3,8 +3,6 @@
  */
 package com.rnb.plategka.client.utils;
 
-import java.text.SimpleDateFormat;
-
 import com.google.gwt.i18n.client.DateTimeFormat;
 
 

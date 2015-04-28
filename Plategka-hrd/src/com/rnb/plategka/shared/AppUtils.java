@@ -52,7 +52,7 @@ public class AppUtils {
 		if(oddsLight > lightPredel){
 			resultLightMore = getRoundingValue(2, RoundingMode.UP,(oddsLight - lightPredel) * lightMore);
 		}
-		return getRoundingValue(2, RoundingMode.UP, resultLightMore);
+		return resultLightMore;
 	}
 	
 	public static Double getRoundingValue(int scale, RoundingMode mode, double value){

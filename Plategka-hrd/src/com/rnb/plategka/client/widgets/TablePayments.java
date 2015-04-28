@@ -8,9 +8,9 @@ import java.util.Collection;
 import java.util.List;
 
 import com.google.gwt.core.shared.GWT;
+import com.google.gwt.dom.client.StyleInjector;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
-import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -24,7 +24,9 @@ import com.rnb.plategka.client.messages.MyMessages;
 import com.rnb.plategka.client.model.PaymentsProperties;
 import com.rnb.plategka.client.windows.PaymentsAdd;
 import com.rnb.plategka.data.Payments;
+import com.sencha.gxt.cell.core.client.PropertyDisplayCell;
 import com.sencha.gxt.cell.core.client.form.ComboBoxCell.TriggerAction;
+import com.sencha.gxt.core.client.ValueProvider;
 import com.sencha.gxt.core.client.resources.ThemeStyles;
 import com.sencha.gxt.core.client.util.Margins;
 import com.sencha.gxt.data.shared.LabelProvider;
@@ -46,6 +48,7 @@ import com.sencha.gxt.widget.core.client.event.DialogHideEvent.DialogHideHandler
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
 import com.sencha.gxt.widget.core.client.event.SelectEvent.SelectHandler;
 import com.sencha.gxt.widget.core.client.form.ComboBox;
+import com.sencha.gxt.widget.core.client.form.NumberPropertyEditor.DoublePropertyEditor;
 import com.sencha.gxt.widget.core.client.grid.AggregationNumberSummaryRenderer;
 import com.sencha.gxt.widget.core.client.grid.AggregationRowConfig;
 import com.sencha.gxt.widget.core.client.grid.AggregationSafeHtmlRenderer;
@@ -69,6 +72,7 @@ import com.sencha.gxt.widget.core.client.toolbar.ToolBar;
  */
 public class TablePayments implements IsWidget {
 
+	private static final String STYLE_HEADER_BOLD = "headerBold";
 	private ContentPanel root;
 	private final PaymentsProperties props = GWT.create(PaymentsProperties.class);
 	private Collection<? extends Payments> items;
@@ -103,6 +107,8 @@ public class TablePayments implements IsWidget {
 			
 		if(root == null){
 			
+			StyleInjector.inject(".headerBold{ font-weight: 600; color: maroon;} ");
+			
 			root = new ContentPanel();
 		    root.setHeadingText(messages.payments());
 		    root.setHeaderVisible(false);
@@ -113,7 +119,6 @@ public class TablePayments implements IsWidget {
 		    root.addStyleName("margin-10");
 		    
 		   //
-		   // YearProperties keyProvider = GWT.create(YearProperties.class);
 			ListStore<Integer> store = new ListStore<Integer>(new ModelKeyProvider<Integer>() {
 				@Override
 				public String getKey(Integer item) {
@@ -148,7 +153,11 @@ public class TablePayments implements IsWidget {
 			 
 			ColumnModel<Payments> columnModel = new ColumnModel<Payments>(configList);
 			
-			columnModel.addHeaderGroup(0, 4, new HeaderGroupConfig(messages.waterShort(), 1, 3));
+			HeaderGroupConfig headerGroupConfig = new HeaderGroupConfig(messages.waterShort(), 1, 3);
+			//TODO ошибка
+			//headerGroupConfig.getWidget().setStyleName(STYLE_HEADER_BOLD);
+			
+			columnModel.addHeaderGroup(0, 4, headerGroupConfig);
 			columnModel.addHeaderGroup(0, 7, new HeaderGroupConfig(messages.lightShort(), 1, 5));
 			
 			NumberFormat numberFormat = NumberFormat.getCurrencyFormat();
@@ -168,14 +177,19 @@ public class TablePayments implements IsWidget {
 			
 			columnModel.addAggregationRow(aggregation1);
 			
+						
 			listStore = new ListStore<Payments>(props.id());
 			listStore.addAll(items);
 			
 			new Resizable(root, Dir.E, Dir.SE, Dir.S);
 			  
-			grid = new Grid<Payments>(listStore, columnModel);
+			grid = new Grid<Payments>(listStore, columnModel);/*{
+				protected void onAfterFirstAttach() {
+					statusBusy.setBusy(messages.loadData());
+				};
+			};*/
 
-			//grid.getView().setAutoExpandColumn(configList.get(0));
+
 			grid.getView().setStripeRows(true);
 			grid.getView().setColumnLines(true);
 			grid.setBorders(false);
@@ -183,7 +197,12 @@ public class TablePayments implements IsWidget {
 			grid.setStateful(true);
 			grid.setStateId("gridExample");
 			grid.getSelectionModel().addSelectionHandler(selection);
-	  
+			grid.getView().setEmptyText(messages.noDataFound());
+			grid.setLoadMask(true);
+			
+			//TODO ошибка
+			//grid.getView().getHeader().getElement().select("td[colspan]").getItem(0).addClassName("headerBold");
+			
 		  
 		    ToolBar toolBarStatus = new ToolBar();
 		    toolBarStatus.addStyleName(ThemeStyles.get().style().borderTop());
@@ -355,6 +374,7 @@ public class TablePayments implements IsWidget {
 	private Grid<Payments> grid;
 	private ListStore<Payments> listStore;
 	private ComboBox<Integer> comboBox;
+	private NumberFormat numberFormatDouble = NumberFormat.getFormat("0.00");
 	
 	private List<ColumnConfig<Payments, ?>> getConfigColumnList(
 			PaymentsProperties props2) {
@@ -377,6 +397,22 @@ public class TablePayments implements IsWidget {
 		ColumnConfig<Payments, Double> col14 = new ColumnConfig<Payments, Double>(props2.pay5(), 80, messages.pay5());
 		ColumnConfig<Payments, Double> col15 = new ColumnConfig<Payments, Double>(props2.pay6(), 80, messages.pay6());
 		ColumnConfig<Payments, Double> col16 = new ColumnConfig<Payments, Double>(props2.pay7(), 80, messages.pay7());
+
+		ValueProvider<Payments, Double> valueProvider = new ValueProvider<Payments, Double>() {
+			public Double getValue(Payments object) {
+				return object.getPay1() + object.getPay2() + object.getPay3() + object.getPay4() + object.getPay5() + object.getPay6() + object.getPay7();
+			}
+
+			@Override
+			public void setValue(Payments object, Double value) {}
+
+			@Override
+			public String getPath() {
+				return "1";
+			};
+		};
+		ColumnConfig<Payments, Double> col17 = new ColumnConfig<Payments, Double>(valueProvider
+		, 80, messages.itog());
 		
 		 
 		List<ColumnConfig<Payments, ?>> configList =  new ArrayList<ColumnConfig<Payments,?>>();
@@ -395,6 +431,7 @@ public class TablePayments implements IsWidget {
 		configList.add(col14);
 		configList.add(col15);
 		configList.add(col16);
+		configList.add(col17);
 		
 		col2.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		col3.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
@@ -403,6 +440,7 @@ public class TablePayments implements IsWidget {
 		col14.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		col15.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		col16.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		col17.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		
 		col2.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
 		col3.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
@@ -411,9 +449,33 @@ public class TablePayments implements IsWidget {
 		col14.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
 		col15.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
 		col16.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+		col17.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
 		
 		col2.setWidth(60);
 		col3.setWidth(100);
+		
+		DoublePropertyEditor doublePropertyEditor = new DoublePropertyEditor(numberFormatDouble);
+		PropertyDisplayCell<Double> propertyDisplayCell = new PropertyDisplayCell<Double>(doublePropertyEditor);
+		col4.setCell(propertyDisplayCell);
+		col5.setCell(propertyDisplayCell);
+		col6.setCell(propertyDisplayCell);
+		col9.setCell(propertyDisplayCell);
+		col12.setCell(propertyDisplayCell);
+		col13.setCell(propertyDisplayCell);
+		col14.setCell(propertyDisplayCell);
+		col15.setCell(propertyDisplayCell);
+		col16.setCell(propertyDisplayCell);
+		
+		col17.setCell(propertyDisplayCell);
+		
+		col2.setColumnHeaderClassName(STYLE_HEADER_BOLD);
+		col3.setColumnHeaderClassName(STYLE_HEADER_BOLD);
+		col4.setColumnHeaderClassName(STYLE_HEADER_BOLD);
+		col5.setColumnHeaderClassName(STYLE_HEADER_BOLD);
+		col14.setColumnHeaderClassName(STYLE_HEADER_BOLD);
+		col15.setColumnHeaderClassName(STYLE_HEADER_BOLD);
+		col16.setColumnHeaderClassName(STYLE_HEADER_BOLD);
+		col17.setColumnHeaderClassName(STYLE_HEADER_BOLD);
 		
 		return configList;
 	}

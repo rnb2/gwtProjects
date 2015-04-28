@@ -3,14 +3,11 @@ package com.rnb.plategka.server;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
-
-
-
-
-
-
 
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
@@ -20,6 +17,7 @@ import com.rnb.plategka.client.PaymentsService;
 import com.rnb.plategka.data.Constants;
 import com.rnb.plategka.data.Payments;
 import com.rnb.plategka.shared.AppUtils;
+import com.rnb.plategka.shared.DateTimeFormat;
 
 /**
  * 
@@ -37,7 +35,7 @@ public class PaymentsServiceBean extends RemoteServiceServlet implements
 	private static final long serialVersionUID = 1L;
 	private final String QUERY_ALL_PAYMENTS = "select from " + Payments.class.getName();
 	private final String QUERY_ALL_CONSTANTS = "select from " + Constants.class.getName();
-	//private static final Logger log = Logger.getLogger(PaymentsServiceBean.class.getName());	
+	private static final Logger log = Logger.getLogger(PaymentsServiceBean.class.getName());	
 	
 	private Payments calcPayment(Payments p){
 		
@@ -65,6 +63,14 @@ public class PaymentsServiceBean extends RemoteServiceServlet implements
 			double resultLight = AppUtils.getRaschetLight(lightPredel, light, lightMore, oddsLight);
 			double resultLightMore =  AppUtils.getRaschetLightMore(lightPredel, lightMore, oddsLight);
 			
+//		log.info("lightPredel=" + lightPredel);	
+//		log.info("light=" + light);	
+//		log.info("lightMore=" + lightMore);	
+//		log.info("oddsLight=" + oddsLight);	
+//		log.info("==================");	
+//		log.info("resultLight=" + resultLight);	
+//		log.info("resultLightMore=" + resultLightMore);
+		
 			p.setPay4Less(resultLight);
 			p.setPay4More(resultLightMore);
 			p.setPay4(getRoundingValue(2, RoundingMode.UP, resultLight + resultLightMore));
@@ -95,16 +101,28 @@ public class PaymentsServiceBean extends RemoteServiceServlet implements
 		List<Payments> resultList = new ArrayList<Payments>();
 		resultList = Manage.executeNamedQuery(QUERY_ALL_PAYMENTS
 				+ " WHERE yearOfPay == " + year, "dateOfPay ascending");
-		return new ArrayList<Payments>(resultList);
+		
+		ArrayList<Payments> arrayList = new ArrayList<Payments>(resultList);
+		Collections.sort(arrayList, new Comparator<Payments>() {
+			@Override
+			public int compare(Payments o1, Payments o2) {
+				DateTimeFormat dateFormat = DateTimeFormat
+						.getFormat(DateUtil.DEFAULT_DATE_TIME_FORMAT);
+				Date date1 = dateFormat.parse(o1.getDateOfPay());
+				Date date2 = dateFormat.parse(o2.getDateOfPay());
+				return date1.compareTo(date2);
+			}
+		});
+		return arrayList;
 	}
 
 	@SuppressWarnings("unused")
 	private String getCurrentUser() {
 		UserService userService = UserServiceFactory.getUserService();
-		System.out.println("userService=" + userService);
+		//System.out.println("userService=" + userService);
 		if (userService != null) {
 			User us = userService.getCurrentUser();
-			System.out.println("us=" + us);
+			//System.out.println("us=" + us);
 			return us.getNickname();
 		}
 		return "";

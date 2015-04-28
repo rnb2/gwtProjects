@@ -11,6 +11,12 @@ import java.util.TimeZone;
  *
  */
 public final class DateUtil {
+	
+	/**
+	 * "dd.MM.yyyy HH:mm"
+	 */
+	public static final String DEFAULT_DATE_TIME_FORMAT = "dd.MM.yyyy HH:mm";
+	
 	private static Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("EET"));
 
 	synchronized public static Date getDate(int year, int month, int dayOfMonth, int hourOfDay, int minute, int second){

@@ -1,12 +1,16 @@
 package com.rnb.plategka.data;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+
+import com.google.gwt.i18n.shared.DateTimeFormat;
+import com.rnb.plategka.server.DateUtil;
 
 /**
  * 
@@ -17,7 +21,7 @@ import javax.jdo.annotations.PrimaryKey;
  */
 @SuppressWarnings("serial")
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
-public class Payments implements Serializable {
+public class Payments implements Serializable, Comparable<Payments> {
 
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
@@ -220,6 +224,50 @@ public class Payments implements Serializable {
 
 	public void setPay7(double pay7) {
 		this.pay7 = pay7;
+	}
+	
+	
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((dateOfPay == null) ? 0 : dateOfPay.hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Payments other = (Payments) obj;
+		if (dateOfPay == null) {
+			if (other.dateOfPay != null)
+				return false;
+		} else if (!dateOfPay.equals(other.dateOfPay))
+			return false;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		return true;
+	}
+
+	@Override
+	public int compareTo(Payments o) {
+		DateTimeFormat dateFormat = DateTimeFormat
+				.getFormat(DateUtil.DEFAULT_DATE_TIME_FORMAT);
+
+		Date date1 = dateFormat.parse(dateOfPay);
+		Date date2 = dateFormat.parse(o.getDateOfPay());
+		return date1.compareTo(date2);
 	}
 
 }

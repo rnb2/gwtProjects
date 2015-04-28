@@ -3,14 +3,7 @@
  */
 package com.rnb.plategka.server;
 
-import java.io.IOException;
 import java.util.logging.Logger;
-
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.jsp.PageContext;
 
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;

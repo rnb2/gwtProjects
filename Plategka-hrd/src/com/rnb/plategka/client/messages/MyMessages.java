@@ -280,4 +280,10 @@ public interface MyMessages extends Messages {
 	 */
 	String loadData();
 
+	/**
+	 * Пока нет данных!
+	 * @return
+	 */
+	String noDataFound();
+
 }
