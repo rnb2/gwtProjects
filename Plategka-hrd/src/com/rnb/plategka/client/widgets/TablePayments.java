@@ -23,6 +23,7 @@ import com.rnb.plategka.client.images.Images;
 import com.rnb.plategka.client.messages.MyMessages;
 import com.rnb.plategka.client.model.PaymentsProperties;
 import com.rnb.plategka.client.windows.PaymentsAdd;
+import com.rnb.plategka.client.windows.PaymentsInfo;
 import com.rnb.plategka.data.Payments;
 import com.sencha.gxt.cell.core.client.PropertyDisplayCell;
 import com.sencha.gxt.cell.core.client.form.ComboBoxCell.TriggerAction;
@@ -220,16 +221,22 @@ public class TablePayments implements IsWidget {
 		    toolBarStatus.add(new FillToolItem());
 		    
 		    //
-		    TextButton buttonAdd = new TextButton("Add", Images.INSTANCE.add());
+		    TextButton buttonAdd = new TextButton(messages.add(), Images.INSTANCE.add());
 		    buttonAdd.addSelectHandler(handlerAdd());
-		    TextButton buttonDelete = new TextButton("Delete", Images.INSTANCE.remove());
+		    
+		    TextButton buttonDelete = new TextButton(messages.delete(), Images.INSTANCE.remove());
 		    buttonDelete.addSelectHandler(handlerDelete());
 
+		    TextButton buttonInfo = new TextButton(messages.info(), Images.INSTANCE.table());
+		    buttonInfo.addSelectHandler(handlerInfo());
+
 		    ToolBar toolBarAction = new ToolBar();
+		    toolBarAction.setWidth(100);
 		    toolBarAction.add(buttonAdd);
 		    toolBarAction.add(new SeparatorToolItem());
 		    toolBarAction.add(buttonDelete);
-		    toolBarAction.setWidth(100);
+		    toolBarAction.add(new SeparatorToolItem());
+		    toolBarAction.add(buttonInfo);
 
 		    HorizontalLayoutContainer containerButton = new HorizontalLayoutContainer();
 		    containerButton.add(toolBarAction, new HorizontalLayoutData(1, 1));
@@ -289,6 +296,30 @@ public class TablePayments implements IsWidget {
 				caught.printStackTrace();
 				statusBusy.clearStatus("");
 				status.setText(caught.getLocalizedMessage());
+			}
+		};
+	}
+	
+	private SelectHandler handlerInfo() {
+		return new SelectHandler() {
+			
+			@Override
+			public void onSelect(SelectEvent event) {
+				if(comboBox.getValue() == null){
+					Info.display(messages.paymentsInfo(), messages.selectYear());
+					return;
+				}	
+				if (selected == null) {
+					Info.display(messages.paymentsInfo(), messages.selectRecord());
+					return;
+				}
+				
+				try {
+					PaymentsInfo paymentsInfo = new PaymentsInfo(messages, selected);
+					paymentsInfo.show();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		};
 	}

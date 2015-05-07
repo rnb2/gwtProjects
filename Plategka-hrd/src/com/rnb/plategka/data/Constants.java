@@ -20,7 +20,7 @@ public class Constants implements Serializable {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -8273958642004245909L;
+	private static final long serialVersionUID = -2945144340665693065L;
 
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
@@ -40,6 +40,9 @@ public class Constants implements Serializable {
 
 	@Persistent
 	private String date;
+
+	@Persistent
+	private String mothOfPay;
 
 	@Persistent
 	private Integer yearOfPay = 0;
@@ -97,6 +100,14 @@ public class Constants implements Serializable {
 
 	public void setLightPredel(Integer lightPredel) {
 		this.lightPredel = lightPredel;
+	}
+
+	public String getMothOfPay() {
+		return mothOfPay;
+	}
+
+	public void setMothOfPay(String mothOfPay) {
+		this.mothOfPay = mothOfPay;
 	}
 
 }

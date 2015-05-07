@@ -286,4 +286,34 @@ public interface MyMessages extends Messages {
 	 */
 	String noDataFound();
 
+	/**
+	 * Информация о платеже
+	 * @return
+	 */
+	String paymentsInfo();
+
+	/**
+	 * Выберете запись!
+	 * @return
+	 */
+	String selectRecord();
+
+	/**
+	 * Инфо
+	 * @return
+	 */
+	String info();
+
+	/**
+	 * Удалить
+	 * @return
+	 */
+	String delete();
+
+	/**
+	 * Добавить
+	 * @return
+	 */
+	String add();
+
 }

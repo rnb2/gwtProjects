@@ -50,13 +50,28 @@ public final class Manage {
         return resultList;
 	}
 	
+	/**
+	 * 
+	 * @param clazz
+	 * @param queryWhere
+	 * @return
+	 */
+	public static <T> List<T> executeNamedQuery(Class<T> clazz, String queryWhere) {
+		if (pm==null || pm.isClosed()){
+			pm = PMF.getInstance().getPersistenceManager();
+		}
+		List<T> resultList = new ArrayList<T>();
+        resultList = (List<T>) pm.newQuery(clazz, queryWhere).execute();
+        return resultList;
+	}
+
 	public static <T> List<T> executeNamedQuery(String query) {
 		if (pm==null || pm.isClosed()){
 			pm = PMF.getInstance().getPersistenceManager();
 		}
 		List<T> resultList = new ArrayList<T>();
-        resultList = (List<T>) pm.newQuery(query).execute();
-        return resultList;
+		resultList = (List<T>) pm.newQuery(query).execute();
+		return resultList;
 	}
 
 	public static List<Object[]> executeNamedQueryProxy(String query) {

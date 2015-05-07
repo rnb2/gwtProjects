@@ -38,12 +38,17 @@ public class PaymentsServiceBean extends RemoteServiceServlet implements
 	private static final Logger log = Logger.getLogger(PaymentsServiceBean.class.getName());	
 	
 	private Payments calcPayment(Payments p){
-		
+		log.info("calcPayment: " + p.getDateOfPay());
 		List<Constants> resultList = new ArrayList<Constants>();
-		resultList = Manage.executeNamedQuery(QUERY_ALL_CONSTANTS + " WHERE yearOfPay == " + p.getYearOfPay(), "date descending");
+		//resultList = Manage.executeNamedQuery(QUERY_ALL_CONSTANTS + " WHERE yearOfPay == " + p.getYearOfPay(), "date descending");
+		resultList = Manage.executeNamedQuery(Constants.class, "yearOfPay == " + p.getYearOfPay() + " && mothOfPay == '" + p.getDateOfPay().substring(3, 5).trim() + "'");
+		if(resultList.isEmpty()){
+			resultList = Manage.executeNamedQuery(QUERY_ALL_CONSTANTS + " WHERE yearOfPay == " + p.getYearOfPay(), "date descending");
+		}
 		if(resultList.isEmpty()){
 			return null;
 		}
+		
 		Constants constants = resultList.get(0);
 		double light = constants.getLight();
 		double lightMore = constants.getLightMore();
@@ -63,17 +68,22 @@ public class PaymentsServiceBean extends RemoteServiceServlet implements
 			double resultLight = AppUtils.getRaschetLight(lightPredel, light, lightMore, oddsLight);
 			double resultLightMore =  AppUtils.getRaschetLightMore(lightPredel, lightMore, oddsLight);
 			
-//		log.info("lightPredel=" + lightPredel);	
-//		log.info("light=" + light);	
-//		log.info("lightMore=" + lightMore);	
-//		log.info("oddsLight=" + oddsLight);	
-//		log.info("==================");	
-//		log.info("resultLight=" + resultLight);	
-//		log.info("resultLightMore=" + resultLightMore);
+		/*log.info("lightPredel=" + lightPredel);	
+		log.info("light=" + light);	
+		log.info("lightMore=" + lightMore);	
+		log.info("oddsLight=" + oddsLight);	
+		log.info("==================");	
+		log.info("resultLight=" + resultLight);	
+		log.info("resultLightMore=" + resultLightMore);*/
 		
-			p.setPay4Less(resultLight);
+			if(lightPredel > 0 && oddsLight >= lightPredel){
+				p.setPay4Less(getRoundingValue(2, RoundingMode.UP, lightPredel * light));
+			}
+			if(lightPredel > 0 && oddsLight > 0 && oddsLight < lightPredel){
+				p.setPay4Less(getRoundingValue(2, RoundingMode.UP, oddsLight * light));
+			}
 			p.setPay4More(resultLightMore);
-			p.setPay4(getRoundingValue(2, RoundingMode.UP, resultLight + resultLightMore));
+			p.setPay4(resultLight);
 		}
 	 return p;	
 	}

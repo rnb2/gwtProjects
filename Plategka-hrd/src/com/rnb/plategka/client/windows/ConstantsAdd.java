@@ -157,12 +157,14 @@ public class ConstantsAdd extends Window {
 			@Override
 			public void onSelect(SelectEvent event) {
 					Constants app = new Constants();
-					app.setDate(DateTimeFormat.getFormat(DateUtil.DEFAULT_DATE_FORMAT).format(date.getValue()));
+					String date2 = DateTimeFormat.getFormat(DateUtil.DEFAULT_DATE_FORMAT).format(date.getValue());
+					app.setDate(date2);
 					app.setLight(light.getValue());
 					app.setLightMore(lightMore.getValue());
 					app.setLightPredel(lightPredel.getValue());
 					app.setWater(water.getValue());
 					app.setYearOfPay(yearOfPay.getValue());
+					app.setMothOfPay(date2.substring(3, 5));
 					serviceConstant.addConstant(app, callback());
 			}
 		});

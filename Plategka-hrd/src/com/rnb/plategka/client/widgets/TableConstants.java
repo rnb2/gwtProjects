@@ -134,9 +134,9 @@ public class TableConstants implements IsWidget {
 
 		    
 		    //
-		    TextButton buttonAdd = new TextButton("Add", Images.INSTANCE.add());
+		    TextButton buttonAdd = new TextButton(messages.add(), Images.INSTANCE.add());
 		    buttonAdd.addSelectHandler(handlerAdd());
-		    TextButton buttonDelete = new TextButton("Delete", Images.INSTANCE.remove());
+		    TextButton buttonDelete = new TextButton(messages.delete(), Images.INSTANCE.remove());
 		    buttonDelete.addSelectHandler(handlerDelete());
 
 		    ToolBar toolBarAction = new ToolBar();

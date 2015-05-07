@@ -61,7 +61,7 @@ public class PaymentsAdd extends Window {
 	private IntegerField pay3_1;
 	private IntegerField pay3_2;
 	
-	private DoubleField pay3Odd;
+	private IntegerField pay3Odd;
 	private DoubleField pay3Summa;
 	
 	//Light
@@ -121,7 +121,7 @@ public class PaymentsAdd extends Window {
 	    pay3_1.setValue(selected != null ? selected.getPay3_2() : 0);
 	    pay3_1.addValueChangeHandler(handlerPay3());
 	    
-	    pay3Odd  = new DoubleField();
+	    pay3Odd  = new IntegerField();
 	    pay3Odd.setEnabled(false);
 	    pay3Summa = new DoubleField();
 	    pay3Summa.setEnabled(false);
@@ -270,7 +270,7 @@ public class PaymentsAdd extends Window {
 						&& pay3_1.getValue() != null
 						&& pay3_2.getValue() != null){
 					Integer i = pay3_2.getValue() - pay3_1.getValue();
-					pay3Odd.setText(String.valueOf(i));
+					pay3Odd.setValue(i);
 					calculateAllSumma();
 				}
 			}
@@ -288,7 +288,7 @@ public class PaymentsAdd extends Window {
 					pay4Odd.setValue(oddValue);
 					
 					double resultLight = AppUtils.getRaschetLight(100, 2d, 3d, oddValue);
-					pay4Summa.setValue(resultLight);
+					pay4Summa.setValue(0d);
 
 					calculateAllSumma();
 				}
