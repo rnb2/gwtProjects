@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+                                         "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+ <session-factory name="java:/ugdtEntityManagerFactory">
+  <!--     <property name="connection.datasource">java:oracle/Ids_ugdtDS</property> -->
+  <property name="connection.datasource">java:/datasources/ids_ugdtDS</property>
+  <property name="hibernate.current_session_context_class">thread</property>
+  <property name="hibernate.hbm2ddl.auto">validate</property>
+  <property name="hibernate.show_sql">false</property>
+  <property name="hibernate.format_sql">false</property>
+  <property name="hibernate.dialect">org.hibernate.dialect.Oracle10gDialect</property>
+  <mapping class="com.rnb2.gwt1.data.idsugdt.Country"/>
+  <mapping class="com.rnb2.gwt1.data.idsugdt.RailwayGroup"/>
+  <mapping class="com.rnb2.gwt1.data.idsugdt.Users"/>
+  <mapping class="com.rnb2.gwt1.data.idsugdt.RailwayObject"/>
+  <mapping class="com.rnb2.gwt1.data.idsugdt.RailwayObjectType"/>
+  <mapping class="com.rnb2.gwt1.data.idsugdt.UsersDepartment"/>
+  <mapping class="com.rnb2.gwt1.data.idsugdt.EntityPermission"/>
+  <mapping class="com.rnb2.gwt1.data.idsugdt.DocumentPermission"/>
+  <mapping class="com.rnb2.gwt1.data.idsugdt.Department"/>
+  <mapping class="com.rnb2.gwt1.data.idsugdt.Organization"/>
+  <mapping class="com.rnb2.gwt1.data.idsugdt.EntityDictionary"/>
+  <mapping class="com.rnb2.gwt1.data.idsugdt.DocumentDictionary"/>
+ </session-factory>
+</hibernate-configuration>

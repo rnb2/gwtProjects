@@ -1,0 +1,74 @@
+<!doctype html>
+<!-- The DOCTYPE declaration above will set the     -->
+<!-- browser's rendering engine into                -->
+<!-- "Standards Mode". Replacing this declaration   -->
+<!-- with a "Quirks Mode" doctype is not supported. -->
+
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" >
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+
+ 
+	<link rel="stylesheet" type="text/css" href="Project_gwt_1/reset.css">
+    <!--                                                               -->
+    <!-- Consider inlining CSS to reduce the number of requested files -->
+    <!--                                                               -->
+    <link type="text/css" rel="stylesheet" href="Project_gwt_1.css">
+
+
+    <!--                                           -->
+    <!-- Any title is fine                         -->
+    <!--                                           -->
+    <title>gxt pm-app</title>
+    
+  <script type="text/javascript">
+ 	 document.username = function getUsr() {
+	   	var wshell = new ActiveXObject("WScript.Shell");
+	   
+	   	var e=document.getElementById("wrap");
+			e.innerHTML = wshell.ExpandEnvironmentStrings("%USERNAME%");;
+
+	   
+	   return wshell.ExpandEnvironmentStrings("%USERNAME%");
+	}
+
+ 	 function getUserName(){  
+ 	    var wmi = GetObject("winmgmts:{impersonationLevel=Impersonate}\\\\.\\root\\cimv2");  
+ 	    var query = "Select * From win32_computersystem";  
+ 	    e = new Enumerator(wmi.ExecQuery(query));  
+ 	    var data = e.item();  
+ 	    alert("UserName is" + data.UserName);  
+ 	    var username = data.UserName;  
+ 	    document.foo.engineer.value = username;  
+ 	    document.foo.engineerName.value = username;
+
+ 		var e=document.getElementById("wrap");
+		e.innerHTML = data.UserName; 
+ 	}
+
+  </script>
+  
+    <!--                                           -->
+    <!-- This script loads your compiled module.   -->
+    <!-- If you add any GWT meta tags, they must   -->
+    <!-- be added before this line.                -->
+    <!--                                           -->
+    <script type="text/javascript" language="javascript" src="project_gwt_1/project_gwt_1.nocache.js"></script>
+
+  </head>
+
+  <!--                                           -->
+  <!-- The body can have arbitrary html, or      -->
+  <!-- you can leave the body empty if you want  -->
+  <!-- to create a completely dynamic UI.        -->
+  <!--  <div id="wrap">testdiv</div>             -->
+  <body>
+	
+    <!-- OPTIONAL: include this if you want history support-->
+    <iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1' style="position:absolute;width:0;height:0;border:0"></iframe>
+     
+ 
+
+  </body>
+</html>

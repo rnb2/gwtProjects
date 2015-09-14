@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee                http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+ <!-- Servlets -->
+ <servlet>
+  <servlet-name>greetServlet</servlet-name>
+  <servlet-class>com.rnb2.gwt1.server.GreetingServiceImpl</servlet-class>
+ </servlet>
+ <servlet>
+  <servlet-name>manageServlet</servlet-name>
+  <servlet-class>com.rnb2.gwt1.server.ManageImpl</servlet-class>
+ </servlet>
+ <servlet-mapping>
+  <servlet-name>greetServlet</servlet-name>
+  <url-pattern>/project_gwt_1/greet</url-pattern>
+ </servlet-mapping>
+ <servlet-mapping>
+  <servlet-name>manageServlet</servlet-name>
+  <url-pattern>/project_gwt_1/manage</url-pattern>
+ </servlet-mapping>
+
+<!--     <security-constraint> -->
+<!--         <web-resource-collection> -->
+<!--             <web-resource-name>HtmlAuth</web-resource-name> -->
+<!--             <description>application security constraints</description> -->
+<!--             <url-pattern>/*</url-pattern> -->
+<!--             <http-method>GET</http-method> -->
+<!--             <http-method>POST</http-method> -->
+<!--         </web-resource-collection> -->
+<!--         <auth-constraint> -->
+<!--             <role-name>DOMAIN_USER</role-name> -->
+<!--         </auth-constraint> -->
+<!--     </security-constraint> -->
+<!--     <login-config> -->
+<!--         <auth-method>BASIC</auth-method> -->
+<!--         <realm-name>LDAPAuth realm</realm-name> -->
+<!--     </login-config> -->
+<!--     <security-role> -->
+<!--         <role-name>DOMAIN_USER</role-name> -->
+<!--     </security-role> -->
+
+<!--   <security-constraint> -->
+<!--        <display-name>Constraint-0</display-name> -->
+<!--        <web-resource-collection> -->
+<!--             <web-resource-name>Constraint-0</web-resource-name> -->
+<!--             <url-pattern>/*</url-pattern> -->
+<!--        </web-resource-collection> -->
+
+<!--        <auth-constraint> -->
+<!--              <role-name>*</role-name> -->
+<!--        </auth-constraint> -->
+
+<!--        <user-data-constraint> -->
+<!--              <transport-guarantee>NONE</transport-guarantee> -->
+<!--        </user-data-constraint> -->
+<!--  </security-constraint> -->
+
+<!-- 	 <login-config> -->
+<!--        <auth-method>BASIC</auth-method> -->
+<!-- 	</login-config> -->
+
+<!--  <security-role> -->
+<!--         <role-name>TestRole</role-name> -->
+<!--  </security-role> -->
+
+
+ <!-- Default page to serve -->
+ <welcome-file-list>
+  <welcome-file>Project_gwt_1.html</welcome-file>
+ </welcome-file-list>
+</web-app>

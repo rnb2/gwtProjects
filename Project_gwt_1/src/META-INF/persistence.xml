@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.0"
+	xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
+	<persistence-unit name="ugdtEm">
+    		<jta-data-source>java:/datasources/ids_ugdtDS</jta-data-source>
+    
+    	<class>com.rnb2.gwt1.data.idsugdt.Country</class>
+		<class>com.rnb2.gwt1.data.idsugdt.Department</class>
+		<class>com.rnb2.gwt1.data.idsugdt.EntityDictionary</class>
+		<class>com.rnb2.gwt1.data.idsugdt.EntityPermission</class>
+		<class>com.rnb2.gwt1.data.idsugdt.EntityRoles</class>
+		<class>com.rnb2.gwt1.data.idsugdt.Organization</class>
+		<class>com.rnb2.gwt1.data.idsugdt.RailwayGroup</class>
+		<class>com.rnb2.gwt1.data.idsugdt.RailwayObject</class>
+		<class>com.rnb2.gwt1.data.idsugdt.RailwayObjectType</class>
+		<class>com.rnb2.gwt1.data.idsugdt.Users</class>
+		<class>com.rnb2.gwt1.data.idsugdt.DocumentPermission</class>
+		<class>com.rnb2.gwt1.data.idsugdt.UsersDepartment</class>
+		<class>com.rnb2.gwt1.data.idsugdt.DocumentDictionary</class>
+		<class>com.rnb2.gwt1.data.idsugdt.DocumentRoles</class>
+		<class>com.rnb2.gwt1.data.idsugdt.EdcPermissionRoles</class>
+    	
+    	<exclude-unlisted-classes>true</exclude-unlisted-classes>
+    	
+	  	<properties>
+	         <property name="jboss.entity.manager.jndi.name" value="java:/ugdtEntityManager"/>
+	         <property name="jboss.entity.manager.factory.jndi.name" value="java:/ugdtEntityManagerFactory"/>
+	         <property name="hibernate.hbm2ddl.auto" value="validate"/>
+	         <property name="hibernate.show_sql" value="false"/>
+	         <property name="hibernate.format_sql" value="false"/>
+	         <property name="hibernate.dialect" value="org.hibernate.dialect.Oracle10gDialect"/>         
+	  	</properties>
+
+	</persistence-unit>
+	
+	<persistence-unit name="pmEm">
+		<provider>org.hibernate.ejb.HibernatePersistence</provider>
+
+		<jta-data-source>java:/datasources/SecurityDS</jta-data-source>
+    	    
+    	<class>com.rnb2.gwt1.data.pm.AclPermission</class>
+    	<class>com.rnb2.gwt1.data.pm.AclPermissionPK</class>
+    	<class>com.rnb2.gwt1.data.pm.Application</class>
+    	<class>com.rnb2.gwt1.data.pm.Permission</class>
+    	<class>com.rnb2.gwt1.data.pm.Profile</class>
+    	<class>com.rnb2.gwt1.data.pm.ProfileUser</class>
+    	<class>com.rnb2.gwt1.data.pm.User</class>
+    	
+    	<exclude-unlisted-classes>true</exclude-unlisted-classes>
+    	
+	  	<properties>
+	         <property name="jboss.entity.manager.jndi.name" value="java:/pmEntityManager"/>
+	         <property name="jboss.entity.manager.factory.jndi.name" value="java:/pmEntityManagerFactory"/>
+	         <property name="hibernate.hbm2ddl.auto" value="validate"/>
+	         <property name="hibernate.show_sql" value="false"/>
+	         <property name="hibernate.format_sql" value="false"/>
+	         <property name="hibernate.dialect" value="org.hibernate.dialect.Oracle10gDialect"/>         
+	  	</properties>
+
+	</persistence-unit>
+	
+</persistence>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<datasources>
+  <local-tx-datasource>
+    <jndi-name>oracle/jboss5DS</jndi-name>
+
+
+    <driver-class>com.ddtek.jdbc.oracle.OracleDriver</driver-class>
+	
+
+    <connection-url>jdbc:datadirect:oracle://glory:1521;SID=guru</connection-url>
+    <user-name>jboss5</user-name>
+	<password>yfx[fkmybr</password>
+	
+	
+    <connection-property name="nls_language">English</connection-property>
+    <new-connection-sql>alter session set NLS_DATE_FORMAT = 'YYYY-MM-DD  HH24:MI:SS'</new-connection-sql>
+    <min-pool-size>1</min-pool-size>
+    <exception-sorter-class-name>org.jboss.resource.adapter.jdbc.vendor.OracleExceptionSorter</exception-sorter-class-name>
+    <check-valid-connection-sql>select dummy from dual</check-valid-connection-sql>
+    <metadata>         
+      <type-mapping>Oracle9i</type-mapping>      
+    </metadata>
+
+  </local-tx-datasource>
+</datasources>
