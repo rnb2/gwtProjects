@@ -20,6 +20,7 @@ import com.rnb2.gwt1.data.idsugdt.proxy.UsersProxy;
 import com.rnb2.gwt1.data.pm.Application;
 import com.rnb2.gwt1.data.pm.Permission;
 import com.rnb2.gwt1.data.pm.User;
+import com.rnb2.gwt1.data.pm.proxy.AclPermissionProxy;
 import com.rnb2.gwt1.data.pm.proxy.ApplicationProxy;
 import com.rnb2.gwt1.data.pm.proxy.ApplicationProxyFull;
 import com.rnb2.gwt1.data.pm.proxy.PermissionProxy;
@@ -34,6 +35,14 @@ import com.rnb2.gwt1.server.utils.Constants;
  */
 @RemoteServiceRelativePath("manage")
 public interface ManageService extends RemoteService {
+	
+	/**
+	 * 15.09.2015 получение списка ACL
+	 * @param loginName
+	 * @param serverName
+	 * @return
+	 */
+	List<AclPermissionProxy> getAclPermissionList(String loginName, String serverName);
 	
 	/**
 	 * Удаление пользователя из схемы JBoss, c Aclpermission (native)

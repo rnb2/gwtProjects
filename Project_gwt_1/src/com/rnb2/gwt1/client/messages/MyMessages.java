@@ -345,5 +345,60 @@ public interface MyMessages extends Messages {
 	 * @return
 	 */
 	String loginNameAdded();
+
+	/**
+	 * Доступ Acl
+	 * @return
+	 */
+	String detailAcl();
+
+	/**
+	 * Роли пользователя в ACL_PERMISSION
+	 * @return
+	 */
+	String detailAclInfo();
+
+	/**
+	 * Тип контролируемого объекта
+	 * @return
+	 */
+	String entityType();
+
+	/**
+	 * Тип приложения
+	 * @return
+	 */
+	String appType();
+
+	/**
+	 * Доступ
+	 * @return
+	 */
+	String accessType();
+
+	/**
+	 * Атрибут
+	 * @return
+	 */
+	String property();
+
+	/**
+	 * Операция сравнения
+	 * @return
+	 */
+	String operationType();
+
+	/**
+	 * Значение
+	 * @return
+	 */
+	String permissiomValue();
+
+	/**
+	 * Записи не найдены!
+	 * @return
+	 */
+	String recrodsNoFound();
+	
 	
 }

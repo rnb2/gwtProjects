@@ -19,6 +19,7 @@ import com.rnb2.gwt1.data.idsugdt.proxy.UsersProxy;
 import com.rnb2.gwt1.data.pm.Application;
 import com.rnb2.gwt1.data.pm.Permission;
 import com.rnb2.gwt1.data.pm.User;
+import com.rnb2.gwt1.data.pm.proxy.AclPermissionProxy;
 import com.rnb2.gwt1.data.pm.proxy.ApplicationProxy;
 import com.rnb2.gwt1.data.pm.proxy.ApplicationProxyFull;
 import com.rnb2.gwt1.data.pm.proxy.PermissionProxy;
@@ -247,5 +248,14 @@ public interface ManageServiceAsync {
 	 */
 	void deleteUserPm(Integer userId, String userName, String serverName,
 			AsyncCallback<Void> callback);
+
+	/**
+	 * 15.09.2015 получение списка ACL
+	 * @param loginName
+	 * @param serverName
+	 * @return
+	 */
+	void getAclPermissionList(String loginName, String serverName,
+			AsyncCallback<List<AclPermissionProxy>> callback);
 	
 }

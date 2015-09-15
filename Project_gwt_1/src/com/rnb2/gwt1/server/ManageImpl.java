@@ -50,6 +50,7 @@ import com.rnb2.gwt1.data.pm.LdapPrincipal;
 import com.rnb2.gwt1.data.pm.LdapUtil;
 import com.rnb2.gwt1.data.pm.Permission;
 import com.rnb2.gwt1.data.pm.User;
+import com.rnb2.gwt1.data.pm.proxy.AclPermissionProxy;
 import com.rnb2.gwt1.data.pm.proxy.ApplicationProxy;
 import com.rnb2.gwt1.data.pm.proxy.ApplicationProxyFull;
 import com.rnb2.gwt1.data.pm.proxy.PermissionProxy;
@@ -93,6 +94,8 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 	private static final long serialVersionUID = 1L;
 
 	private Map<String, Object> params = new HashMap<String, Object>(2);
+
+	private final String queryNativeAclPermissionBylogin = "select * from ACL_PERMISSION where PRINCIPAL = :param1";
 	
 	public String getUserName(){
 		String ss = System.getProperty("user.name");
@@ -116,6 +119,26 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 		if(nameUserPrincipal !=null)
 			System.out.println("UserPrincipal:"+nameUserPrincipal.getName());
 		return ss;
+	}
+	
+	/**
+	 * 15.09.2015 получение списка ACL
+	 * @param loginName
+	 * @param serverName
+	 * @return
+	 */
+	public List<AclPermissionProxy> getAclPermissionList(String loginName, String serverName){
+		List<AclPermissionProxy> list = new ArrayList<AclPermissionProxy>();
+		
+		params.clear();
+		params.put("param1", loginName);
+		List<Object[]> list2 = runHibernateNativedQuery(queryNativeAclPermissionBylogin, params, true, serverName);
+		
+		for (Object[] o : list2) {
+			list.add(new AclPermissionProxy(o));
+		}
+		
+		return list;
 	}
 	
 	public void addRole(Permission obj, Integer appId, String serverName){
@@ -223,7 +246,7 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 		params.clear();
 		params.put("param1", userNameOld);
 		List<User> list = executeHibernateNamedQueryAll(getUserPMbynameFetch,
-				null, params);
+				null, params, serverName);
 		
 		System.out.println("list=" + list.size());
 
@@ -704,7 +727,6 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 	public List<UserProxy> getUserPmList(String login, int param2, String serverName){
 		List<UserProxy> list = new ArrayList<UserProxy>();
 		params.clear();
-System.out.println("getUserPmList: param2 " + param2 +", server=" + serverName);
 		if(param2 == 0){
 			list =	executeHibernateNamedQueryAll(getUserPMLite, UserProxy.class, params, serverName);
 		}else{
@@ -732,6 +754,65 @@ System.out.println("getUserPmList: param2 " + param2 +", server=" + serverName);
 	}
 	
 	/**
+	 * 15.09.2015
+	 * @param queryNative
+	 * @param clazz
+	 * @param parameters
+	 * @param isMaxResult
+	 * @param serverName - схема JBoss
+	 * @return
+	 */
+	private List<Object[]> runHibernateNativedQuery(String queryNative,
+			 Map<String, Object> parameters, boolean isMaxResult, String serverName) {
+	
+		List<Object[]> list = new ArrayList<Object[]>();
+		SessionFactory sessionFactory = null;
+		Session session = null;
+		try {
+			
+			sessionFactory = getSessionFactoryByServer(serverName);
+
+			session = sessionFactory.getCurrentSession();
+			final Transaction transaction = session.beginTransaction();
+			try {
+			    // The real work is here
+				org.hibernate.Query query = session.createSQLQuery(queryNative);
+				
+				if(parameters != null && !parameters.isEmpty()){
+					for (String p : parameters.keySet()) {
+
+						if (parameters.get(p) instanceof Collection<?>) {
+							query.setParameterList(p, (Collection<?>) parameters.get(p));
+						} else if (parameters.get(p) instanceof Date) {
+							query.setTimestamp(p, (Date) parameters.get(p));
+						} else {
+							query.setParameter(p, parameters.get(p));
+						}
+					}
+				}
+								
+				if (isMaxResult)
+					query.setMaxResults(maxResults);
+				
+				list = query.list();
+				
+			    transaction.commit();
+			  } catch (Exception ex) {
+				  transaction.rollback();
+				  ex.printStackTrace();
+				  System.err.println("runHibernateNamedQuery: " + ex.getMessage());
+			}
+		} finally {
+			if (session != null && session.isOpen()) {
+				session.close();
+				System.out.println("session.close();");
+			}
+		}
+
+		return list;
+	}
+	
+	/**
 	 * 11.09.2015
 	 * @param namedQuery
 	 * @param clazz
@@ -744,17 +825,7 @@ System.out.println("getUserPmList: param2 " + param2 +", server=" + serverName);
 		return runHibernateNamedQuery(namedQuery, clazz, parameters, false, serverName);
 	}
 	
-	private <T> List<T> executeHibernateNamedQueryAll(String namedQuery,
-			Class<T> clazz, Map<String, Object> parameters) {
-
-		return runHibernateNamedQuery(namedQuery, clazz, parameters, false);
-	}
-
-	private <T> List<T> executeHibernateNamedQuery(String namedQuery,
-			Class<T> clazz, Map<String, Object> parameters) {
-		return runHibernateNamedQuery(namedQuery, clazz, parameters, true);
-	}
-
+	
 	/**
 	 * 11.09.2015
 	 * @param namedQuery
@@ -841,56 +912,7 @@ System.out.println("getUserPmList: param2 " + param2 +", server=" + serverName);
 		return sessionFactory;
 	}
 	
-	private <T> List<T> runHibernateNamedQuery(String namedQuery,
-			Class<T> clazz, Map<String, Object> parameters, boolean isMaxResult) {
-		
-		List<T> list = new ArrayList<T>();
-		SessionFactory sessionFactory = null;
-		Session session = null;
-		try {
-			sessionFactory = HibernateUtil.getSessionFactoryPM();
-			session = sessionFactory.getCurrentSession();
-			final Transaction transaction = session.beginTransaction();
-			try {
-				// The real work is here
-				org.hibernate.Query query = session.createQuery(namedQuery);
-				
-				if(parameters != null && !parameters.isEmpty()){
-					for (String p : parameters.keySet()) {
-						
-						if (parameters.get(p) instanceof Collection<?>) {
-							query.setParameterList(p, (Collection<?>) parameters.get(p));
-						} else if (parameters.get(p) instanceof Date) {
-							query.setTimestamp(p, (Date) parameters.get(p));
-						} else {
-							query.setParameter(p, parameters.get(p));
-						}
-					}
-				}
-				if(clazz != null)
-					query.setResultTransformer(Transformers.aliasToBean(clazz));
-				
-				if (isMaxResult)
-					query.setMaxResults(maxResults);
-				
-				list = query.list();
-				
-				transaction.commit();
-			} catch (Exception ex) {
-				transaction.rollback();
-				ex.printStackTrace();
-				System.err.println("runHibernateNamedQuery: " + ex.getMessage());
-			}
-		} finally {
-			if (session != null && session.isOpen()) {
-				session.close();
-				System.out.println("session.close();");
-			}
-		}
-		
-		return list;
-	}
-		
+			
 	private <T> void mergeUserPm(User entity, Long id, String serverName) {
 		Session session = null;
 		try {

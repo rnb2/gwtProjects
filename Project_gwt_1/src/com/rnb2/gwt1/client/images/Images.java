@@ -33,4 +33,6 @@ public interface Images extends ClientBundle {
 	ImageResource table_edit();
 
 	ImageResource vcard();
+
+	ImageResource key();
 }

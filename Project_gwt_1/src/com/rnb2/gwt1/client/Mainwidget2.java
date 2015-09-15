@@ -19,6 +19,7 @@ import com.rnb2.gwt1.client.model.combo.ServerProperties;
 import com.rnb2.gwt1.client.utils.Constants;
 import com.rnb2.gwt1.client.utils.CustomWidgets;
 import com.rnb2.gwt1.client.utils.UtilString;
+import com.rnb2.gwt1.client.widgets.TableAclPerm;
 import com.rnb2.gwt1.client.widgets.TableApplicationPm;
 import com.rnb2.gwt1.client.widgets.TableDocumentPermis;
 import com.rnb2.gwt1.client.widgets.TableEntityPermis;
@@ -34,6 +35,7 @@ import com.rnb2.gwt1.data.idsugdt.EntityPermission;
 import com.rnb2.gwt1.data.idsugdt.proxy.RailwayGroupProxy;
 import com.rnb2.gwt1.data.idsugdt.proxy.UsersDepartmentProxy;
 import com.rnb2.gwt1.data.idsugdt.proxy.UsersProxy;
+import com.rnb2.gwt1.data.pm.proxy.AclPermissionProxy;
 import com.rnb2.gwt1.data.pm.proxy.ApplicationProxy;
 import com.rnb2.gwt1.data.pm.proxy.UserProxy;
 import com.rnb2.gwt1.shared.ServerProxy;
@@ -368,6 +370,14 @@ public class Mainwidget2 implements IsWidget{
 	public void updateIdsUser(String userName){
 		manageService.getUserIdsList(userName, callbackUserIdsByname);
 	}
+
+	/**
+	 * ќбновление списка пользователей в ACL
+	 * @param userName
+	 */
+	public void updateUserInfoAcl(String userName){
+		manageService.getAclPermissionList(userName, getSelectedServerName(), callbackUserAclByname);
+	}
 	
 //	----------	AsyncCallback	----------------
 	private AsyncCallback<List<UsersDepartmentProxy>> callbackSelectionGetUserDepartment = new AsyncCallback<List<UsersDepartmentProxy>>() {
@@ -444,6 +454,30 @@ public class Mainwidget2 implements IsWidget{
 		}
 	};
 
+	private void addAclDetailInfo(List<AclPermissionProxy> result) {
+		try {
+
+			HorizontalLayoutData layoutData = new HorizontalLayoutData();
+			layoutData.setHeight(1);
+			layoutData.setWidth(1);
+			
+			containerHm.clear();
+			containerHm.setLayoutData(layoutData);
+			
+			final TableAclPerm widget = new TableAclPerm(result, messages, getSelectedServerName());
+			HorizontalLayoutData layoutData2 = new HorizontalLayoutData(0.5, 1, new Margins(5));
+			//tableUserIds.addSelection(getSelectionHandlerTableUserIds(tableUserIds));
+			containerHm.add(widget, layoutData2);
+						
+			containerHm.forceLayout();
+			
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			new MessageBox("addIdsDetailInfo", "error !!!! " + e.getLocalizedMessage()).show();
+		}
+	}
+	
 	private void addIdsDetailInfo(List<UsersProxy> result) {
 
 		try {
@@ -491,6 +525,22 @@ public class Mainwidget2 implements IsWidget{
 			new MessageBox("Detail click", "error !!!! " + caught.getLocalizedMessage()).show();
 		}
 	};
+	
+	private AsyncCallback<List<AclPermissionProxy>> callbackUserAclByname = new AsyncCallback<List<AclPermissionProxy>>() {
+		
+		@Override
+		public void onSuccess(List<AclPermissionProxy> result) {
+			if(result.isEmpty()){
+				CustomWidgets.createAlert(messages.detailAclInfo(), messages.recrodsNoFound());
+			}				
+			addAclDetailInfo(result);
+		}
+		@Override
+		public void onFailure(Throwable caught) {
+			new MessageBox("Detail click", "error !!!! " + caught.getLocalizedMessage()).show();
+		}
+	};
+	
 	protected List<ApplicationProxy> applicationProxyAllList = new ArrayList<ApplicationProxy>();
 	
 	
@@ -655,6 +705,8 @@ public class Mainwidget2 implements IsWidget{
 		widgetTableUserPM = new TableUserPm(result, applicationProxyAllList, messages, isFromAD, comboServer.getCurrentValue().getShortName());
 		widgetTableUserPM.addHandlerButtonDetail(handlerDetailUserIds());
 
+		widgetTableUserPM.addHandlerButtonAcl(handlerDetailAcl());
+
 		widgetTableUserPM.getButtonDetail().setEnabled(false);
 		widgetTableUserPM.getButtonDelete().setEnabled(false);
 		widgetTableUserPM.getButtonCopy().setEnabled(false);
@@ -729,6 +781,30 @@ public class Mainwidget2 implements IsWidget{
 			}
 			
 		};
+	}
+	
+	/**
+	 * 15.09.2015 отображение AclPermission
+	 * @return
+	 */
+	private SelectHandler handlerDetailAcl(){
+		SelectHandler handler = new SelectHandler() {
+			@Override
+			public void onSelect(SelectEvent event) {
+				
+				if(widgetTableUserPM.getSelectedApplication() == null){
+					new MessageBox(messages.error(), messages.selectRecord()).show();
+					return;
+				}				
+				
+				containerHm.clear();
+				containerHm.forceLayout();
+				
+				updateUserInfoAcl(widgetTableUserPM.getReturnedvalue().getLoginName());
+			}
+			
+		};
+		return handler;
 	}
 	
 	private SelectHandler handlerDetailUserIds(){

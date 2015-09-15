@@ -59,7 +59,6 @@ public class TableUserPm implements IsWidget {
 	private final UserPmProperties props = GWT.create(UserPmProperties.class);
 	private Collection<? extends UserProxy> items;
 	private Status status;
-	private TextButton buttonDetail; 
 	private UserProxy selectedElement;
 	private MyMessages messages;
 	private VerticalLayoutContainer container;
@@ -67,6 +66,7 @@ public class TableUserPm implements IsWidget {
 	private HorizontalLayoutContainer containerH;
 	private List<ApplicationProxy> applications;
 	private ComboBox<ApplicationProxy> combo;
+	private TextButton buttonDetail, buttonAcl; 
 	private TextButton buttonAdd, buttonEdit, buttonDelete, buttonCopy;
 	private String headingText, serverName;
 	private boolean isFromAD = false;
@@ -104,6 +104,8 @@ public class TableUserPm implements IsWidget {
 		 * например handler к кнопке присваивается в MainWidget2.java через addHandlerButtonDetail
 		 * то его(компонент необходимо инициализировать в констр.) */
 		buttonDetail = new TextButton(this.messages.detail());
+		buttonAcl = new TextButton(this.messages.detailAcl());
+		buttonAcl.setIcon(Images.INSTANCE.key());
 		containerH = new HorizontalLayoutContainer();
 		containerH.setId("ContainerIds");
 		
@@ -177,6 +179,8 @@ public class TableUserPm implements IsWidget {
 			
 			 toolBar.add(combo);
 			 toolBar.add(new FillToolItem());
+			 toolBar.add(new SeparatorToolItem());
+			 toolBar.add(buttonAcl);
 			 toolBar.forceLayout();
 		 
 		    container.add(toolBar, new VerticalLayoutData(1,-1));
@@ -372,6 +376,11 @@ public class TableUserPm implements IsWidget {
 	public void addHandlerButtonDetail(SelectHandler handler){
 		if(buttonDetail != null)
 			this.buttonDetail.addSelectHandler(handler);
+	}
+
+	public void addHandlerButtonAcl(SelectHandler handler){
+		if(buttonAcl != null)
+			this.buttonAcl.addSelectHandler(handler);
 	}
 
 	public VerticalLayoutContainer getContainer() {
