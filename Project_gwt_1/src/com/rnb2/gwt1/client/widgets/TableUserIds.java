@@ -1,6 +1,7 @@
 package com.rnb2.gwt1.client.widgets;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.google.gwt.core.shared.GWT;
@@ -176,7 +177,7 @@ public class TableUserIds implements IsWidget {
 		    container.add(grid, layoutData);
 		    
 		    
-		    ToolBar toolBar2 = new ToolBar();
+		   /* ToolBar toolBar2 = new ToolBar();
 		    toolBar2.addStyleName(ThemeStyles.getStyle().borderBottom());
 		 
 		    Status status2 = new Status();
@@ -184,7 +185,7 @@ public class TableUserIds implements IsWidget {
 		    status2.setWidth(150);
 		    toolBar2.add(status2);
 		    
-		    container.add(toolBar2, new VerticalLayoutData(1,-1));
+		    container.add(toolBar2, new VerticalLayoutData(1,-1));*/
 		   
 		    root.setWidget(container);
 
@@ -239,10 +240,14 @@ public class TableUserIds implements IsWidget {
 		 
 		ColumnConfig<UsersProxy, String> col1 = new ColumnConfig<UsersProxy, String>(props2.fio(), 150, messages.fullName());
 		ColumnConfig<UsersProxy, String> col2 = new ColumnConfig<UsersProxy, String>(props2.name(), 100, messages.loginName());
+		ColumnConfig<UsersProxy, Date> col3 = new ColumnConfig<UsersProxy, Date>(props2.dateInput(), 100, messages.dateInput());
+		ColumnConfig<UsersProxy, String> col4 = new ColumnConfig<UsersProxy, String>(props2.userInput(), 100, messages.loginNameAdded());
 
 		List<ColumnConfig<UsersProxy, ?>> configList =  new ArrayList<ColumnConfig<UsersProxy,?>>();
 		configList.add(col1);
 		configList.add(col2);
+		configList.add(col3);
+		configList.add(col4);
 		return configList;
 	}
 

@@ -1,6 +1,7 @@
 package com.rnb2.gwt1.client.messages;
 
 import com.google.gwt.i18n.client.Messages;
+import com.google.gwt.safehtml.shared.SafeHtml;
 
 public interface MyMessages extends Messages {
 
@@ -332,5 +333,17 @@ public interface MyMessages extends Messages {
 	 * @return
 	 */
 	String errorSelectServer();
+
+	/**
+	 * Дата создания 
+	 * @return
+	 */
+	String dateInput();
+
+	/**
+	 * Добавил пользователь
+	 * @return
+	 */
+	String loginNameAdded();
 	
 }

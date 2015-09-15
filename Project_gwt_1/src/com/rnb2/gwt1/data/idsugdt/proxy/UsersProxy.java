@@ -4,6 +4,7 @@
 package com.rnb2.gwt1.data.idsugdt.proxy;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import com.rnb2.gwt1.data.idsugdt.Users;
 
@@ -24,15 +25,20 @@ public class UsersProxy implements Serializable {
 
 	private String fio;
 	
+	private Date dateInput;
+	
+	private String userInput;
+	
 	public UsersProxy(Users u) {
-		// TODO Auto-generated constructor stub
 		this.id = u.getId();
 		this.name  = u.getName();
 		this.fio = u.getFio();
+
+		this.dateInput = u.getDateInput();
+		this.userInput = u.getUsername();
 	}
 	
 	public UsersProxy() {
-		// TODO Auto-generated constructor stub
 	}
 
 	public Long getId() {
@@ -58,7 +64,24 @@ public class UsersProxy implements Serializable {
 	public void setFio(String fio) {
 		this.fio = fio;
 	}
-	
+
+	public Date getDateInput() {
+		return dateInput;
+	}
+
+	public void setDateInput(Date dateInput) {
+		this.dateInput = dateInput;
+	}
+
+	public String getUserInput() {
+		return userInput;
+	}
+
+	public void setUserInput(String userInput) {
+		this.userInput = userInput;
+	}
+
+
 	
 
 }

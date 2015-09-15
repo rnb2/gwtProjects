@@ -429,7 +429,7 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 		
 		params.clear();
 		params.put("param1", login);
-		User user = (User) executeHibernateNamedQuery(getUserPMbyname, null, params).get(0);
+		User user = (User) executeHibernateNamedQueryAll(getUserPMbyname, null, params, serverName).get(0);
 		if(user == null){
 			return "-1";
 		}

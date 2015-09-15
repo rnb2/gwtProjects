@@ -1,5 +1,7 @@
 package com.rnb2.gwt1.client.model;
 
+import java.util.Date;
+
 import com.google.gwt.editor.client.Editor.Path;
 import com.rnb2.gwt1.data.idsugdt.proxy.UsersProxy;
 import com.sencha.gxt.core.client.ValueProvider;
@@ -17,4 +19,6 @@ public interface UserIdsProperties extends  PropertyAccess<UsersProxy>{
 	
 	ValueProvider<UsersProxy, String> name();
 	ValueProvider<UsersProxy, String> fio();
+	ValueProvider<UsersProxy, Date> dateInput();
+	ValueProvider<UsersProxy, String> userInput();
 }

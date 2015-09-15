@@ -130,9 +130,9 @@ public class WindowUserPmSearch extends Window {
 
 				Mainwidget2 mainwidget2 = Mainwidget2.getInstance();
 				mainwidget2.feelWidgetTableUserPM(result, true);
+				CustomWidgets.showDefaultCursor();
 				
 				if(!result.isEmpty()){
-					CustomWidgets.showDefaultCursor();
 					Info.display(messages.findUser(), messages.foundUsers() + ": " + result.size());
 					hide();
 				}
