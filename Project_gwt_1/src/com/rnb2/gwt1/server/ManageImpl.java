@@ -1,12 +1,14 @@
 package com.rnb2.gwt1.server;
 
 
+import java.io.InputStream;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +22,11 @@ import javax.naming.ldap.LdapContext;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -74,9 +81,9 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 			+ "left join fetch o.profiles "
 			+ "left join fetch o.aclPermissions "
 			+ "where o.loginName = :param1";
-	private final String getUserPMLitebyname = "select o.id as id, o.loginName as loginName, o.fullName as fullName, o.workPhone as workPhone	from User o where upper(o.loginName) like :param1";
-	private final String getUserPMLitebyFullName = "select o.id as id, o.loginName as loginName, o.fullName as fullName, o.workPhone as workPhone	from User o where upper(o.fullName) like :param1";
-	private final String getUserPMLite = "select o.id as id, o.loginName as loginName, o.fullName as fullName, o.workPhone as workPhone	from User o";
+	private final String getUserPMLitebyname = "select o.id as id, o.loginName as loginName, o.fullName as fullName, o.workPhone as workPhone,	o.employeeID as employeeID from User o where upper(o.loginName) like :param1";
+	private final String getUserPMLitebyFullName = "select o.id as id, o.loginName as loginName, o.fullName as fullName, o.workPhone as workPhone, o.employeeID as employeeID from User o where upper(o.fullName) like :param1";
+	private final String getUserPMLite = "select o.id as id, o.loginName as loginName, o.fullName as fullName, o.workPhone as workPhone, o.employeeID as employeeID from User o";
 	private final String getApplicationPm = "select distinct o.id as id, o.fullName as fullName, o.shortName as shortName, o.programmer as programmer, o.architect as architect from Application o inner join o.permissions p inner join p.users u with u.loginName = :param1";
 	private final String getApplicationPmPermission = "select  distinct p.id as id, p.name as name, p.description as description, o.shortName as shortName from Application o "+
 														"inner join o.permissions p "+
@@ -96,6 +103,142 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 	private Map<String, Object> params = new HashMap<String, Object>(2);
 
 	private final String queryNativeAclPermissionBylogin = "select * from ACL_PERMISSION where PRINCIPAL = :param1";
+	
+	
+	
+	/**
+	 * 
+	 * Копирование пользователей
+	 * @param list
+	 * @param serverName
+	 * @return
+	 */
+	public String addUserCopyPmAll(List<UserProxy> list, String serverName){
+		String result ="-1"; 
+		for (UserProxy p : list) {
+			result = addUserCopyPm(p.getFullName(), p.getLoginName(), serverName);
+			System.out.println(result);
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * получение пользователей из файла
+	 */
+	public List<UserProxy> readFileXls(String fileName, int rangeBegin, int rangeEnd, 
+			int columnIndexLoginNameOld, int columnIndexLoginNameNew){
+		System.out.println("readFileXls.....");
+		
+		
+		Object attribute = getServletContext().getAttribute(Constants.contextAttributeStreamXlsFile);
+		
+		if(attribute == null)
+			return new ArrayList<UserProxy>();
+		
+		InputStream inputStream = (InputStream) attribute;
+		
+        List<UserProxy> proxyList = new ArrayList<UserProxy>();	
+        
+        try {
+			System.out.println("222  stream=" + inputStream);
+			Workbook workbook = new HSSFWorkbook(inputStream);
+			
+			System.out.println("222  book=" + workbook.getSheetName(1));
+			System.out.println("222  books=" + workbook.getNumberOfSheets());
+			
+			int numberOfSheets = 1;//workbook.getNumberOfSheets();
+			for (int i = 0; i < numberOfSheets; i++) {
+				Sheet sheetAt = workbook.getSheetAt(i);
+				Iterator<Row> iteratorRow = sheetAt.iterator();
+				feelFromXls(proxyList, iteratorRow, rangeBegin, rangeEnd, columnIndexLoginNameOld, columnIndexLoginNameNew);
+			}
+		} catch (Exception e) {
+			System.out.println("222  ex: " + e.getLocalizedMessage());
+			e.printStackTrace();
+		}finally{
+              if(inputStream != null)
+                 {   
+                    try{ inputStream.close(); } catch(Exception e){ e.printStackTrace(); } 
+                 }
+			getServletContext().removeAttribute(Constants.contextAttributeStreamXlsFile);
+		}
+        
+        return proxyList;
+	}
+	
+	public List<UserProxy> readFileXlsLocal(String fileName, int rangeBegin, int rangeEnd, 
+			int columnIndexLoginNameOld, int columnIndexLoginNameNew){
+       InputStream inputStream = ClassLoader.getSystemClassLoader().getResourceAsStream(fileName);
+		
+        List<UserProxy> proxyList = new ArrayList<UserProxy>();	
+        
+        try {
+			//inputStream = new FileInputStream(fileName);
+			System.out.println("222  stream=" + inputStream);
+			Workbook workbook = new HSSFWorkbook(inputStream);
+			
+			System.out.println("222  book=" + workbook.getSheetName(1));
+			System.out.println("222  books=" + workbook.getNumberOfSheets());
+			
+			int numberOfSheets = 1;//workbook.getNumberOfSheets();
+			for (int i = 0; i < numberOfSheets; i++) {
+				Sheet sheetAt = workbook.getSheetAt(i);
+				Iterator<Row> iteratorRow = sheetAt.iterator();
+				feelFromXls(proxyList, iteratorRow, rangeBegin, rangeEnd, columnIndexLoginNameOld, columnIndexLoginNameNew);
+			}
+		} catch (Exception e) {
+			System.out.println("222  ex: " + e.getLocalizedMessage());
+			e.printStackTrace();
+		}finally{
+			getServletContext().removeAttribute("com.rnb2.gwt1.streamFile.xls");
+		}
+        
+        return proxyList;
+	}
+	
+	/**
+	 * 
+	 * @param proxyList
+	 * @param iteratorRow
+	 */
+	private void feelFromXls(List<UserProxy> proxyList,
+			Iterator<Row> iteratorRow, 
+			int rangeBegin, int rangeEnd, 
+			int columnIndexLoginNameOld, int columnIndexLoginNameNew) {
+		
+		while (iteratorRow.hasNext()) {
+			UserProxy proxy = new UserProxy();
+			Row row = iteratorRow.next();
+			Iterator<Cell> cellIterator = row.cellIterator();
+			System.out.println("row=" + row.getRowNum());
+			if(row.getRowNum() > rangeEnd -1){
+				break;
+			}
+			
+			if(row.getRowNum() >= (rangeBegin -1)){
+			
+				while (cellIterator.hasNext()) {
+					Cell cell = cellIterator.next();
+					System.out.println("cellType=" + cell.getCellType());
+
+			        if (Cell.CELL_TYPE_STRING == cell.getCellType()) {
+			        	System.out.println("cell.getStringCellValue()=" + cell.getStringCellValue());
+			        	
+			            if (cell.getColumnIndex() == columnIndexLoginNameOld) {
+			            	proxy.setLoginName(cell.getStringCellValue());
+			            } else if(cell.getColumnIndex() == columnIndexLoginNameNew){
+			            	proxy.setFullName(cell.getStringCellValue());
+			            } 
+	
+			        } 
+					
+				}//cell
+				proxyList.add(proxy);
+			}
+			
+		}//row
+	}
 	
 	public String getUserName(){
 		String ss = System.getProperty("user.name");
@@ -228,19 +371,65 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 		addEntityPm(user, serverName);
 	}
 	
-	public void addUserPm2(String userName, String fio, String phone, String serverName){
+	public void addUserPm2(String userName, String fio, String employeeID, String phone, String serverName) {
 		User user = new User();
 		user.setLoginName(userName);
 		user.setFullName(fio);
+		user.setEmployeeID(employeeID);;
 		user.setWorkPhone(phone);
+		System.out.println("add user: " + userName + " to serve: " + serverName);
 		addEntityPm(user, serverName);
+	}
+
+	/**
+	 * 28.09.2015
+	 * Копирование пользователя
+	 */
+	private String addUserCopyPm(String userNameNew, String userNameOld, String serverName) {
+		//System.out.println("param1=" + userNameOld);
+		params.clear();
+		params.put("param1", userNameOld);
+		List<User> list = executeHibernateNamedQueryAll(getUserPMbynameFetch,
+				null, params, serverName);
+		
+
+		if (list.isEmpty()) {
+			return "User not found: " + userNameOld;
+		};
+
+		User userOld = list.get(0);
+		
+		System.out.println("Found old user=" + userOld.getLoginName());
+				
+
+		User userNew = new User();
+		userNew.setLoginName(userNameNew);
+		userNew.setFullName(userOld.getFullName());
+		userNew.setWorkPhone(userOld.getWorkPhone());
+		userNew.setEmployeeID(userOld.getEmployeeID());
+		userNew.getProfiles().addAll(userOld.getProfiles());
+		//userNew.getPermissions().addAll(userOld.getPermissions());
+	
+		addUserPm(userOld, userNew, serverName);
+
+		System.out.println(userNameOld + " was copied to new name: " + userNameNew);
+		
+		if(userOld.getAclPermissions().isEmpty()){
+			return "1";
+		}
+				
+		addUserPmAclPermissionNative(userNameNew, userOld, serverName);
+		
+		
+		
+		return "1";
 	}
 
 	/**
 	 * 08.09.2015
 	 * Копирование пользователя
 	 */
-	public String addUserCopyPm(String userNameNew, String fio, String phone,
+	public String addUserCopyPm(String userNameNew, String fio, String phone, String employeeId, 
 			String userNameOld, String serverName) {
 		System.out.println("param1=" + userNameOld);
 		params.clear();
@@ -263,6 +452,7 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 		userNew.setLoginName(userNameNew);
 		userNew.setFullName(fio);
 		userNew.setWorkPhone(phone);
+		userNew.setEmployeeID(employeeId);
 		userNew.getProfiles().addAll(userOld.getProfiles());
 		//userNew.getPermissions().addAll(userOld.getPermissions());
 	
@@ -925,6 +1115,7 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 			user.setFullName(entity.getFullName());
 			user.setLoginName(entity.getLoginName());
 			user.setWorkPhone(entity.getWorkPhone());
+			user.setEmployeeID(entity.getEmployeeID());
 			session.flush();
 			
 			session.getTransaction().commit();
@@ -951,7 +1142,7 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 				User user = (User) entity;
 				System.err.println("error in addEntity: user " + user.getLoginName()
 						+ " has already been added!");
-				e.printStackTrace();
+				//e.printStackTrace();
 				user = null;
 			}
 			if(entity instanceof Application){

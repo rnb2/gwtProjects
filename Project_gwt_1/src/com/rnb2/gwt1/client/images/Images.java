@@ -8,6 +8,8 @@ public interface Images extends ClientBundle {
 
 	public Images INSTANCE = GWT.create(Images.class);
 
+	ImageResource user_group();
+
 	ImageResource user();
 
 	ImageResource table();
@@ -35,4 +37,6 @@ public interface Images extends ClientBundle {
 	ImageResource vcard();
 
 	ImageResource key();
+
+	ImageResource excel_imports();
 }

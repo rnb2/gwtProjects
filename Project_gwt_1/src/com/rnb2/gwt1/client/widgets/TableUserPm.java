@@ -113,6 +113,7 @@ public class TableUserPm implements IsWidget {
 	    buttonEdit = new TextButton(messages.edit());
 	    buttonDelete = new TextButton(messages.delete());
 	    buttonCopy = new TextButton(messages.copy());
+	    buttonCopy.setToolTip(messages.copyUser());
 	}
 
 	@Override
@@ -198,7 +199,7 @@ public class TableUserPm implements IsWidget {
 		    		    
 		    buttonDelete.setIcon(Images.INSTANCE.table_row_delete());
 		    
-		    buttonCopy.setIcon(Images.INSTANCE.copy());
+		    buttonCopy.setIcon(Images.INSTANCE.user());
 		    buttonCopy.addSelectHandler(handlerCopy());
 		    
 		    toolBar2.add(buttonAdd);

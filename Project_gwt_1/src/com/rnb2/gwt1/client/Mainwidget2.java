@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -27,9 +29,11 @@ import com.rnb2.gwt1.client.widgets.TableRailwayGroup;
 import com.rnb2.gwt1.client.widgets.TableUserIds;
 import com.rnb2.gwt1.client.widgets.TableUserPm;
 import com.rnb2.gwt1.client.widgets.TableUsersDepartment;
+import com.rnb2.gwt1.client.widgets.TableUsersXls;
 import com.rnb2.gwt1.client.widgets.TestTabPanel;
 import com.rnb2.gwt1.client.widgets.window.DialogDelete2;
 import com.rnb2.gwt1.client.widgets.window.WindowUserPmSearch;
+import com.rnb2.gwt1.client.widgets.window.WindowUserPmXlsImport;
 import com.rnb2.gwt1.data.idsugdt.DocumentPermission;
 import com.rnb2.gwt1.data.idsugdt.EntityPermission;
 import com.rnb2.gwt1.data.idsugdt.proxy.RailwayGroupProxy;
@@ -57,6 +61,11 @@ import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer.Verti
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
 import com.sencha.gxt.widget.core.client.event.SelectEvent.SelectHandler;
 import com.sencha.gxt.widget.core.client.form.ComboBox;
+import com.sencha.gxt.widget.core.client.form.FieldLabel;
+import com.sencha.gxt.widget.core.client.form.FileUploadField;
+import com.sencha.gxt.widget.core.client.form.FormPanel;
+import com.sencha.gxt.widget.core.client.form.FormPanel.Encoding;
+import com.sencha.gxt.widget.core.client.form.FormPanel.Method;
 import com.sencha.gxt.widget.core.client.form.TextField;
 import com.sencha.gxt.widget.core.client.info.Info;
 import com.sencha.gxt.widget.core.client.toolbar.FillToolItem;
@@ -90,6 +99,9 @@ public class Mainwidget2 implements IsWidget{
 	private TestTabPanel testTabPanel;
 	private UsersProxy usersProxy;
 	private ComboBox<ServerProxy> comboServer;
+	private FormPanel fileformPanel;
+	private FileUploadField file;
+	protected List<UserProxy> usersFomXls = new ArrayList<UserProxy>();
 	
 	public Mainwidget2(String userName2, String loginName2) {
 		this.userName = userName2;
@@ -174,10 +186,11 @@ public class Mainwidget2 implements IsWidget{
 		
 		 //combo server
 		 List<ServerProxy> serversList = new ArrayList<ServerProxy>();
-		 serversList.add(new ServerProxy(0, Constants.server_name_AD));
-		 serversList.add(new ServerProxy(1, Constants.server_name_jboss));
-		 serversList.add(new ServerProxy(2, Constants.server_name_jboss_5));
-		 serversList.add(new ServerProxy(3,  Constants.server_name_jboss_01));
+		 int i=1;
+		 for(String server : Constants.serverListAll){
+			serversList.add(new ServerProxy(i, server));
+			i++;
+		 }
 		 
 		 ServerProperties propsServers = GWT.create(ServerProperties.class);
 		 ListStore<ServerProxy> storeServer = new ListStore<ServerProxy>(propsServers.key());
@@ -191,17 +204,36 @@ public class Mainwidget2 implements IsWidget{
 		buttonFind.setTitle(messages.toolTipFindUserPm());
 		buttonFind.setIcon(Images.INSTANCE.search());
 		
-		//buttonSearchAd = new TextButton(messages.find(), handlerSearchAD());
-		//buttonSearchAd.setTitle(messages.toolTipSearchUserAd());
-		//buttonSearchAd.setIcon(Images.INSTANCE.search());
-		
 		bar.add(labelToolItem);
 		bar.add(textField);
 		bar.add(new SeparatorToolItem());
 		bar.add(comboServer);
 		bar.add(new SeparatorToolItem());
 		bar.add(buttonFind);
-		//bar.add(buttonSearchAd);
+		bar.add(new SeparatorToolItem());
+		
+		/*fileformPanel = getFileForm();
+		
+		TextButton submitButton = new TextButton("Submit");
+	      submitButton.addSelectHandler(new SelectHandler() {
+	        @Override
+	        public void onSelect(SelectEvent event) {
+	          if (!fileformPanel.isValid()) {
+	            return;
+	          }
+	          fileformPanel.setAction(file.getValue());
+	          usersFomXls.clear();
+	          manageService.readFileXls(file.getValue(), 5, 7, 2, 3,  callbackReadFile());
+	        }
+	      });
+		
+		bar.add(fileformPanel);
+		bar.add(submitButton);*/
+		
+		TextButton submitButton = new TextButton("", handlerSettingUserXls());
+		submitButton.setTitle(messages.titleUsersXlsImport());
+	    submitButton.setIcon(Images.INSTANCE.excel_imports());
+	    bar.add(submitButton);
 		
 		bar.add(new FillToolItem());
 		StringBuilder sb = new StringBuilder();
@@ -212,6 +244,52 @@ public class Mainwidget2 implements IsWidget{
 		
 		bar.forceLayout();
 		return bar;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	protected AsyncCallback<List<UserProxy>> callbackReadFile() {
+		return new AsyncCallback<List<UserProxy>>() {
+			
+			@Override
+			public void onSuccess(List<UserProxy> result) {
+				  usersFomXls = result;	
+		          MessageBox box = new MessageBox("File Upload Example", "Your file was uploaded. " + file.getValue() + " result=" + usersFomXls.size());
+		          box.setIcon(MessageBox.ICONS.info());
+		          box.show();
+			}
+			
+			@Override
+			public void onFailure(Throwable caught) {
+				caught.printStackTrace();
+				CustomWidgets.alertWidget("error", caught.getLocalizedMessage());				
+			}
+		};
+	}
+
+	private FormPanel getFileForm() {
+		file = new FileUploadField();
+	      file.addChangeHandler(new ChangeHandler() {
+			 @Override
+	        public void onChange(ChangeEvent event) {
+	          Info.display("File Changed", "You selected " + file.getValue());
+	        }
+	      });
+	    file.setName("uploadedfile");
+	    file.setAllowBlank(false);
+	   
+	    
+	    VerticalLayoutContainer vlc = new VerticalLayoutContainer();
+	     vlc.add(new FieldLabel(file, "File"), new VerticalLayoutData(0, -1));
+	 
+	    fileformPanel = new FormPanel();
+	    fileformPanel.setAction("myurl");
+	    fileformPanel.setEncoding(Encoding.MULTIPART);
+	    fileformPanel.setMethod(Method.POST);
+	    fileformPanel.add(vlc, new MarginData(10));
+	    return fileformPanel;
 	}
 	
 	/*private Widget findWidget(){
@@ -453,6 +531,8 @@ public class Mainwidget2 implements IsWidget{
 			new MessageBox("callbackSelectionTableUserIds:", " !!!! s=" + caught.getLocalizedMessage()).show();
 		}
 	};
+	
+	
 
 	private void addAclDetailInfo(List<AclPermissionProxy> result) {
 		try {
@@ -543,7 +623,22 @@ public class Mainwidget2 implements IsWidget{
 	
 	protected List<ApplicationProxy> applicationProxyAllList = new ArrayList<ApplicationProxy>();
 	
-	
+	/**
+	 * Отображение настроек импорта из Xsl	
+	 * @return
+	 */
+	public SelectHandler handlerSettingUserXls(){
+		SelectHandler handler = new SelectHandler() {
+			@Override
+			public void onSelect(SelectEvent event) {
+					WindowUserPmXlsImport pmSearch = new WindowUserPmXlsImport(messages.titleUsersXlsImport(), messages);
+					pmSearch.show();
+				
+			}
+		};
+		return handler;
+	}
+
 	public SelectHandler handlerFindUsersPm(){
 		SelectHandler handler = new SelectHandler() {
 			@Override
@@ -690,6 +785,48 @@ public class Mainwidget2 implements IsWidget{
 				
 			}
 		};
+	}
+	
+	
+	/**
+	 * Добавление виджета пользователей из xls
+	 * @param result
+	 */
+	public void addUsersXlsDetail(List<UserProxy> result) {
+		try {
+			containerHm.clear();
+			containerApplication.clear();
+			
+			HorizontalLayoutData layoutData = new HorizontalLayoutData();
+			layoutData.setHeight(1);
+			layoutData.setWidth(1);
+			
+			containerHtop = new HorizontalLayoutContainer();
+			containerHtop.setLayoutData(layoutData);
+					
+			final TableUsersXls widget = new TableUsersXls(result, messages);
+			//widget.setStatusBusy();
+			
+			HorizontalLayoutData layoutData2 = new HorizontalLayoutData(0.5, 1, new Margins(5));
+			containerHtop.add(widget, layoutData2);
+			
+			VerticalLayoutData  verticalLayoutData = new VerticalLayoutData();
+			verticalLayoutData.setHeight(0.5);
+			verticalLayoutData.setWidth(1);
+			
+			containerV = new VerticalLayoutContainer();
+			containerV.setId(M_CONTAINER_V);
+			containerV.setBorders(false);
+			containerV.setAdjustForScroll(true);
+			containerV.setLayoutData(verticalLayoutData);
+			
+			addToContainerV(containerHtop);
+			addToPanel(center, containerV, "");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			new MessageBox("Users Xls DetailInfo", "error !!!! " + e.getLocalizedMessage()).show();
+		}
 	}
 
 	/**
@@ -841,6 +978,8 @@ public class Mainwidget2 implements IsWidget{
 			
 			@Override
 			public void onSelection(SelectionEvent<UserProxy> event) {
+				if(Constants.server_name_AD.equals(getSelectedServerName()))
+					return;
 					
 				manageService.getApplicationPmList(widgetTableUserPM.getReturnedvalue().getLoginName(), getSelectedServerName(), callbackDetailUserPm);
 			}

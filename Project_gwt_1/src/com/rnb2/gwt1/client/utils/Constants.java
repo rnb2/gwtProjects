@@ -16,6 +16,21 @@ public abstract class Constants {
 	public final static String server_name_jboss_01 = "JBOSS01"; 
 	public final static String server_name_jboss_5 = "JBOSS5";
 	
+	public static final ArrayList<String> serverList = new ArrayList<String>();
+	static{
+		serverList.add(server_name_jboss);
+		serverList.add(server_name_jboss_01);
+		serverList.add(server_name_jboss_5);
+	}
+
+	public static final ArrayList<String> serverListAll = new ArrayList<String>();
+	static{
+		serverListAll.add(server_name_AD);
+		serverListAll.add(server_name_jboss);
+		serverListAll.add(server_name_jboss_01);
+		serverListAll.add(server_name_jboss_5);
+	}
+	
 	public static final String PANEL_MAIN_NORTH = "panelMainNorth";
 	public static final String GRID_RAILWAY_GROUP_PROXY = "gridRailwayGroupProxy";
 	public static final String REGEX_LATIN_CHAR_WITH_DOP = "[A-Za-z-.]+";

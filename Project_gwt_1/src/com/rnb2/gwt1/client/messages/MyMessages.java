@@ -1,7 +1,7 @@
 package com.rnb2.gwt1.client.messages;
 
 import com.google.gwt.i18n.client.Messages;
-import com.google.gwt.safehtml.shared.SafeHtml;
+import com.sencha.gxt.widget.core.client.form.FieldLabel.FieldLabelAppearance;
 
 public interface MyMessages extends Messages {
 
@@ -400,5 +400,72 @@ public interface MyMessages extends Messages {
 	 */
 	String recrodsNoFound();
 	
+	/**
+	 * Сервер
+	 * @return
+	 */
+	String server();
 	
+	/**
+	 *  Настройки импрота пользователей из Excel
+	 * @return
+	 */
+	String titleUsersXlsImport();
+	
+	/**
+	 * Пользователи из Excel
+	 * @return
+	 */
+	String titleUsersXls();
+
+	/**
+	 * Начало
+	 * @return
+	 */
+	String rowBegin();
+
+	/**
+	 * Окончание
+	 * @return
+	 */
+	String rowEnd();
+
+	/**
+	 * Файл
+	 * @return
+	 */
+	String file();
+
+	/**
+	 * Копировать всех
+	 * @return
+	 */
+	String copyAll();
+
+	/**
+	 * Копировать всех пользователей
+	 * @return
+	 */
+	String copyAllUsers();
+
+	/**
+	 * Копирование всех пользователей
+	 * @return
+	 */
+	String copyAllUsers2();
+
+	/**
+	 * Данных не найдено
+	 * @return
+	 */
+	String noDataFound();
+
+	/**
+	 * Загрузка данных
+	 * @return
+	 */
+	String loadData();
+	
+	/**Пользователи скопированы*/
+	String usersCopied();
 }

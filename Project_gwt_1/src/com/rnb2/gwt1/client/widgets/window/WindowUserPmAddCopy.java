@@ -1,19 +1,28 @@
 package com.rnb2.gwt1.client.widgets.window;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.rnb2.gwt1.client.Mainwidget2;
 import com.rnb2.gwt1.client.ManageService;
 import com.rnb2.gwt1.client.ManageServiceAsync;
 import com.rnb2.gwt1.client.messages.MyMessages;
+import com.rnb2.gwt1.client.model.combo.ServerProperties;
+import com.rnb2.gwt1.client.utils.Constants;
 import com.rnb2.gwt1.client.utils.CustomWidgets;
 import com.rnb2.gwt1.data.pm.proxy.UserProxy;
+import com.rnb2.gwt1.shared.ServerProxy;
+import com.sencha.gxt.cell.core.client.form.ComboBoxCell.TriggerAction;
+import com.sencha.gxt.data.shared.ListStore;
 import com.sencha.gxt.widget.core.client.Window;
 import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer.VerticalLayoutData;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
 import com.sencha.gxt.widget.core.client.event.SelectEvent.SelectHandler;
+import com.sencha.gxt.widget.core.client.form.ComboBox;
 import com.sencha.gxt.widget.core.client.form.FieldLabel;
 import com.sencha.gxt.widget.core.client.form.TextField;
 import com.sencha.gxt.widget.core.client.info.Info;
@@ -31,7 +40,7 @@ public class WindowUserPmAddCopy extends Window {
 			.create(ManageService.class);
 	private MyMessages messages;
 	private boolean isOkclicked = false;
-	
+	private ComboBox<ServerProxy> comboServer;
 	
 	public WindowUserPmAddCopy() {
 	}
@@ -42,7 +51,7 @@ public class WindowUserPmAddCopy extends Window {
 	 * 08 сент. 2015 г.	
 	 *
 	 */
-	public WindowUserPmAddCopy(String title, final UserProxy userProxy,  MyMessages messages, final String serverName) {
+	public WindowUserPmAddCopy(String title, final UserProxy userProxy,  final MyMessages messages, final String serverName) {
 		this.messages = messages;
 			
 		setModal(true);
@@ -54,14 +63,33 @@ public class WindowUserPmAddCopy extends Window {
 		String loginNameS = "";
 		String fullNameS = "";
 		String phoneS = "";
+		String employeeIdS = "";
 		if(userProxy != null){
 			 loginNameS = userProxy.getLoginName();
 			 fullNameS = userProxy.getFullName();
 			 phoneS = userProxy.getWorkPhone();
+			 employeeIdS = userProxy.getEmployeeID();
 		}
 
 		VerticalLayoutContainer p = new VerticalLayoutContainer();
 		add(p);
+		
+		//для вызова формы из таблицы xls
+		if(serverName == null){
+			List<ServerProxy> serversList = new ArrayList<ServerProxy>();
+			 serversList.add(new ServerProxy(1, Constants.server_name_jboss));
+			 serversList.add(new ServerProxy(2, Constants.server_name_jboss_5));
+			 serversList.add(new ServerProxy(3,  Constants.server_name_jboss_01));
+			 
+			 ServerProperties propsServers = GWT.create(ServerProperties.class);
+			 ListStore<ServerProxy> storeServer = new ListStore<ServerProxy>(propsServers.key());
+			 storeServer.addAll(serversList);			 
+			 comboServer = new ComboBox<ServerProxy>(storeServer, propsServers.fullName());
+			 comboServer.setTriggerAction(TriggerAction.ALL);
+			 comboServer.setForceSelection(true);
+			 comboServer.setAllowBlank(false);
+			 p.add(new FieldLabel(comboServer, messages.server()), new VerticalLayoutData(1, -1));
+		}
 		 
 	    final TextField loginNameOld = new TextField();
 	    loginNameOld.setAllowBlank(false);
@@ -81,6 +109,10 @@ public class WindowUserPmAddCopy extends Window {
 	    fullName.setValue(fullNameS);
 	    p.add(new FieldLabel(fullName, messages.fullName()), new VerticalLayoutData(1, -1));
 	    
+	    final TextField employeeId = new TextField();
+	    employeeId.setAllowBlank(true);
+	    employeeId.setValue(employeeIdS);
+	    p.add(new FieldLabel(employeeId, messages.employeID()), new VerticalLayoutData(1, -1));
 	    
 	    final TextField phone = new TextField();
 	    phone.setAllowBlank(true);
@@ -103,7 +135,15 @@ public class WindowUserPmAddCopy extends Window {
 			@Override
 			public void onSelect(SelectEvent event) {
 				
-				manageService.addUserCopyPm(loginName.getCurrentValue(), fullName.getCurrentValue(), phone.getCurrentValue(), loginNameOld.getValue(), serverName, callbackAddUser());
+				if(serverName == null){
+					if(comboServer.getCurrentValue() == null){
+						CustomWidgets.createAlert(messages.error(), messages.errorSelectServer());
+						return;
+					}
+					manageService.addUserCopyPm(loginName.getCurrentValue(), fullName.getCurrentValue(), phone.getCurrentValue(), employeeId.getCurrentValue(), loginNameOld.getValue(), comboServer.getCurrentValue().getShortName(), callbackAddUser());
+				}else{	
+					manageService.addUserCopyPm(loginName.getCurrentValue(), fullName.getCurrentValue(), phone.getCurrentValue(), employeeId.getCurrentValue(), loginNameOld.getValue(), serverName, callbackAddUser());
+				}	
 
 				isOkclicked = true;
 				Mainwidget2 mainwidget2 = Mainwidget2.getInstance();

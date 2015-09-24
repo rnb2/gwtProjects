@@ -37,6 +37,26 @@ import com.rnb2.gwt1.server.utils.Constants;
 public interface ManageService extends RemoteService {
 	
 	/**
+	 * 
+	 * Копирование пользователей
+	 * @param list
+	 * @param serverName
+	 * @return
+	 */
+	public String addUserCopyPmAll(List<UserProxy> list, String serverName);		
+
+	/**
+	 * 
+	 * @param fileName
+	 * @param rangeBegin
+	 * @param rangeEnd
+	 * @param columnIndexLoginNameOld
+	 * @param columnIndexLoginNameNew
+	 */
+	public List<UserProxy> readFileXls(String fileName, int rangeBegin, int rangeEnd, 
+			int columnIndexLoginNameOld, int columnIndexLoginNameNew);
+	
+	/**
 	 * 15.09.2015 получение списка ACL
 	 * @param loginName
 	 * @param serverName
@@ -52,15 +72,19 @@ public interface ManageService extends RemoteService {
 	 */
 	public void deleteUserPm(Integer userId, String userName, String serverName);
 	
+	
 	/**
+	 * 
 	 * Копирование пользователя
 	 * @param userNameNew - новый логин пользователя
 	 * @param fio
 	 * @param phone
+	 * @param employeeId
 	 * @param userNameOld - старый логин пользователя
 	 * @param serverName
-	 * @return*/
-	public String addUserCopyPm(String userNameNew, String fio, String phone, String userNameOld, String serverName);
+	 * @return
+	 */
+	public String addUserCopyPm(String userNameNew, String fio, String phone, String employeeId, String userNameOld, String serverName);
 	
 	/**
 	 * Удаление пользователя из ИДС УЖДТ
@@ -225,7 +249,15 @@ public interface ManageService extends RemoteService {
 	/** Добавление пользователя PM*/
 	void addUserPm(User user, String serverName);
 	
-	public void addUserPm2(String userName, String fio, String phone, String serverName);
+	/**
+	 *  Добавление пользователя PM
+	 * @param userName
+	 * @param fio
+	 * @param employeeID
+	 * @param phone
+	 * @param serverName
+	 */
+	public void addUserPm2(String userName, String fio, String employeeID, String phone, String serverName);
 	
 	
 	/** Ред. пользователя PM*/

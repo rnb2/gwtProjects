@@ -1,7 +1,6 @@
 package com.rnb2.gwt1.data.pm;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -50,6 +49,9 @@ public class User implements Serializable {
 
 	@Column(name = "WORK_PHONE")
 	private String workPhone;
+
+	@Column(name = "EMPLOYEE_ID")
+	private String employeeID;
 
 	@ManyToMany
 	@Fetch(value = FetchMode.SUBSELECT)
@@ -149,6 +151,14 @@ public class User implements Serializable {
 		} else if (!loginName.equals(other.loginName))
 			return false;
 		return true;
+	}
+
+	public String getEmployeeID() {
+		return employeeID;
+	}
+
+	public void setEmployeeID(String employeeID) {
+		this.employeeID = employeeID;
 	}
 
 	@Override

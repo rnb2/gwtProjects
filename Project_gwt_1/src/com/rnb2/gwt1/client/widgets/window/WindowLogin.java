@@ -98,7 +98,7 @@ public class WindowLogin extends Window {
 				manageService.autorizationByLoginName(login, Constants.server_name_jboss, callbackAutorizationByLoginName());
 			}
 		});
-		bFind.setIcon(Images.INSTANCE.user());
+		bFind.setIcon(Images.INSTANCE.key());
 		
 		addButton(bFind);
 		addButton(bClose);

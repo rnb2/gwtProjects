@@ -32,14 +32,15 @@ public interface ManageServiceAsync {
 
 	void getUserIdsList(String login, AsyncCallback<List<UsersProxy>> callback);
 
-	/**список пользователей PM*/
-	void getUserPmList(String login, int param2, String serverName, AsyncCallback<List<UserProxy>> callback);
+	/** список пользователей PM */
+	void getUserPmList(String login, int param2, String serverName,
+			AsyncCallback<List<UserProxy>> callback);
 
-	/**список станций ИДС у пользователя*/
+	/** список станций ИДС у пользователя */
 	void getUserStationList(String login,
 			AsyncCallback<List<RailwayGroupProxy>> callback);
 
-	/**список справочников ИДС у пользователя*/
+	/** список справочников ИДС у пользователя */
 	void getUserEntityList(String login,
 			AsyncCallback<List<EntityPermission>> callback);
 
@@ -48,12 +49,12 @@ public interface ManageServiceAsync {
 
 	void getApplicationPmPermission(String login, String shortName,
 			String serverName, AsyncCallback<List<PermissionProxy>> callback);
-	
-	/**список форм ИДС у пользователя*/
+
+	/** список форм ИДС у пользователя */
 	void getUserDocumentList(String login,
 			AsyncCallback<List<DocumentPermission>> callback);
 
-	/**список подразделений ЭГД у пользователя*/
+	/** список подразделений ЭГД у пользователя */
 	void getUserDepartmentList(String login,
 			AsyncCallback<List<UsersDepartmentProxy>> callback);
 
@@ -61,10 +62,9 @@ public interface ManageServiceAsync {
 			AsyncCallback<List<ApplicationProxy>> callback);
 
 	void addUserPm(User user, String serverName, AsyncCallback<Void> callback);
-	
-	void addUserPm2(String userName, String fio, String phone,
-			String serverName, AsyncCallback<Void> callback);
 
+	void addUserPm2(String userName, String fio, String employeeID,
+			String phone, String serverName, AsyncCallback<Void> callback);
 
 	void mergeUserPm(User userProxy, Integer userId, String serverName,
 			AsyncCallback<Void> callback);
@@ -75,14 +75,12 @@ public interface ManageServiceAsync {
 	void getApplicationPmPermissionFull(String login, String shortName,
 			String serverName, AsyncCallback<PermissionProxyFull> callback);
 
-	
 	void addUserPermision(String login, String shortName,
 			List<PermissionProxy> list, String serverName,
 			AsyncCallback<String> callback);
 
 	void getApplicationPmFull(String login, String serverName,
 			AsyncCallback<ApplicationProxyFull> callback);
-
 
 	void addUserApplication(String login, String shortName,
 			List<ApplicationProxy> list, String serverName,
@@ -99,21 +97,25 @@ public interface ManageServiceAsync {
 
 	void getUserName(AsyncCallback<String> callback);
 
-	/** Поиск пользователей в AD*/
+	/** Поиск пользователей в AD */
 	void searchUserAd(String loginName, String fio, String employeeID,
 			AsyncCallback<List<UserProxy>> callback);
 
 	/**
-	 * Список станциий ИДС УЖДТ
-	 * Получение объектов RailwayGroup по sysCode Constants}
+	 * Список станциий ИДС УЖДТ Получение объектов RailwayGroup по sysCode
+	 * Constants}
+	 * 
 	 * @param syscode
-	 * @param usersList - пользовательский список 
+	 * @param usersList
+	 *            - пользовательский список
 	 * @return
 	 */
-	void getStationList(String sysCode, List<Long> usersList, AsyncCallback<List<RailwayGroup>> callback);
+	void getStationList(String sysCode, List<Long> usersList,
+			AsyncCallback<List<RailwayGroup>> callback);
 
 	/**
 	 * Добавление станции у пользователя ИДС УЖДТ
+	 * 
 	 * @param idUser
 	 * @param railwayGroup
 	 * @return
@@ -123,6 +125,7 @@ public interface ManageServiceAsync {
 
 	/**
 	 * Удаление станции у пользователя ИДС УЖДТ
+	 * 
 	 * @param idUser
 	 * @param idStation
 	 * @return
@@ -131,18 +134,20 @@ public interface ManageServiceAsync {
 			AsyncCallback<Boolean> callback);
 
 	/**
-	 * Добавление Доступн. форм пользователю ИДС УЖДТ 
+	 * Добавление Доступн. форм пользователю ИДС УЖДТ
+	 * 
 	 * @param idUser
 	 * @param documentDictionary
 	 * @param documentRoles
 	 * @return
 	 */
 	void addDocumentsPermission(Long idUser,
-			DocumentDictionary documentDictionary, DocumentRoles documentRoles, String userName,
-			AsyncCallback<Boolean> callback);
+			DocumentDictionary documentDictionary, DocumentRoles documentRoles,
+			String userName, AsyncCallback<Boolean> callback);
 
 	/**
 	 * Получение списка форм по правам по ИДС УЖДТ
+	 * 
 	 * @return
 	 */
 	void getDocumentDictionaryList(
@@ -150,15 +155,18 @@ public interface ManageServiceAsync {
 
 	/**
 	 * Добавление пользователя в табл. ИДС УЖДТ
+	 * 
 	 * @param name
 	 * @param fio
 	 * @param userName
 	 * @return
 	 */
-	void addUserIds(String name, String fio, String userName, AsyncCallback<Boolean> callback);
+	void addUserIds(String name, String fio, String userName,
+			AsyncCallback<Boolean> callback);
 
 	/**
-	 * Удаление Доступн. форм пользователю ИДС УЖДТ 
+	 * Удаление Доступн. форм пользователю ИДС УЖДТ
+	 * 
 	 * @param idUser
 	 * @param idDocumentPermiss
 	 * @return
@@ -168,22 +176,26 @@ public interface ManageServiceAsync {
 
 	/**
 	 * Получение списка справочников по правам по ИДС УЖДТ
+	 * 
 	 * @return
 	 */
 	void getEntityDictionaryList(AsyncCallback<List<EntityDictionary>> callback);
 
 	/**
-	 * Добавление Доступн. справочников пользователю ИДС УЖДТ 
+	 * Добавление Доступн. справочников пользователю ИДС УЖДТ
+	 * 
 	 * @param idUser
 	 * @param entityDictionary
 	 * @param entityRoles
 	 * @return
 	 */
 	void addEntityPermission(Long idUser, EntityDictionary entityDictionary,
-			EntityRoles entityRoles, String userName, AsyncCallback<Boolean> callback);
+			EntityRoles entityRoles, String userName,
+			AsyncCallback<Boolean> callback);
 
 	/**
-	 * Удаление Доступн. справочников пользователю ИДС УЖДТ 
+	 * Удаление Доступн. справочников пользователю ИДС УЖДТ
+	 * 
 	 * @param idUser
 	 * @param idEntityPermiss
 	 * @return
@@ -192,7 +204,8 @@ public interface ManageServiceAsync {
 			AsyncCallback<Boolean> callback);
 
 	/**
-	 * Удаление Доступн. подразделений ЭГД у пользователя ИДС УЖДТ 
+	 * Удаление Доступн. подразделений ЭГД у пользователя ИДС УЖДТ
+	 * 
 	 * @param idUser
 	 * @param idDepartmentPermiss
 	 * @return
@@ -202,12 +215,14 @@ public interface ManageServiceAsync {
 
 	/**
 	 * Получение списка подразделений по ИДС УЖДТ
+	 * 
 	 * @return
 	 */
 	void getDepartmentList(AsyncCallback<List<DepartmentProxy>> callback);
 
 	/**
-	 * Добавление Доступн. подразделений ЭГД у пользователя ИДС УЖДТ  
+	 * Добавление Доступн. подразделений ЭГД у пользователя ИДС УЖДТ
+	 * 
 	 * @param idUser
 	 * @param department
 	 * @param edcRoles
@@ -221,28 +236,20 @@ public interface ManageServiceAsync {
 
 	/**
 	 * Удаление пользователя из ИДС УЖДТ
+	 * 
 	 * @param name
 	 * @param fio
 	 * @return
 	 */
 	void deleteUserIds(Long idUser, AsyncCallback<Boolean> callback);
 
-	/**
-	 * Копирование пользователей JBoss
-	 * @param userNameNew
-	 * @param fio
-	 * @param phone
-	 * @param userNameOld
-	 * @param serverName
-	 * @param callback
-	 */
 	void addUserCopyPm(String userNameNew, String fio, String phone,
-			String userNameOld, String serverName,
+			String employeeId, String userNameOld, String serverName,
 			AsyncCallback<String> callback);
 
 	/**
-	 * Удаление пользователя из схемы JBoss, c Aclpermission (native)
-	 * 10.09.2015
+	 * Удаление пользователя из схемы JBoss, c Aclpermission (native) 10.09.2015
+	 * 
 	 * @param userId
 	 * @param login
 	 */
@@ -251,6 +258,7 @@ public interface ManageServiceAsync {
 
 	/**
 	 * 15.09.2015 получение списка ACL
+	 * 
 	 * @param loginName
 	 * @param serverName
 	 * @return
@@ -258,4 +266,27 @@ public interface ManageServiceAsync {
 	void getAclPermissionList(String loginName, String serverName,
 			AsyncCallback<List<AclPermissionProxy>> callback);
 	
+	/**
+	 * 21.09.2015 получает список изменяемых пользователей
+	 * @param fileName
+	 * @param rangeBegin
+	 * @param rangeEnd
+	 * @param columnIndexLoginNameOld
+	 * @param columnIndexLoginNameNew
+	 * @param callback
+	 */
+	void readFileXls(String fileName, int rangeBegin, int rangeEnd,
+			int columnIndexLoginNameOld, int columnIndexLoginNameNew,
+			AsyncCallback<List<UserProxy>> callback);
+
+	/**
+	 * 
+	 * Копирование пользователей
+	 * @param list
+	 * @param serverName
+	 * @return
+	 */
+	void addUserCopyPmAll(List<UserProxy> list, String serverName,
+			AsyncCallback<String> callback);
+
 }

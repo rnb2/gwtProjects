@@ -2,6 +2,10 @@
 <web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee                http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
  <!-- Servlets -->
+  <servlet>
+  <servlet-name>fileUploadServlet</servlet-name>
+  <servlet-class>com.rnb2.gwt1.server.FileUploadServlet</servlet-class>
+ </servlet>
  <servlet>
   <servlet-name>greetServlet</servlet-name>
   <servlet-class>com.rnb2.gwt1.server.GreetingServiceImpl</servlet-class>
@@ -17,6 +21,10 @@
  <servlet-mapping>
   <servlet-name>manageServlet</servlet-name>
   <url-pattern>/project_gwt_1/manage</url-pattern>
+ </servlet-mapping>
+ <servlet-mapping>
+  <servlet-name>fileUploadServlet</servlet-name>
+  <url-pattern>/project_gwt_1/fileUpload</url-pattern>
  </servlet-mapping>
 
 <!--     <security-constraint> -->
