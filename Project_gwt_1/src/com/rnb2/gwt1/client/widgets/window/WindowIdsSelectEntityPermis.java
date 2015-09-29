@@ -52,7 +52,7 @@ public class WindowIdsSelectEntityPermis extends Window {
 	 * @param manageService
 	 * @param usersProxy
 	 */
-	public WindowIdsSelectEntityPermis(ManageServiceAsync manageService,  UsersProxy usersProxy) {
+	public WindowIdsSelectEntityPermis(ManageServiceAsync manageService,  UsersProxy usersProxy, String serverName) {
 		this.usersProxy = usersProxy;
 		this.manageService = manageService;
 	
@@ -67,7 +67,7 @@ public class WindowIdsSelectEntityPermis extends Window {
 		
 		EntityDictionaryProperties properties = GWT.create(EntityDictionaryProperties.class);
 		listStoreEntityPermis = new ListStore<EntityDictionary>(properties.key());
-		this.manageService.getEntityDictionaryList(callbackEntityDictionaryList());
+		this.manageService.getEntityDictionaryList(serverName, callbackEntityDictionaryList());
 		
 		ComboBox<EntityDictionary> combo1 = new ComboBox<EntityDictionary>(listStoreEntityPermis, properties.dictionary());
 		addHandlersForCombo1(combo1, properties.dictionary());
@@ -100,7 +100,7 @@ public class WindowIdsSelectEntityPermis extends Window {
 	    TextButton buttonAdd = new TextButton(messages.save());
 	    buttonAdd.setIcon(Images.INSTANCE.save());
 	    buttonAdd.setTitle(messages.addRecord());
-	    buttonAdd.addSelectHandler(handlerAddDocumentsPerm());
+	    buttonAdd.addSelectHandler(handlerAddDocumentsPerm(serverName));
 	   	   
 	    TextButton buttonClose = new TextButton(messages.close());
 		buttonClose.addSelectHandler(new SelectHandler() {
@@ -137,15 +137,16 @@ public class WindowIdsSelectEntityPermis extends Window {
 	
 	/**
 	 * Добавление пользователю доступа к выбранной форме
+	 * @param serverName 
 	 * @return
 	 */
-	private SelectHandler handlerAddDocumentsPerm() {
+	private SelectHandler handlerAddDocumentsPerm(final String serverName) {
 		SelectHandler handler = new SelectHandler() {
 			
 			@Override
 			public void onSelect(SelectEvent event) {
 				Mainwidget2 mainwidget2 = Mainwidget2.getInstance();
-				manageService.addEntityPermission(usersProxy.getId(), selectedItemEntityPermis, selectedItemEntityRoles, mainwidget2.getLoginName(), callbackAddEntityPermission());
+				manageService.addEntityPermission(usersProxy.getId(), selectedItemEntityPermis, selectedItemEntityRoles, mainwidget2.getLoginName(), serverName, callbackAddEntityPermission());
 			}
 		};
 		return handler;

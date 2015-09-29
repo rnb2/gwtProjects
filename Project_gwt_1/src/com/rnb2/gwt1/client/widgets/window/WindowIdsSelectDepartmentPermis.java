@@ -12,7 +12,6 @@ import com.rnb2.gwt1.client.images.Images;
 import com.rnb2.gwt1.client.messages.MyMessages;
 import com.rnb2.gwt1.client.model.combo.DepartmentsProperties;
 import com.rnb2.gwt1.client.model.combo.EdcPermissionRolesProperties;
-import com.rnb2.gwt1.data.idsugdt.Department;
 import com.rnb2.gwt1.data.idsugdt.EdcPermissionRoles;
 import com.rnb2.gwt1.data.idsugdt.proxy.DepartmentProxy;
 import com.rnb2.gwt1.data.idsugdt.proxy.UsersProxy;
@@ -47,15 +46,17 @@ public class WindowIdsSelectDepartmentPermis extends Window {
 	private ListStore<EdcPermissionRoles> listStoreEdcPermissionRoles;
 	private DepartmentProxy selectedItemDepartment = null;
 	private EdcPermissionRoles selectedItemEdcPermissionRoles = null;
+	private String serverName;
 	
 	/**
 	 * Выбор доступа к подразделениям ЭГД
 	 * @param manageService
 	 * @param usersProxy
 	 */
-	public WindowIdsSelectDepartmentPermis(ManageServiceAsync manageService,  UsersProxy usersProxy) {
+	public WindowIdsSelectDepartmentPermis(ManageServiceAsync manageService,  UsersProxy usersProxy, String serverName) {
 		this.usersProxy = usersProxy;
 		this.manageService = manageService;
+		this.serverName = serverName;
 	
 		setModal(true);
 		setBlinkModal(true);
@@ -68,7 +69,7 @@ public class WindowIdsSelectDepartmentPermis extends Window {
 		
 		DepartmentsProperties properties = GWT.create(DepartmentsProperties.class);
 		listStoreDepartment = new ListStore<DepartmentProxy>(properties.key());
-		this.manageService.getDepartmentList(callbackUserDocumentList());
+		this.manageService.getDepartmentList(serverName, callbackUserDocumentList());
 		
 		ComboBox<DepartmentProxy> combo1 = new ComboBox<DepartmentProxy>(listStoreDepartment, properties.fullName());
 		addHandlersForCombo1(combo1, properties.fullName());
@@ -145,7 +146,7 @@ public class WindowIdsSelectDepartmentPermis extends Window {
 			
 			@Override
 			public void onSelect(SelectEvent event) {
-				manageService.addDepartmentPermission(usersProxy.getId(), selectedItemDepartment.getId(), selectedItemEdcPermissionRoles, callbackAddDocumentsPerm());
+				manageService.addDepartmentPermission(usersProxy.getId(), selectedItemDepartment.getId(), selectedItemEdcPermissionRoles, serverName, callbackAddDocumentsPerm());
 			}
 		};
 		return handler;

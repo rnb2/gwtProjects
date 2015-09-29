@@ -92,7 +92,7 @@ public interface ManageService extends RemoteService {
 	 * @param fio
 	 * @return
 	 */
-	public boolean deleteUserIds(Long idUser);
+	public boolean deleteUserIds(Long idUser, String serverName);
 	
 	/**
 	 * Авторизация пользователя в AD, затем поиск роли в "PM"
@@ -108,21 +108,15 @@ public interface ManageService extends RemoteService {
 	 * @param edcRoles
 	 * @return
 	 */
-	public boolean addDepartmentPermission(Long idUser, Long department, EdcPermissionRoles edcRoles);
+	public boolean addDepartmentPermission(Long idUser, Long department, EdcPermissionRoles edcRoles, String serverName);
 	
 	/**
 	 * Получение списка подразделений по ИДС УЖДТ
 	 * @return
 	 */
-	public List<DepartmentProxy> getDepartmentList();
+	public List<DepartmentProxy> getDepartmentList(String serverName);
 	
-	/**
-	 * Удаление Доступн. подразделений ЭГД у пользователя ИДС УЖДТ 
-	 * @param idUser
-	 * @param idDepartmentPermiss
-	 * @return
-	 */
-	public boolean deleteDepartmentPermission(Long idUser, Long idDepartmentPermiss);
+	boolean deleteDepartmentPermission(Long idUser, Long idDepartmentPermiss, String serverName);
 	
 	/**
 	 * Удаление Доступн. справочников пользователю ИДС УЖДТ 
@@ -130,23 +124,16 @@ public interface ManageService extends RemoteService {
 	 * @param idEntityPermiss
 	 * @return
 	 */
-	public boolean deleteEntityPermission(Long idUser, Long idEntityPermiss);
+	public boolean deleteEntityPermission(Long idUser, Long idEntityPermiss, String serverName);
 	
-	/**
-	 * Добавление Доступн. справочников пользователю ИДС УЖДТ 
-	 * @param idUser
-	 * @param entityDictionary
-	 * @param entityRoles
-	 * @param userName
-	 * @return
-	 */
-	public boolean addEntityPermission(Long idUser, EntityDictionary entityDictionary, EntityRoles entityRoles, String userName);
+	boolean addEntityPermission(Long idUser, EntityDictionary entityDictionary,
+			EntityRoles entityRoles, String userName, String serverName);
 	
 	/**
 	 * Получение списка справочников по правам по ИДС УЖДТ
 	 * @return
 	 */
-	public List<EntityDictionary> getEntityDictionaryList();
+	public List<EntityDictionary> getEntityDictionaryList(String serverName);
 	
 	/**
 	 * Удаление Доступн. форм пользователю ИДС УЖДТ 
@@ -154,7 +141,7 @@ public interface ManageService extends RemoteService {
 	 * @param idDocumentPermiss
 	 * @return
 	 */
-	public boolean deleteDocumentPermission(Long idUser, Long idDocumentPermiss);
+	public boolean deleteDocumentPermission(Long idUser, Long idDocumentPermiss, String serverName);
 	
 	/**
 	 * Добавление пользователя в табл. ИДС УЖДТ
@@ -162,13 +149,13 @@ public interface ManageService extends RemoteService {
 	 * @param fio
 	 * @return
 	 */
-	public boolean addUserIds(String name, String fio, String userName);
+	public boolean addUserIds(String name, String fio, String userName, String serverName);
 	
 	/**
 	 * Получение списка форм по правам по ИДС УЖДТ
 	 * @return
 	 */
-	public List<DocumentDictionary> getDocumentDictionaryList();
+	public List<DocumentDictionary> getDocumentDictionaryList(String serverName);
 	
 	/**
 	 * Добавление Доступн. форм пользователю ИДС УЖДТ 
@@ -178,7 +165,7 @@ public interface ManageService extends RemoteService {
 	 * @param userName
 	 * @return
 	 */
-	public boolean addDocumentsPermission(Long idUser, DocumentDictionary documentDictionary, DocumentRoles documentRoles, String userName);
+	public boolean addDocumentsPermission(Long idUser, DocumentDictionary documentDictionary, DocumentRoles documentRoles, String userName, String serverName);
 	 
 	
 	/**
@@ -187,7 +174,7 @@ public interface ManageService extends RemoteService {
 	 * @param idStation
 	 * @return
 	 */
-	public boolean deleteStationIds(Long idUser, Long idStation);
+	public boolean deleteStationIds(Long idUser, Long idStation, String serverName);
 	
 	/**
 	 * Добавление станции у пользователя ИДС УЖДТ
@@ -195,7 +182,7 @@ public interface ManageService extends RemoteService {
 	 * @param railwayGroup
 	 * @return
 	 */
-	public boolean addStationUserIds(Long idUser, RailwayGroup railwayGroup);
+	public boolean addStationUserIds(Long idUser, RailwayGroup railwayGroup, String serverName);
 	
 	/**
 	 * Список станциий ИДС УЖДТ
@@ -204,7 +191,7 @@ public interface ManageService extends RemoteService {
 	 * @param usersList - пользовательский список
 	 * @return
 	 */
-	List<RailwayGroup> getStationList(String syscode, List<Long> usersList);
+	List<RailwayGroup> getStationList(String syscode, List<Long> usersList, String serverName);
 	
 	/** Поиск пользователей в AD*/
 	List<UserProxy> searchUserAd(String loginName, String fio, String employeeID); 
@@ -225,25 +212,25 @@ public interface ManageService extends RemoteService {
 	List<ApplicationProxy> getApplicationPmList(String login, String serverName);
 	
 	/**список подразделений ЭГД у пользователя*/
-	List<UsersDepartmentProxy> getUserDepartmentList(String login);
+	List<UsersDepartmentProxy> getUserDepartmentList(String login, String serverName);
 	
 	/**список форм ИДС у пользователя*/
-	List<DocumentPermission> getUserDocumentList(String login);
+	List<DocumentPermission> getUserDocumentList(String login, String serverName);
 	
 	/**список справочников ИДС у пользователя*/
-	List<EntityPermission> getUserEntityList(String login);
+	List<EntityPermission> getUserEntityList(String login, String serverName);
 	
 	/**список станций ИДС у пользователя*/
-	List<RailwayGroupProxy> getUserStationList(String login);
+	List<RailwayGroupProxy> getUserStationList(String login, String serverName);
 	
 	/**список пользователей ИДС*/
-	List<UsersProxy> getUserIdsList(String login);
+	List<UsersProxy> getUserIdsList(String login, String serverName);
 	
 	/**список пользователей PM*/
 	List<UserProxy> getUserPmList(String login, int param2, String serverName);
 	
 	
-	List<Country> getCountryList(String codeNUM)  throws IllegalArgumentException;
+	List<Country> getCountryList(String codeNUM, String serverName)  throws IllegalArgumentException;
 
 
 	/** Добавление пользователя PM*/

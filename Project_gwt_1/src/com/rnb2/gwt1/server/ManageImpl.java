@@ -71,10 +71,10 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 
 	@PersistenceContext(unitName = "ugdtEm")
 	private EntityManager emIds;
-	
-	//@PersistenceContext(unitName = "pmEm")
-	//private EntityManager emPm;
-	
+
+	@PersistenceContext(unitName = "ugdtEmTest")
+	private EntityManager emIdsTest;
+			
 	private final String getUserPMbyname = "select o from User o left join fetch o.permissions where o.loginName = :param1";
 	private final String getUserPMbynameFetch = "select o from User o "
 			+ "left join fetch o.permissions "
@@ -105,7 +105,23 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 	private final String queryNativeAclPermissionBylogin = "select * from ACL_PERMISSION where PRINCIPAL = :param1";
 	
 	
-	
+	/**
+	 * 
+	 * @param serverName
+	 * @return
+	 */
+	private EntityManager getEntityManagerByServerName(String serverName) {
+		switch (serverName) {
+		case Constants.server_name_jboss_5:
+			return emIds;
+		case Constants.server_name_jboss_01:
+			return emIdsTest;
+
+		default:
+			return emIds;
+		}
+	}
+		
 	/**
 	 * 
 	 * Копирование пользователей
@@ -129,8 +145,7 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 	public List<UserProxy> readFileXls(String fileName, int rangeBegin, int rangeEnd, 
 			int columnIndexLoginNameOld, int columnIndexLoginNameNew){
 		System.out.println("readFileXls.....");
-		
-		
+				
 		Object attribute = getServletContext().getAttribute(Constants.contextAttributeStreamXlsFile);
 		
 		if(attribute == null)
@@ -141,11 +156,11 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
         List<UserProxy> proxyList = new ArrayList<UserProxy>();	
         
         try {
-			System.out.println("222  stream=" + inputStream);
+			//System.out.println("222  stream=" + inputStream);
 			Workbook workbook = new HSSFWorkbook(inputStream);
 			
-			System.out.println("222  book=" + workbook.getSheetName(1));
-			System.out.println("222  books=" + workbook.getNumberOfSheets());
+			//System.out.println("222  book=" + workbook.getSheetName(1));
+			//System.out.println("222  books=" + workbook.getNumberOfSheets());
 			
 			int numberOfSheets = 1;//workbook.getNumberOfSheets();
 			for (int i = 0; i < numberOfSheets; i++) {
@@ -154,12 +169,15 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 				feelFromXls(proxyList, iteratorRow, rangeBegin, rangeEnd, columnIndexLoginNameOld, columnIndexLoginNameNew);
 			}
 		} catch (Exception e) {
-			System.out.println("222  ex: " + e.getLocalizedMessage());
+			//System.out.println("222  ex: " + e.getLocalizedMessage());
 			e.printStackTrace();
 		}finally{
               if(inputStream != null)
                  {   
-                    try{ inputStream.close(); } catch(Exception e){ e.printStackTrace(); } 
+                    try{ 
+                    	inputStream.close();
+                    	System.out.println("readFileXls.");
+                    } catch(Exception e){ e.printStackTrace(); } 
                  }
 			getServletContext().removeAttribute(Constants.contextAttributeStreamXlsFile);
 		}
@@ -211,7 +229,7 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 			UserProxy proxy = new UserProxy();
 			Row row = iteratorRow.next();
 			Iterator<Cell> cellIterator = row.cellIterator();
-			System.out.println("row=" + row.getRowNum());
+			//System.out.println("row=" + row.getRowNum());
 			if(row.getRowNum() > rangeEnd -1){
 				break;
 			}
@@ -220,10 +238,10 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 			
 				while (cellIterator.hasNext()) {
 					Cell cell = cellIterator.next();
-					System.out.println("cellType=" + cell.getCellType());
+					//System.out.println("cellType=" + cell.getCellType());
 
 			        if (Cell.CELL_TYPE_STRING == cell.getCellType()) {
-			        	System.out.println("cell.getStringCellValue()=" + cell.getStringCellValue());
+			        	//System.out.println("cell.getStringCellValue()=" + cell.getStringCellValue());
 			        	
 			            if (cell.getColumnIndex() == columnIndexLoginNameOld) {
 			            	proxy.setLoginName(cell.getStringCellValue());
@@ -591,7 +609,7 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 		}
 		
 	try{
-		SessionFactory factory = HibernateUtil.getSessionFactoryPM();
+		SessionFactory factory = getSessionFactoryByServer(serverName);
 		Session session = factory.getCurrentSession();
 		session.beginTransaction();
 		
@@ -812,11 +830,11 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 	
 	
 	@SuppressWarnings("unchecked")
-	public List<UsersDepartmentProxy> getUserDepartmentList(String login){
+	public List<UsersDepartmentProxy> getUserDepartmentList(String login, String serverName){
 		List<UsersDepartment> list = new ArrayList<UsersDepartment>();
 		List<UsersDepartmentProxy> list2 = new ArrayList<UsersDepartmentProxy>();
-		
-		list = emIds.createNamedQuery("getUserDepartmentByLogin").setParameter(1, login).setMaxResults(maxResults).getResultList();
+		EntityManager em = getEntityManagerByServerName(serverName);
+		list = em.createNamedQuery("getUserDepartmentByLogin").setParameter(1, login).setMaxResults(maxResults).getResultList();
 		for(UsersDepartment o: list){
 			list2.add(new UsersDepartmentProxy(o));
 		}
@@ -825,8 +843,9 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<DocumentPermission> getUserDocumentList(String login){
-		return emIds.createNamedQuery("getUserDocumentByLogin").setParameter(1, login).setMaxResults(maxResults).getResultList();
+	public List<DocumentPermission> getUserDocumentList(String login, String serverName){
+		EntityManager em = getEntityManagerByServerName(serverName);
+		return em.createNamedQuery("getUserDocumentByLogin").setParameter(1, login).setMaxResults(maxResults).getResultList();
 	}
 
 	/**
@@ -834,8 +853,9 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public List<EntityDictionary> getEntityDictionaryList(){
-		return emIds.createNamedQuery("getAllEntityDictionary").getResultList();
+	public List<EntityDictionary> getEntityDictionaryList(String serverName){
+		EntityManager em = getEntityManagerByServerName(serverName);
+		return em.createNamedQuery("getAllEntityDictionary").getResultList();
 	}
 	
 	/**
@@ -843,8 +863,9 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public List<DepartmentProxy> getDepartmentList(){
-		List<Department> resultList2 = emIds.createNamedQuery("getAllDepartment").getResultList();
+	public List<DepartmentProxy> getDepartmentList(String serverName){
+		EntityManager em = getEntityManagerByServerName(serverName);
+		List<Department> resultList2 = em.createNamedQuery("getAllDepartment").getResultList();
 		List<DepartmentProxy> resultList = new ArrayList<DepartmentProxy>();
 		for (Department department : resultList2) {
 			resultList.add(new DepartmentProxy(department.getId(), department.getFullName()));
@@ -857,13 +878,15 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public List<DocumentDictionary> getDocumentDictionaryList(){
-		return emIds.createNamedQuery("getAllDocumentDictionary").getResultList();
+	public List<DocumentDictionary> getDocumentDictionaryList(String serverName){
+		EntityManager em = getEntityManagerByServerName(serverName);
+		return em.createNamedQuery("getAllDocumentDictionary").getResultList();
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<EntityPermission> getUserEntityList(String login){
-		return emIds.createNamedQuery("getUserEntityByLogin").setParameter(1, login).setMaxResults(maxResults).getResultList();
+	public List<EntityPermission> getUserEntityList(String login, String serverName){
+		EntityManager em = getEntityManagerByServerName(serverName);
+		return em.createNamedQuery("getUserEntityByLogin").setParameter(1, login).setMaxResults(maxResults).getResultList();
 	}
 	
 	
@@ -874,12 +897,14 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public List<RailwayGroup> getStationList(String syscode, List<Long> usersList){
+	public List<RailwayGroup> getStationList(String syscode, List<Long> usersList, String serverName){
 		List<RailwayGroup> list = new ArrayList<RailwayGroup>();
+		EntityManager em = getEntityManagerByServerName(serverName);
 		if(usersList.isEmpty()){
-			list = emIds.createNamedQuery("getAllRailwayGroups").setParameter("param1", syscode).getResultList();
+			
+			list = em.createNamedQuery("getAllRailwayGroups").setParameter("param1", syscode).getResultList();
 		}else{
-			list = emIds.createNamedQuery("getAllRailwayGroups.notInUser")
+			list = em.createNamedQuery("getAllRailwayGroups.notInUser")
 						.setParameter("param1", syscode)
 						.setParameter("param2", usersList)
 						.getResultList();
@@ -888,11 +913,11 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<RailwayGroupProxy> getUserStationList(String login){
+	public List<RailwayGroupProxy> getUserStationList(String login, String serverName){
 		List<Object[]> list = new ArrayList<Object[]>();
 		List<RailwayGroupProxy> list2 = new ArrayList<RailwayGroupProxy>();
-		
-		list = emIds.createNamedQuery("getUserStationByLogin").setParameter(1, login).setMaxResults(maxResults).getResultList();
+		EntityManager em = getEntityManagerByServerName(serverName);
+		list = em.createNamedQuery("getUserStationByLogin").setParameter(1, login).setMaxResults(maxResults).getResultList();
 		for(Object[] o: list){
 			list2.add(new RailwayGroupProxy(o));
 		}
@@ -901,13 +926,14 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<UsersProxy> getUserIdsList(String login){
+	public List<UsersProxy> getUserIdsList(String login, String serverName){
 		List<Users> list = new ArrayList<Users>();
 		List<UsersProxy> list2 = new ArrayList<UsersProxy>();
 		if(login == null || login.isEmpty()){
 			return list2;
-		}			
-		list = emIds.createNamedQuery("getUserIdsByLogin").setParameter(1, login).setMaxResults(maxResults).getResultList();
+		}	
+		EntityManager em = getEntityManagerByServerName(serverName);
+		list = em.createNamedQuery("getUserIdsByLogin").setParameter(1, login).setMaxResults(maxResults).getResultList();
 		for (Users u : list) {
 			list2.add(new UsersProxy(u));
 		}
@@ -934,12 +960,13 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 	
 
 	@Override
-	public List<Country> getCountryList(String codeNUM) throws IllegalArgumentException {
+	public List<Country> getCountryList(String codeNUM, String serverName) throws IllegalArgumentException {
 		List<Country> list = new ArrayList<Country>();
+		EntityManager em = getEntityManagerByServerName(serverName);
 		if(codeNUM == null || codeNUM.isEmpty())
-			list =	emIds.createNamedQuery("getCountryAll").setMaxResults(maxResults).getResultList();
+			list =	em.createNamedQuery("getCountryAll").setMaxResults(maxResults).getResultList();
 		else
-			list = emIds.createNamedQuery("getCountryByCodeNUM").setParameter(1, codeNUM).setMaxResults(maxResults).getResultList();
+			list = em.createNamedQuery("getCountryByCodeNUM").setParameter(1, codeNUM).setMaxResults(maxResults).getResultList();
 		return list;
 	}
 	
@@ -1101,6 +1128,27 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 		}
 		return sessionFactory;
 	}
+
+	/**
+	 * 29.09.2015 
+	 * @param serverName
+	 * @return
+	 */
+	private SessionFactory getSessionFactoryIDSByServer(String serverName) {
+		SessionFactory sessionFactory;
+		switch (serverName) {
+		case Constants.server_name_jboss_5:
+			sessionFactory = HibernateUtil.createSessionFactoryIDS();
+			break;
+		case Constants.server_name_jboss_01:
+			sessionFactory = HibernateUtil.createSessionFactoryIDS_test();
+			break;
+		default:
+			sessionFactory = HibernateUtil.createSessionFactoryIDS();
+			break;
+		}
+		return sessionFactory;
+	}
 	
 			
 	private <T> void mergeUserPm(User entity, Long id, String serverName) {
@@ -1185,7 +1233,7 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 
 	@SuppressWarnings("unchecked")
 	private <T> T findEntityPm(Class<?> clazz, Integer id, String serverName){
-		Session  session = getSessionFactoryByServer(serverName).getCurrentSession();//HibernateUtil.getSessionFactoryPM().openSession();
+		Session  session = getSessionFactoryByServer(serverName).getCurrentSession();
 		T obj = null;
         try{
 			obj =  (T) session.get(clazz, id);
@@ -1346,11 +1394,11 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 	 * @param railwayGroup
 	 * @return
 	 */
-	public boolean addStationUserIds(Long idUser, RailwayGroup railwayGroup){
+	public boolean addStationUserIds(Long idUser, RailwayGroup railwayGroup, String serverName){
 		Session session = null;
 		boolean result = false;
 		try {
-			SessionFactory factory = HibernateUtil.getSessionFactoryIDS();
+			SessionFactory factory = getSessionFactoryIDSByServer(serverName);//HibernateUtil.getSessionFactoryIDS();
 			session = factory.getCurrentSession();
 
 			session.beginTransaction();
@@ -1382,12 +1430,12 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 	 * @param idStation
 	 * @return
 	 */
-	public boolean deleteStationIds(Long idUser, Long idStation){
+	public boolean deleteStationIds(Long idUser, Long idStation, String serverName){
 		boolean result = false;
 		Session session = null;
 		
 		try {
-			SessionFactory factory = HibernateUtil.getSessionFactoryIDS();
+			SessionFactory factory =  getSessionFactoryIDSByServer(serverName);//HibernateUtil.getSessionFactoryIDS();
 			session = factory.getCurrentSession();
 
 			session.beginTransaction();
@@ -1420,11 +1468,11 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 	 * @param documentRoles
 	 * @return
 	 */
-	public boolean addDocumentsPermission(Long idUser, DocumentDictionary documentDictionary, DocumentRoles documentRoles, String userName){
+	public boolean addDocumentsPermission(Long idUser, DocumentDictionary documentDictionary, DocumentRoles documentRoles, String userName, String serverName){
 		Session session = null;
 		boolean result = false;
 		try {
-			SessionFactory factory = HibernateUtil.getSessionFactoryIDS();
+			SessionFactory factory = getSessionFactoryIDSByServer(serverName);//HibernateUtil.getSessionFactoryIDS();
 			session = factory.getCurrentSession();
 
 			session.beginTransaction();
@@ -1459,12 +1507,12 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 	 * @param idDocumentPermiss
 	 * @return
 	 */
-	public boolean deleteDocumentPermission(Long idUser, Long idDocumentPermiss){
+	public boolean deleteDocumentPermission(Long idUser, Long idDocumentPermiss, String serverName){
 		boolean result = false;
 		Session session = null;
 		
 		try {
-			SessionFactory factory = HibernateUtil.getSessionFactoryIDS();
+			SessionFactory factory = getSessionFactoryIDSByServer(serverName);//HibernateUtil.getSessionFactoryIDS();
 			session = factory.getCurrentSession();
 
 			session.beginTransaction();
@@ -1496,19 +1544,19 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 	 * @param fio
 	 * @return
 	 */
-	public boolean addUserIds(String name, String fio, String userName){
+	public boolean addUserIds(String name, String fio, String userName, String serverName){
 		//addUserPermision
 		Session session = null;
 		boolean result = false;
 		try {
-			
-			List<?> resultList = emIds.createNamedQuery("getUserIdsByLogin").setParameter(1, name).setMaxResults(maxResults).getResultList();
+			EntityManager em = getEntityManagerByServerName(serverName);
+			List<?> resultList = em.createNamedQuery("getUserIdsByLogin").setParameter(1, name).setMaxResults(maxResults).getResultList();
 			if(!resultList.isEmpty()){
 				System.err.println("addUserIds: " + name + ", user is allready added!");
 				return result;
 			}
 			
-			SessionFactory factory = HibernateUtil.getSessionFactoryIDS();
+			SessionFactory factory = getSessionFactoryIDSByServer(serverName);//HibernateUtil.getSessionFactoryIDS();
 			session = factory.getCurrentSession();
 
 			session.beginTransaction();
@@ -1542,11 +1590,11 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 	 * @param fio
 	 * @return
 	 */
-	public boolean deleteUserIds(Long idUser){
+	public boolean deleteUserIds(Long idUser, String serverName){
 		Session session = null;
 		boolean result = false;
 		try {
-			SessionFactory factory = HibernateUtil.getSessionFactoryIDS();
+			SessionFactory factory = getSessionFactoryIDSByServer(serverName);//HibernateUtil.getSessionFactoryIDS();
 			session = factory.getCurrentSession();
 
 			session.beginTransaction();
@@ -1576,11 +1624,11 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 	 * @param entityRoles
 	 * @return
 	 */
-	public boolean addEntityPermission(Long idUser, EntityDictionary entityDictionary, EntityRoles entityRoles, String userName){
+	public boolean addEntityPermission(Long idUser, EntityDictionary entityDictionary, EntityRoles entityRoles, String userName, String serverName){
 		Session session = null;
 		boolean result = false;
 		try {
-			SessionFactory factory = HibernateUtil.getSessionFactoryIDS();
+			SessionFactory factory = getSessionFactoryIDSByServer(serverName);//HibernateUtil.getSessionFactoryIDS();
 			session = factory.getCurrentSession();
 
 			session.beginTransaction();
@@ -1615,12 +1663,12 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 	 * @param idEntityPermiss
 	 * @return
 	 */
-	public boolean deleteEntityPermission(Long idUser, Long idEntityPermiss){
+	public boolean deleteEntityPermission(Long idUser, Long idEntityPermiss, String serverName){
 		boolean result = false;
 		Session session = null;
 		
 		try {
-			SessionFactory factory = HibernateUtil.getSessionFactoryIDS();
+			SessionFactory factory = getSessionFactoryIDSByServer(serverName);//HibernateUtil.getSessionFactoryIDS();
 			session = factory.getCurrentSession();
 
 			session.beginTransaction();
@@ -1652,12 +1700,12 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 	 * @param idDepartmentPermiss
 	 * @return
 	 */
-	public boolean deleteDepartmentPermission(Long idUser, Long idDepartmentPermiss){
+	public boolean deleteDepartmentPermission(Long idUser, Long idDepartmentPermiss, String serverName){
 		boolean result = false;
 		Session session = null;
 		
 		try {
-			SessionFactory factory = HibernateUtil.getSessionFactoryIDS();
+			SessionFactory factory = getSessionFactoryIDSByServer(serverName);//HibernateUtil.getSessionFactoryIDS();
 			session = factory.getCurrentSession();
 
 			session.beginTransaction();
@@ -1690,11 +1738,11 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 	 * @param edcRoles
 	 * @return
 	 */
-	public boolean addDepartmentPermission(Long idUser, Long idDepartment, EdcPermissionRoles edcRoles){
+	public boolean addDepartmentPermission(Long idUser, Long idDepartment, EdcPermissionRoles edcRoles, String serverName){
 		Session session = null;
 		boolean result = false;
 		try {
-			SessionFactory factory = HibernateUtil.getSessionFactoryIDS();
+			SessionFactory factory = getSessionFactoryIDSByServer(serverName);//HibernateUtil.getSessionFactoryIDS();
 			session = factory.getCurrentSession();
 
 			session.beginTransaction();

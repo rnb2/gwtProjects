@@ -19,6 +19,7 @@ public class HibernateUtil {
 
 	private static SessionFactory sessionFactoryPM;
 	private static SessionFactory sessionFactoryIDS;
+	private static SessionFactory sessionFactoryIDS_test;
 	
 	private static ServiceRegistry serviceRegistry;
 	private static SessionFactory sessionFactoryPM_JBoss01;
@@ -77,32 +78,21 @@ public class HibernateUtil {
 	    return sessionFactoryPM_JBoss5;
 	}
 	
-//	static {
-//		try {
-//			sessionFactoryPM = new Configuration().configure(
-//					Constants.configNamePM).buildSessionFactory();
-//			System.out.println("sessionFactoryPM: " + sessionFactoryPM.hashCode());
-//		} catch (Throwable ex) {
-//			System.err.println("Initial sessionFactoryPM creation failed." + ex);
-//			throw new ExceptionInInitializerError(ex);
-//		}
-//		try {
-//			sessionFactoryIDS = new Configuration().configure(
-//					Constants.configNameIDS).buildSessionFactory();
-//			System.out.println("sessionFactoryIDS: " + sessionFactoryIDS.hashCode());
-//		} catch (Throwable ex) {
-//			System.err.println("Initial sessionFactoryIDS creation failed." + ex);
-//			throw new ExceptionInInitializerError(ex);
-//		}
-//	}
-
-
-	@Deprecated
-	public static SessionFactory getSessionFactoryPM() {
-		return createSessionFactoryJboss();
-	}
 	public static SessionFactory getSessionFactoryIDS() {
 		return createSessionFactoryIDS();
+	}
+
+	/**
+	 * 29.09.2015
+	 * @return
+	 */
+	public static SessionFactory createSessionFactoryIDS_test() {
+	    Configuration configuration = new Configuration();
+	    configuration.configure(Constants.configNameIDS_test);
+	    serviceRegistry = new ServiceRegistryBuilder().applySettings(
+	            configuration.getProperties()). buildServiceRegistry();
+	    sessionFactoryIDS_test = configuration.buildSessionFactory(serviceRegistry);
+	    return sessionFactoryIDS_test;
 	}
 
 }

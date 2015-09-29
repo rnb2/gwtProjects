@@ -38,8 +38,8 @@ public class WindowIdsAddUser extends Window {
 	 * 14.01.2014
 	 *
 	 */
-	public WindowIdsAddUser(String title, MyMessages messages) {
-		this(title, null, messages);
+	public WindowIdsAddUser(String title, MyMessages messages, final String serverName) {
+		this(title, null, messages, serverName);
 	}
 	
 	/**
@@ -48,7 +48,7 @@ public class WindowIdsAddUser extends Window {
 	 * 14.01.2014
 	 *
 	 */
-	public WindowIdsAddUser(String title, final UserProxy userProxy,  MyMessages messages) {
+	public WindowIdsAddUser(String title, final UserProxy userProxy,  MyMessages messages, final String serverName) {
 		this.messages = messages;
 			
 				
@@ -102,7 +102,7 @@ public class WindowIdsAddUser extends Window {
 					return;
 				}
 					
-				manageService.addUserIds(loginName.getCurrentValue(), fullName.getCurrentValue(), Mainwidget2.getInstance().getLoginName(), addUserIdsCallback(userProxy));
+				manageService.addUserIds(loginName.getCurrentValue(), fullName.getCurrentValue(), Mainwidget2.getInstance().getLoginName(), serverName, addUserIdsCallback(userProxy));
 				
 				isOkclicked = true;
 				Mainwidget2 mainwidget2 = Mainwidget2.getInstance();

@@ -53,10 +53,12 @@ public class TableRailwayGroup implements IsWidget {
 	private UsersProxy usersProxy;
 	protected RailwayGroupProxy selectedItem = null;
 	private DialogDelete2 dialogDelete;
+	private String serverName;
 	
-	public TableRailwayGroup(UsersProxy usersProxy, List<RailwayGroupProxy> list) {
+	public TableRailwayGroup(UsersProxy usersProxy, List<RailwayGroupProxy> list, String serverName) {
 		this.items = list;
 		this.usersProxy = usersProxy;
+		this.serverName = serverName;
 	}
 
 	@Override
@@ -160,7 +162,7 @@ public class TableRailwayGroup implements IsWidget {
 			
 			@Override
 			public void onSelect(SelectEvent event) {
-				manageService.deleteStationIds(usersProxy.getId(), selectedItem.getId(), callbackDeleteStation());
+				manageService.deleteStationIds(usersProxy.getId(), selectedItem.getId(), serverName, callbackDeleteStation());
 				
 			}
 		};
@@ -216,7 +218,7 @@ public class TableRailwayGroup implements IsWidget {
 				for(RailwayGroupProxy pr :items){
 					list.add(pr.getId());
 				}
-				manageService.getStationList(com.rnb2.gwt1.server.utils.Constants.SYS_CODE_STATION, list, callbackStationList());
+				manageService.getStationList(com.rnb2.gwt1.server.utils.Constants.SYS_CODE_STATION, list, serverName, callbackStationList());
 				
 			}
 		};
@@ -237,7 +239,7 @@ public class TableRailwayGroup implements IsWidget {
 					Info.display(messages.info(), messages.allStationAdded());
 					return;
 				}
-				WindowSelectRailwayGroup pmSearch = new WindowSelectRailwayGroup(manageService, usersProxy, result);
+				WindowSelectRailwayGroup pmSearch = new WindowSelectRailwayGroup(manageService, usersProxy, result, serverName);
 				pmSearch.show();
 			}
 		};

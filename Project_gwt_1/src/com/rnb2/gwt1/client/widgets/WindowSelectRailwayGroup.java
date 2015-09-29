@@ -45,12 +45,14 @@ public class WindowSelectRailwayGroup extends Window {
 	private VerticalLayoutContainer container;
 	private UsersProxy usersProxy;
 	private ManageServiceAsync manageService;
+	private String serverName;
 	
 	
-	public WindowSelectRailwayGroup(ManageServiceAsync manageService,  UsersProxy usersProxy, List<RailwayGroup> list) {
+	public WindowSelectRailwayGroup(ManageServiceAsync manageService,  UsersProxy usersProxy, List<RailwayGroup> list, String serverName) {
 		this.items = list;
 		this.usersProxy = usersProxy;
 		this.manageService = manageService;
+		this.serverName = serverName;
 	
 		setModal(true);
 		setBlinkModal(true);
@@ -136,7 +138,7 @@ public class WindowSelectRailwayGroup extends Window {
 			
 			@Override
 			public void onSelect(SelectEvent event) {
-				manageService.addStationUserIds(usersProxy.getId(), selectedItem, callbackAddStationUserIds());
+				manageService.addStationUserIds(usersProxy.getId(), selectedItem, serverName, callbackAddStationUserIds());
 			}
 		};
 		return handler;

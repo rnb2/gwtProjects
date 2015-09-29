@@ -166,7 +166,7 @@ public class WindowUserPmAddRole extends Window {
 					break;
 				}
 				if(isAddUserIds){
-					manageService.addUserIds(login, shortName, Mainwidget2.getInstance().getLoginName(), null);
+					manageService.addUserIds(login, shortName, Mainwidget2.getInstance().getLoginName(), serverName, null);
 				}	
 				//
 								

@@ -59,16 +59,18 @@ public class TableUserIds implements IsWidget {
 			.create(ManageService.class);
 	
 	DialogDelete2 dialogDelete;
+	private String serverName;
 
 	/**
 	 * Отображение пользователей ИДС УЖДТ
 	 * @author budukh-rn
 	 *
 	 */
-	public TableUserIds(List<UsersProxy> result, UserProxy pmUserProxy2) {
+	public TableUserIds(List<UsersProxy> result, UserProxy pmUserProxy2, String serverName) {
 		items = result;
 		status = new Status();
 		pmUserProxy = pmUserProxy2;
+		this.serverName = serverName;
 	}
 	
 	@Override
@@ -115,7 +117,7 @@ public class TableUserIds implements IsWidget {
 		      @Override
 		      public void onSelection(SelectionEvent<Item> event) {
 		        
-		    	  WindowIdsAddUser addUser = new WindowIdsAddUser(messages.userAdd(), pmUserProxy, messages);
+		    	  WindowIdsAddUser addUser = new WindowIdsAddUser(messages.userAdd(), pmUserProxy, messages, serverName);
 		    	  addUser.show();
 		      }
 		    });
@@ -199,7 +201,7 @@ public class TableUserIds implements IsWidget {
 		SelectHandler handler = new SelectHandler() {
 			@Override
 			public void onSelect(SelectEvent event) {
-				manageService.deleteUserIds(sel.getId(), deleteUserIdsCallback());
+				manageService.deleteUserIds(sel.getId(), serverName, deleteUserIdsCallback());
 			}
 		};
 		return handler;

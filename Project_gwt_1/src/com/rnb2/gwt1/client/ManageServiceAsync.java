@@ -28,20 +28,20 @@ import com.rnb2.gwt1.data.pm.proxy.UserProxy;
 
 public interface ManageServiceAsync {
 
-	void getCountryList(String codeNUM, AsyncCallback<List<Country>> callback);
+	void getCountryList(String codeNUM, String serverName,
+			AsyncCallback<List<Country>> callback);
 
-	void getUserIdsList(String login, AsyncCallback<List<UsersProxy>> callback);
+	void getUserIdsList(String login, String serverName,
+			AsyncCallback<List<UsersProxy>> callback);
 
 	/** список пользователей PM */
 	void getUserPmList(String login, int param2, String serverName,
 			AsyncCallback<List<UserProxy>> callback);
 
-	/** список станций ИДС у пользователя */
-	void getUserStationList(String login,
+	void getUserStationList(String login, String serverName,
 			AsyncCallback<List<RailwayGroupProxy>> callback);
 
-	/** список справочников ИДС у пользователя */
-	void getUserEntityList(String login,
+	void getUserEntityList(String login, String serverName,
 			AsyncCallback<List<EntityPermission>> callback);
 
 	void getApplicationPmList(String login, String serverName,
@@ -50,12 +50,10 @@ public interface ManageServiceAsync {
 	void getApplicationPmPermission(String login, String shortName,
 			String serverName, AsyncCallback<List<PermissionProxy>> callback);
 
-	/** список форм ИДС у пользователя */
-	void getUserDocumentList(String login,
+	void getUserDocumentList(String login, String serverN,
 			AsyncCallback<List<DocumentPermission>> callback);
 
-	/** список подразделений ЭГД у пользователя */
-	void getUserDepartmentList(String login,
+	void getUserDepartmentList(String login, String serverName,
 			AsyncCallback<List<UsersDepartmentProxy>> callback);
 
 	void getApplicationPmList2(String serverName,
@@ -101,147 +99,53 @@ public interface ManageServiceAsync {
 	void searchUserAd(String loginName, String fio, String employeeID,
 			AsyncCallback<List<UserProxy>> callback);
 
-	/**
-	 * Список станциий ИДС УЖДТ Получение объектов RailwayGroup по sysCode
-	 * Constants}
-	 * 
-	 * @param syscode
-	 * @param usersList
-	 *            - пользовательский список
-	 * @return
-	 */
-	void getStationList(String sysCode, List<Long> usersList,
-			AsyncCallback<List<RailwayGroup>> callback);
+	void getStationList(String syscode, List<Long> usersList,
+			String serverName, AsyncCallback<List<RailwayGroup>> callback);
 
-	/**
-	 * Добавление станции у пользователя ИДС УЖДТ
-	 * 
-	 * @param idUser
-	 * @param railwayGroup
-	 * @return
-	 */
 	void addStationUserIds(Long idUser, RailwayGroup railwayGroup,
+			String serverName, AsyncCallback<Boolean> callback);
+
+	void deleteStationIds(Long idUser, Long idStation, String serverName,
 			AsyncCallback<Boolean> callback);
 
-	/**
-	 * Удаление станции у пользователя ИДС УЖДТ
-	 * 
-	 * @param idUser
-	 * @param idStation
-	 * @return
-	 */
-	void deleteStationIds(Long idUser, Long idStation,
-			AsyncCallback<Boolean> callback);
-
-	/**
-	 * Добавление Доступн. форм пользователю ИДС УЖДТ
-	 * 
-	 * @param idUser
-	 * @param documentDictionary
-	 * @param documentRoles
-	 * @return
-	 */
 	void addDocumentsPermission(Long idUser,
 			DocumentDictionary documentDictionary, DocumentRoles documentRoles,
-			String userName, AsyncCallback<Boolean> callback);
+			String userName, String serverName, AsyncCallback<Boolean> callback);
 
-	/**
-	 * Получение списка форм по правам по ИДС УЖДТ
-	 * 
-	 * @return
-	 */
-	void getDocumentDictionaryList(
+	void getDocumentDictionaryList(String serverName,
 			AsyncCallback<List<DocumentDictionary>> callback);
 
-	/**
-	 * Добавление пользователя в табл. ИДС УЖДТ
-	 * 
-	 * @param name
-	 * @param fio
-	 * @param userName
-	 * @return
-	 */
 	void addUserIds(String name, String fio, String userName,
-			AsyncCallback<Boolean> callback);
+			String serverName, AsyncCallback<Boolean> callback);
 
-	/**
-	 * Удаление Доступн. форм пользователю ИДС УЖДТ
-	 * 
-	 * @param idUser
-	 * @param idDocumentPermiss
-	 * @return
-	 */
 	void deleteDocumentPermission(Long idUser, Long idDocumentPermiss,
-			AsyncCallback<Boolean> callback);
+			String serverName, AsyncCallback<Boolean> callback);
 
-	/**
-	 * Получение списка справочников по правам по ИДС УЖДТ
-	 * 
-	 * @return
-	 */
-	void getEntityDictionaryList(AsyncCallback<List<EntityDictionary>> callback);
+	void getEntityDictionaryList(String server,
+			AsyncCallback<List<EntityDictionary>> callback);
 
-	/**
-	 * Добавление Доступн. справочников пользователю ИДС УЖДТ
-	 * 
-	 * @param idUser
-	 * @param entityDictionary
-	 * @param entityRoles
-	 * @return
-	 */
 	void addEntityPermission(Long idUser, EntityDictionary entityDictionary,
-			EntityRoles entityRoles, String userName,
+			EntityRoles entityRoles, String userName, String serverName,
 			AsyncCallback<Boolean> callback);
 
-	/**
-	 * Удаление Доступн. справочников пользователю ИДС УЖДТ
-	 * 
-	 * @param idUser
-	 * @param idEntityPermiss
-	 * @return
-	 */
 	void deleteEntityPermission(Long idUser, Long idEntityPermiss,
-			AsyncCallback<Boolean> callback);
+			String serverName, AsyncCallback<Boolean> callback);
 
-	/**
-	 * Удаление Доступн. подразделений ЭГД у пользователя ИДС УЖДТ
-	 * 
-	 * @param idUser
-	 * @param idDepartmentPermiss
-	 * @return
-	 */
 	void deleteDepartmentPermission(Long idUser, Long idDepartmentPermiss,
-			AsyncCallback<Boolean> callback);
+			String serverName, AsyncCallback<Boolean> callback);
 
-	/**
-	 * Получение списка подразделений по ИДС УЖДТ
-	 * 
-	 * @return
-	 */
-	void getDepartmentList(AsyncCallback<List<DepartmentProxy>> callback);
+	void getDepartmentList(String serverName,
+			AsyncCallback<List<DepartmentProxy>> callback);
 
-	/**
-	 * Добавление Доступн. подразделений ЭГД у пользователя ИДС УЖДТ
-	 * 
-	 * @param idUser
-	 * @param department
-	 * @param edcRoles
-	 * @return
-	 */
 	void addDepartmentPermission(Long idUser, Long department,
-			EdcPermissionRoles edcRoles, AsyncCallback<Boolean> callback);
+			EdcPermissionRoles edcRoles, String serverName,
+			AsyncCallback<Boolean> callback);
 
 	void autorizationByLoginName(String loginName, String serverName,
 			AsyncCallback<String> callback);
 
-	/**
-	 * Удаление пользователя из ИДС УЖДТ
-	 * 
-	 * @param name
-	 * @param fio
-	 * @return
-	 */
-	void deleteUserIds(Long idUser, AsyncCallback<Boolean> callback);
+	void deleteUserIds(Long idUser, String serverName,
+			AsyncCallback<Boolean> callback);
 
 	void addUserCopyPm(String userNameNew, String fio, String phone,
 			String employeeId, String userNameOld, String serverName,

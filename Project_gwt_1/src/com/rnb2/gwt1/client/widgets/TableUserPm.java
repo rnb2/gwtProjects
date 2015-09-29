@@ -23,6 +23,7 @@ import com.rnb2.gwt1.client.widgets.window.WindowUserPmAdd;
 import com.rnb2.gwt1.client.widgets.window.WindowUserPmAddCopy;
 import com.rnb2.gwt1.data.pm.proxy.ApplicationProxy;
 import com.rnb2.gwt1.data.pm.proxy.UserProxy;
+import com.rnb2.gwt1.shared.ServerProxy;
 import com.sencha.gxt.cell.core.client.form.ComboBoxCell.TriggerAction;
 import com.sencha.gxt.core.client.resources.ThemeStyles;
 import com.sencha.gxt.core.client.util.Margins;
@@ -173,12 +174,22 @@ public class TableUserPm implements IsWidget {
 			 combo.setValue(findModelWithKey);
 			
 
+			 List<ServerProxy> serversList = new ArrayList<ServerProxy>();
+				int i=1;
+				for(String server : Constants.serverList){
+					serversList.add(new ServerProxy(i, server));
+					i++;
+				}
+					 
+							
 			 VerticalLayoutData layoutData = new VerticalLayoutData();
 			 layoutData.setMargins(new Margins(0, 0, 5, 0));
 			 layoutData.setHeight(1);
 			 layoutData.setWidth(1);
+			 
 			
 			 toolBar.add(combo);
+					 
 			 toolBar.add(new FillToolItem());
 			 toolBar.add(new SeparatorToolItem());
 			 toolBar.add(buttonAcl);

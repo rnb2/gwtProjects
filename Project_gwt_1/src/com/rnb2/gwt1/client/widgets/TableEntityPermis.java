@@ -51,10 +51,12 @@ public class TableEntityPermis implements IsWidget {
 	protected DialogDelete2 dialogDelete;
 	private EntityPermission selectedItem;
 	private VerticalLayoutContainer container;
+	private String serverName;
 
-	public TableEntityPermis(UsersProxy usersProxy, List<EntityPermission> list) {
+	public TableEntityPermis(UsersProxy usersProxy, List<EntityPermission> list, String serverName) {
 		this.items = list;
 		this.usersProxy = usersProxy;
+		this.serverName = serverName;
 	}
 
 	@Override
@@ -169,7 +171,7 @@ public class TableEntityPermis implements IsWidget {
 			
 			@Override
 			public void onSelect(SelectEvent event) {
-				manageService.deleteEntityPermission(usersProxy.getId(), selectedItem.getId(), callbackEntityPermission());
+				manageService.deleteEntityPermission(usersProxy.getId(), selectedItem.getId(), serverName, callbackEntityPermission());
 				
 			}
 		};
@@ -207,7 +209,7 @@ public class TableEntityPermis implements IsWidget {
 			
 			@Override
 			public void onSelect(SelectEvent event) {
-				WindowIdsSelectEntityPermis entityPermis = new WindowIdsSelectEntityPermis(manageService, usersProxy);
+				WindowIdsSelectEntityPermis entityPermis = new WindowIdsSelectEntityPermis(manageService, usersProxy, serverName);
 				entityPermis.show();
 			}
 		};

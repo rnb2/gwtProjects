@@ -51,10 +51,12 @@ public class TableDocumentPermis implements IsWidget {
 	private UsersProxy usersProxy;
 	protected DialogDelete2 dialogDelete;
 	private DocumentPermission selectedItem;
+	private String serverName;
 
-	public TableDocumentPermis(UsersProxy usersProxy, List<DocumentPermission> list) {
+	public TableDocumentPermis(UsersProxy usersProxy, List<DocumentPermission> list, String serverName) {
 		this.items = list;
 		this.usersProxy = usersProxy;
+		this.serverName = serverName;
 	}
 
 	@Override
@@ -168,7 +170,7 @@ public class TableDocumentPermis implements IsWidget {
 			
 			@Override
 			public void onSelect(SelectEvent event) {
-				manageService.deleteDocumentPermission(usersProxy.getId(), selectedItem.getId(), callbackDeleteDocumentPermiss());
+				manageService.deleteDocumentPermission(usersProxy.getId(), selectedItem.getId(), serverName, callbackDeleteDocumentPermiss());
 				
 			}
 		};
@@ -206,7 +208,7 @@ public class TableDocumentPermis implements IsWidget {
 			
 			@Override
 			public void onSelect(SelectEvent event) {
-				WindowIdsSelectDocumentPermis documentPermis = new WindowIdsSelectDocumentPermis(manageService, usersProxy);
+				WindowIdsSelectDocumentPermis documentPermis = new WindowIdsSelectDocumentPermis(manageService, usersProxy, serverName);
 				documentPermis.show();
 			}
 		};

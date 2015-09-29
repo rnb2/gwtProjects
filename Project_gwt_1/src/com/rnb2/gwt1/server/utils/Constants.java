@@ -16,6 +16,7 @@ public interface Constants {
 	final static String server_name_jboss_5 = "JBOSS5"; 
 	
 	final static String configNameIDS = "hibernateIdsUgdt.cfg.xml";
+	final static String configNameIDS_test = "hibernateIdsUgdt_test.cfg.xml";
 	
 	final static String configNamePM = "hibernatePm.cfg.xml";
 	final static String configNamePM_01 = "hibernatePm01.cfg.xml";

@@ -46,11 +46,12 @@ public class WindowIdsSelectDocumentPermis extends Window {
 	private ListStore<DocumentRoles> listStoreDocumentRoles;
 	private DocumentDictionary selectedItemDocumentPerm = null;
 	private DocumentRoles selectedItemDocumentRoles = null;
+	private String serverName;
 	
-	
-	public WindowIdsSelectDocumentPermis(ManageServiceAsync manageService,  UsersProxy usersProxy) {
+	public WindowIdsSelectDocumentPermis(ManageServiceAsync manageService,  UsersProxy usersProxy, String serverName) {
 		this.usersProxy = usersProxy;
 		this.manageService = manageService;
+		this.serverName = serverName;
 	
 		setModal(true);
 		setBlinkModal(true);
@@ -63,7 +64,7 @@ public class WindowIdsSelectDocumentPermis extends Window {
 		
 		DocumentDictionaryProperties properties = GWT.create(DocumentDictionaryProperties.class);
 		listStoreDocumentPerm = new ListStore<DocumentDictionary>(properties.key());
-		this.manageService.getDocumentDictionaryList(callbackUserDocumentList());
+		this.manageService.getDocumentDictionaryList(serverName, callbackUserDocumentList());
 		
 		ComboBox<DocumentDictionary> combo1 = new ComboBox<DocumentDictionary>(listStoreDocumentPerm, properties.dictionary());
 		addHandlersForCombo1(combo1, properties.dictionary());
@@ -140,7 +141,7 @@ public class WindowIdsSelectDocumentPermis extends Window {
 			
 			@Override
 			public void onSelect(SelectEvent event) {
-				manageService.addDocumentsPermission(usersProxy.getId(), selectedItemDocumentPerm, selectedItemDocumentRoles, Mainwidget2.getInstance().getLoginName(), callbackAddDocumentsPerm());
+				manageService.addDocumentsPermission(usersProxy.getId(), selectedItemDocumentPerm, selectedItemDocumentRoles, Mainwidget2.getInstance().getLoginName(), serverName, callbackAddDocumentsPerm());
 			}
 		};
 		return handler;

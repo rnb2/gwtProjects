@@ -52,15 +52,17 @@ public class TableUsersDepartment implements IsWidget {
 	private UsersProxy usersProxy;
 	protected DialogDelete2 dialogDelete;
 	private UsersDepartmentProxy selectedItem;
+	private String serverName;
 
 	/**
 	 * —правочники подразделений Ё√ƒ доступн. пользователю
 	 * @param usersProxy
 	 * @param list
 	 */
-	public TableUsersDepartment(UsersProxy usersProxy, List<UsersDepartmentProxy> list) {
+	public TableUsersDepartment(UsersProxy usersProxy, List<UsersDepartmentProxy> list, String serverName) {
 		this.items = list;
 		this.usersProxy = usersProxy;
+		this.serverName = serverName;
 	}
 
 	@Override
@@ -173,7 +175,7 @@ public class TableUsersDepartment implements IsWidget {
 			
 			@Override
 			public void onSelect(SelectEvent event) {
-				manageService.deleteDepartmentPermission(usersProxy.getId(), selectedItem.getId(), callbackDeleteDepartmentPermiss());				
+				manageService.deleteDepartmentPermission(usersProxy.getId(), selectedItem.getId(), serverName, callbackDeleteDepartmentPermiss());				
 			}
 		};
 		return handler;
@@ -210,7 +212,7 @@ public class TableUsersDepartment implements IsWidget {
 			
 			@Override
 			public void onSelect(SelectEvent event) {
-				WindowIdsSelectDepartmentPermis documentPermis = new WindowIdsSelectDepartmentPermis(manageService, usersProxy);
+				WindowIdsSelectDepartmentPermis documentPermis = new WindowIdsSelectDepartmentPermis(manageService, usersProxy, serverName);
 				documentPermis.show();
 			}
 		};

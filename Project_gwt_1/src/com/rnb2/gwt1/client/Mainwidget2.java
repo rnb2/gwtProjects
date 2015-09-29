@@ -7,10 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
@@ -61,11 +61,8 @@ import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer.Verti
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
 import com.sencha.gxt.widget.core.client.event.SelectEvent.SelectHandler;
 import com.sencha.gxt.widget.core.client.form.ComboBox;
-import com.sencha.gxt.widget.core.client.form.FieldLabel;
 import com.sencha.gxt.widget.core.client.form.FileUploadField;
 import com.sencha.gxt.widget.core.client.form.FormPanel;
-import com.sencha.gxt.widget.core.client.form.FormPanel.Encoding;
-import com.sencha.gxt.widget.core.client.form.FormPanel.Method;
 import com.sencha.gxt.widget.core.client.form.TextField;
 import com.sencha.gxt.widget.core.client.info.Info;
 import com.sencha.gxt.widget.core.client.toolbar.FillToolItem;
@@ -198,6 +195,8 @@ public class Mainwidget2 implements IsWidget{
 		 comboServer = new ComboBox<ServerProxy>(storeServer, propsServers.fullName());
 		 comboServer.setTriggerAction(TriggerAction.ALL);
 		 comboServer.setForceSelection(true);
+		 //comboServer.addValueChangeHandler(handlerComboServer());
+		 comboServer.addSelectionHandler(handlerComboServer());
 		//---
 
 		buttonFind = new TextButton(messages.find(), handlerFindUsersPm());
@@ -246,6 +245,39 @@ public class Mainwidget2 implements IsWidget{
 		return bar;
 	}
 
+	private SelectionHandler<ServerProxy> handlerComboServer() {
+		
+		return new SelectionHandler<ServerProxy>() {
+			
+			@Override
+			public void onSelection(SelectionEvent<ServerProxy> event) {
+			
+				HorizontalLayoutData layoutData = new HorizontalLayoutData();
+				layoutData.setHeight(1);
+				layoutData.setWidth(1);
+				containerHm.clear();
+				containerHm.setLayoutData(layoutData);
+				containerHm.forceLayout();
+				
+				containerApplication.clear();
+				
+				if(containerHtop != null){
+					containerHtop.clear();
+					containerHtop.forceLayout();
+				}
+				
+				if(containerV != null){
+					containerV.clear();
+					containerV.forceLayout();
+				}
+				
+				
+					
+				
+			}
+		};
+	}
+
 	/**
 	 * 
 	 * @return
@@ -269,28 +301,7 @@ public class Mainwidget2 implements IsWidget{
 		};
 	}
 
-	private FormPanel getFileForm() {
-		file = new FileUploadField();
-	      file.addChangeHandler(new ChangeHandler() {
-			 @Override
-	        public void onChange(ChangeEvent event) {
-	          Info.display("File Changed", "You selected " + file.getValue());
-	        }
-	      });
-	    file.setName("uploadedfile");
-	    file.setAllowBlank(false);
-	   
-	    
-	    VerticalLayoutContainer vlc = new VerticalLayoutContainer();
-	     vlc.add(new FieldLabel(file, "File"), new VerticalLayoutData(0, -1));
-	 
-	    fileformPanel = new FormPanel();
-	    fileformPanel.setAction("myurl");
-	    fileformPanel.setEncoding(Encoding.MULTIPART);
-	    fileformPanel.setMethod(Method.POST);
-	    fileformPanel.add(vlc, new MarginData(10));
-	    return fileformPanel;
-	}
+	
 	
 	/*private Widget findWidget(){
 		HBoxLayoutContainer container = new HBoxLayoutContainer();
@@ -397,13 +408,13 @@ public class Mainwidget2 implements IsWidget{
 			public void onSelection(SelectionEvent<UsersProxy> event) {
 				usersProxy = event.getSelectedItem();
 				
-				manageService.getUserStationList(usersProxy.getName(), callbackSelectionTableUserIds);
+				manageService.getUserStationList(usersProxy.getName(), getSelectedServerName(), callbackSelectionTableUserIds);
 				
-				manageService.getUserEntityList(usersProxy.getName(), callbackSelectionGetUserEntity);
+				manageService.getUserEntityList(usersProxy.getName(), getSelectedServerName(), callbackSelectionGetUserEntity);
 				
-				manageService.getUserDocumentList(usersProxy.getName(), callbackSelectionGetUserDocuments);
+				manageService.getUserDocumentList(usersProxy.getName(), getSelectedServerName(), callbackSelectionGetUserDocuments);
 				
-				manageService.getUserDepartmentList(usersProxy.getName(), callbackSelectionGetUserDepartment);
+				manageService.getUserDepartmentList(usersProxy.getName(), getSelectedServerName(), callbackSelectionGetUserDepartment);
 				
 			}
 		};
@@ -414,7 +425,7 @@ public class Mainwidget2 implements IsWidget{
 	 * @param userName
 	 */
 	public void updateIdsUserDepartmentListByUser(String userName){
-		manageService.getUserDepartmentList(usersProxy.getName(), callbackSelectionGetUserDepartment);
+		manageService.getUserDepartmentList(usersProxy.getName(), getSelectedServerName(), callbackSelectionGetUserDepartment);
 	}
 	
 	/**
@@ -422,7 +433,7 @@ public class Mainwidget2 implements IsWidget{
 	 * @param userName
 	 */
 	public void updateIdsUserEntityByUser(String userName){
-		manageService.getUserEntityList(usersProxy.getName(), callbackSelectionGetUserEntity);
+		manageService.getUserEntityList(usersProxy.getName(), getSelectedServerName(), callbackSelectionGetUserEntity);
 	}
 	
 	/**
@@ -430,7 +441,7 @@ public class Mainwidget2 implements IsWidget{
 	 * @param userName
 	 */
 	public void updateIdsUserDocumentByUser(String userName){
-		manageService.getUserDocumentList(usersProxy.getName(), callbackSelectionGetUserDocuments);
+		manageService.getUserDocumentList(usersProxy.getName(), getSelectedServerName(), callbackSelectionGetUserDocuments);
 	}
 	
 	/**
@@ -438,7 +449,7 @@ public class Mainwidget2 implements IsWidget{
 	 * @param userName
 	 */
 	public void updateIdsStationByUser(String userName){
-		manageService.getUserStationList(userName, callbackSelectionTableUserIds);
+		manageService.getUserStationList(userName, getSelectedServerName(), callbackSelectionTableUserIds);
 	}
 	
 	/**
@@ -446,7 +457,7 @@ public class Mainwidget2 implements IsWidget{
 	 * @param userName
 	 */
 	public void updateIdsUser(String userName){
-		manageService.getUserIdsList(userName, callbackUserIdsByname);
+		manageService.getUserIdsList(userName, getSelectedServerName(), callbackUserIdsByname);
 	}
 
 	/**
@@ -466,7 +477,7 @@ public class Mainwidget2 implements IsWidget{
 			VerticalLayoutContainer container = testTabPanel.getContainerDepartments();
 			container.clear();
 
-			container.add(new TableUsersDepartment(usersProxy, result), layoutDataHalf);
+			container.add(new TableUsersDepartment(usersProxy, result, getSelectedServerName()), layoutDataHalf);
 			container.forceLayout();
 		}
 		
@@ -485,7 +496,7 @@ public class Mainwidget2 implements IsWidget{
 			VerticalLayoutContainer container = testTabPanel.getContainerForm();
 			container.clear();
 
-			container.add(new TableDocumentPermis(usersProxy, result), layoutDataHalf);
+			container.add(new TableDocumentPermis(usersProxy, result, getSelectedServerName()), layoutDataHalf);
 			container.forceLayout();
 		}
 		
@@ -503,7 +514,7 @@ public class Mainwidget2 implements IsWidget{
 			VerticalLayoutContainer container = testTabPanel.getContainerSpr();
 			container.clear();
 
-			container.add(new TableEntityPermis(usersProxy, result), layoutDataHalf);
+			container.add(new TableEntityPermis(usersProxy, result, getSelectedServerName()), layoutDataHalf);
 			container.forceLayout();
 			
 		}
@@ -522,7 +533,7 @@ public class Mainwidget2 implements IsWidget{
 			VerticalLayoutContainer containerStation = testTabPanel.getContainerStation();
 			containerStation.clear();
 
-			containerStation.add(new TableRailwayGroup(usersProxy, result), layoutDataHalf);
+			containerStation.add(new TableRailwayGroup(usersProxy, result, getSelectedServerName()), layoutDataHalf);
 			containerStation.forceLayout();
 		}
 		
@@ -573,7 +584,7 @@ public class Mainwidget2 implements IsWidget{
 			containerHm.setLayoutData(layoutData);
 			
 			//Table Users IDS
-			final TableUserIds tableUserIds = new TableUserIds(result, widgetTableUserPM.getReturnedvalue());
+			final TableUserIds tableUserIds = new TableUserIds(result, widgetTableUserPM.getReturnedvalue(), getSelectedServerName());
 			HorizontalLayoutData layoutData2 = new HorizontalLayoutData(0.5, 1, new Margins(5));
 			tableUserIds.addSelection(getSelectionHandlerTableUserIds(tableUserIds));
 			containerHm.add(tableUserIds, layoutData2);
