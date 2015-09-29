@@ -5,13 +5,13 @@ import java.util.List;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.rnb2.gwt1.client.Mainwidget2;
 import com.rnb2.gwt1.client.ManageService;
 import com.rnb2.gwt1.client.ManageServiceAsync;
 import com.rnb2.gwt1.client.messages.MyMessages;
 import com.rnb2.gwt1.client.model.combo.ServerProperties;
 import com.rnb2.gwt1.client.utils.Constants;
 import com.rnb2.gwt1.client.utils.CustomWidgets;
+import com.rnb2.gwt1.client.widgets.TableUsersXls;
 import com.rnb2.gwt1.data.pm.proxy.UserProxy;
 import com.rnb2.gwt1.shared.ServerProxy;
 import com.sencha.gxt.cell.core.client.form.ComboBoxCell.TriggerAction;
@@ -24,7 +24,6 @@ import com.sencha.gxt.widget.core.client.event.SelectEvent;
 import com.sencha.gxt.widget.core.client.event.SelectEvent.SelectHandler;
 import com.sencha.gxt.widget.core.client.form.ComboBox;
 import com.sencha.gxt.widget.core.client.form.FieldLabel;
-import com.sencha.gxt.widget.core.client.form.TextField;
 import com.sencha.gxt.widget.core.client.info.Info;
 
 
@@ -102,6 +101,7 @@ public class WindowUserPmSelectServer extends Window {
 					return;
 				}
 				CustomWidgets.showWaitCursor();
+				TableUsersXls.getInstance().setStatusBusy();
 				manageService.addUserCopyPmAll(list, comboServer.getCurrentValue().getShortName(), callbackCopyAll());
 
 				isOkclicked = true;
@@ -118,12 +118,14 @@ public class WindowUserPmSelectServer extends Window {
 			@Override
 			public void onFailure(Throwable caught) {
 				CustomWidgets.showDefaultCursor();
+				TableUsersXls.getInstance().setStatusClear();
 				CustomWidgets.createAlert(messages.copyAllUsers2(), messages.errorCopyUser());
 			}
 
 			@Override
 			public void onSuccess(String result) {
 				CustomWidgets.showDefaultCursor();
+				TableUsersXls.getInstance().setStatusClear();
 				if(result == "-1"){
 					CustomWidgets.createAlert(messages.copyAllUsers2(), messages.errorCopyUser());
 				}else{

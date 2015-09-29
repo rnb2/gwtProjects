@@ -14,7 +14,7 @@
     <fileset dir="war/WEB-INF/lib" includes="**/*.jar"/>
   </path>
 
-<target name="2wwar 2" depends="2clean 7.1" >
+<target name="2wwar 2" depends="2clean 9.0" >
 	    <echo>Building the war file</echo>
 	    <war destfile="war/gwt-pm-app.war" webxml="war/WEB-INF/web.xml">
 	        <fileset dir="war"/>
@@ -23,12 +23,12 @@
 
 	
 	
-<target name="2clean 7.1" description="Cleans this project">
+<target name="2clean 9.0" description="Cleans this project">
 	 <delete file="d:\JAVASOFT\wildfly-9.0.0.Final\standalone\deployments\gwt-pm-app.war" failonerror="false" />
      <delete file="war/gwt-pm-app.war" failonerror="false" />
 </target>
 	
-<target name="2deploy 7.1" depends="2clean 7.1, 2wwar 2">
+<target name="2deploy 9.0" depends="2clean 9.0, 2wwar 2">
 	<copy todir="d:\JAVASOFT\wildfly-9.0.0.Final\standalone\deployments\"  
 			file="war/gwt-pm-app.war"></copy>
 		

@@ -58,8 +58,19 @@ public class TableUsersXls implements IsWidget {
 	private HorizontalLayoutContainer containerH;
 	private TextButton buttonCopy, buttonCopyAll;
 	private String headingText;
-	
+	private static TableUsersXls instance;
 
+	/**
+	 * Use only after TableUsersXls() constructor
+	 * @return
+	 */
+	public static TableUsersXls getInstance() {
+		if (instance == null) {
+			instance = new TableUsersXls(new ArrayList<UserProxy>(), null);
+		}
+		return instance;
+	}
+	
 	/**
 	 * Отображение Пользователей прочитанных из Excel
 	 * @param result
@@ -69,6 +80,7 @@ public class TableUsersXls implements IsWidget {
 		this.items = result;
 		this.messages = messages2;
 		this.headingText = messages.titleUsersXls();
+		instance = this;
 		
 		containerH = new HorizontalLayoutContainer();
 		containerH.setId("ContainerIds");
@@ -78,6 +90,7 @@ public class TableUsersXls implements IsWidget {
 	    
 	    buttonCopy.setToolTip(messages2.copyUser());
 	    buttonCopyAll.setToolTip(messages2.copyAllUsers());
+	    statusBusy = new Status();
 	}
 
 	@Override
@@ -94,7 +107,6 @@ public class TableUsersXls implements IsWidget {
 			List<ColumnConfig<UserProxy, ?>> configList = getConfigColumnList(props);
 			 
 			ColumnModel<UserProxy> columnModel = new ColumnModel<UserProxy>(configList);
-			//statusBusy = new Status();
 			
 			ListStore<UserProxy> listStore = new ListStore<UserProxy>(props.key());
 			listStore.addAll(items);
@@ -120,11 +132,11 @@ public class TableUsersXls implements IsWidget {
 		    status.setText(messages.records() + ": " + items.size());
 		    status.setWidth(250);
 		    
-		    //statusBusy.setText("");
+		    statusBusy.setText("");
 
 		    toolBar.add(status);
 		    toolBar.add(new SeparatorToolItem());
-		    //toolBar.add(statusBusy);
+		    toolBar.add(statusBusy);
 			toolBar.forceLayout();
 		 
 			VerticalLayoutData layoutData = new VerticalLayoutData();
@@ -160,9 +172,13 @@ public class TableUsersXls implements IsWidget {
 		return root;
 	}
 	
-	//public void setStatusBusy(){
-		//statusBusy.setBusy(messages.loadData());
-	//}
+	public void setStatusBusy(){
+		statusBusy.setBusy(messages.loadData());
+	}
+
+	public void setStatusClear(){
+		statusBusy.clearStatus("");
+	}
 	
 	/**
 	 * Копирование пользователя
