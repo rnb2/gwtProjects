@@ -13,6 +13,7 @@ import com.rnb2.gwt1.client.messages.MyMessages;
 import com.rnb2.gwt1.client.model.combo.ServerProperties;
 import com.rnb2.gwt1.client.utils.Constants;
 import com.rnb2.gwt1.client.utils.CustomWidgets;
+import com.rnb2.gwt1.client.widgets.TableUserPm;
 import com.rnb2.gwt1.data.pm.User;
 import com.rnb2.gwt1.data.pm.proxy.UserProxy;
 import com.rnb2.gwt1.shared.ServerProxy;
@@ -83,7 +84,7 @@ public class WindowUserPmAdd extends Window {
 		if(isAdd){
 			List<ServerProxy> serversList = new ArrayList<ServerProxy>();
 			
-			int i=1;
+			int i=0;
 			for(String server : Constants.serverList){
 				serversList.add(new ServerProxy(i, server));
 				i++;
@@ -141,6 +142,7 @@ public class WindowUserPmAdd extends Window {
 
 			@Override
 			public void onSelect(SelectEvent event) {
+				TableUserPm.getInstance().setStatusBusy();
 					User user = new User();
 					user.setLoginName(loginName.getCurrentValue());
 					user.setFullName(fullName.getCurrentValue());
@@ -173,11 +175,13 @@ public class WindowUserPmAdd extends Window {
 
 			@Override
 			public void onFailure(Throwable caught) {
+				TableUserPm.getInstance().setStatusClear();
 				Info.display(messages.error(), messages.userAddedAlreadey());
 			}
 
 			@Override
 			public void onSuccess(Void result) {
+				TableUserPm.getInstance().setStatusClear();
 				if(isAdd)
 					Info.display("", messages.userAdded());
 				else

@@ -9,8 +9,6 @@ import java.util.List;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
@@ -71,6 +69,7 @@ import com.sencha.gxt.widget.core.client.toolbar.SeparatorToolItem;
 import com.sencha.gxt.widget.core.client.toolbar.ToolBar;
 
 /**
+ * Раздача прав на JBOSS'ах, и приложениях
  * @author budukh-rn
  *
  */
@@ -183,7 +182,7 @@ public class Mainwidget2 implements IsWidget{
 		
 		 //combo server
 		 List<ServerProxy> serversList = new ArrayList<ServerProxy>();
-		 int i=1;
+		 int i=0;
 		 for(String server : Constants.serverListAll){
 			serversList.add(new ServerProxy(i, server));
 			i++;
@@ -210,24 +209,6 @@ public class Mainwidget2 implements IsWidget{
 		bar.add(new SeparatorToolItem());
 		bar.add(buttonFind);
 		bar.add(new SeparatorToolItem());
-		
-		/*fileformPanel = getFileForm();
-		
-		TextButton submitButton = new TextButton("Submit");
-	      submitButton.addSelectHandler(new SelectHandler() {
-	        @Override
-	        public void onSelect(SelectEvent event) {
-	          if (!fileformPanel.isValid()) {
-	            return;
-	          }
-	          fileformPanel.setAction(file.getValue());
-	          usersFomXls.clear();
-	          manageService.readFileXls(file.getValue(), 5, 7, 2, 3,  callbackReadFile());
-	        }
-	      });
-		
-		bar.add(fileformPanel);
-		bar.add(submitButton);*/
 		
 		TextButton submitButton = new TextButton("", handlerSettingUserXls());
 		submitButton.setTitle(messages.titleUsersXlsImport());
@@ -278,30 +259,6 @@ public class Mainwidget2 implements IsWidget{
 		};
 	}
 
-	/**
-	 * 
-	 * @return
-	 */
-	protected AsyncCallback<List<UserProxy>> callbackReadFile() {
-		return new AsyncCallback<List<UserProxy>>() {
-			
-			@Override
-			public void onSuccess(List<UserProxy> result) {
-				  usersFomXls = result;	
-		          MessageBox box = new MessageBox("File Upload Example", "Your file was uploaded. " + file.getValue() + " result=" + usersFomXls.size());
-		          box.setIcon(MessageBox.ICONS.info());
-		          box.show();
-			}
-			
-			@Override
-			public void onFailure(Throwable caught) {
-				caught.printStackTrace();
-				CustomWidgets.alertWidget("error", caught.getLocalizedMessage());				
-			}
-		};
-	}
-
-	
 	
 	/*private Widget findWidget(){
 		HBoxLayoutContainer container = new HBoxLayoutContainer();
@@ -681,10 +638,11 @@ public class Mainwidget2 implements IsWidget{
 		
 			if(!Character.isDigit(currentValue.charAt(0))){
 				currentValue = currentValue.trim();
-				if(UtilString.isLatinCharacter(currentValue)){
-					param2 = 1;
-				}else{
+				param2 = 1;
+				if(UtilString.isCyrillicCharacter(currentValue)){
 					param2 = 2;
+				}else{
+					param2 = 1;
 				}
 			}
 		}
@@ -769,7 +727,7 @@ public class Mainwidget2 implements IsWidget{
 
 			@Override
 			public void onSelect(SelectEvent event) {
-				
+				widgetTableUserPM.setStatusBusy();
 				manageService.deleteUserPm(widgetTableUserPM.getReturnedvalue().getId(), widgetTableUserPM.getReturnedvalue().getLoginName(), getSelectedServerName(), deleteUserPmCallback());
 				Info.display("", messages.userDeleted());
 				dialogDelete.hide();
@@ -788,12 +746,13 @@ public class Mainwidget2 implements IsWidget{
 			@Override
 			public void onSuccess(Void result) {
 				widgetTableUserPM.getItems().remove(widgetTableUserPM.getReturnedvalue());
+				widgetTableUserPM.setStatusClear();
 				updatePmUserInfo(textField.getCurrentValue(), comboServer.getCurrentValue().getShortName());
 			}
 			
 			@Override
 			public void onFailure(Throwable caught) {
-				
+				widgetTableUserPM.setStatusClear();
 			}
 		};
 	}

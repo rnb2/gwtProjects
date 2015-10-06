@@ -4,6 +4,13 @@ import com.rnb2.gwt1.client.messages.MyMessages;
 
 public abstract class UtilString {
 	
+	public static boolean isCyrillicCharacter(String value){
+		if(value.isEmpty()){
+			return false;
+		}
+		return value.matches(Constants.REGEX_CYR_CHAR);
+	}	
+	
 	/**
 	 * ¬озвращает строку сообщени€ дл€ удалени€
 	 * @param fullName

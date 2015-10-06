@@ -12,6 +12,7 @@ import com.rnb2.gwt1.client.messages.MyMessages;
 import com.rnb2.gwt1.client.model.combo.ServerProperties;
 import com.rnb2.gwt1.client.utils.Constants;
 import com.rnb2.gwt1.client.utils.CustomWidgets;
+import com.rnb2.gwt1.client.widgets.TableUserPm;
 import com.rnb2.gwt1.data.pm.proxy.UserProxy;
 import com.rnb2.gwt1.shared.ServerProxy;
 import com.sencha.gxt.cell.core.client.form.ComboBoxCell.TriggerAction;
@@ -135,6 +136,7 @@ public class WindowUserPmAddCopy extends Window {
 			@Override
 			public void onSelect(SelectEvent event) {
 				
+				TableUserPm.getInstance().setStatusBusy();
 				if(serverName == null){
 					if(comboServer.getCurrentValue() == null){
 						CustomWidgets.createAlert(messages.error(), messages.errorSelectServer());
@@ -153,6 +155,7 @@ public class WindowUserPmAddCopy extends Window {
 		});
 		addButton(bSave);
 		addButton(bClose);
+		setFocusWidget(loginName);
 	}
 
 	protected AsyncCallback<String> callbackAddUser() {
@@ -160,11 +163,13 @@ public class WindowUserPmAddCopy extends Window {
 
 			@Override
 			public void onFailure(Throwable caught) {
+				TableUserPm.getInstance().setStatusClear();
 				CustomWidgets.createAlert(messages.copyUser(), messages.errorCopyUser());
 			}
 
 			@Override
 			public void onSuccess(String result) {
+				TableUserPm.getInstance().setStatusClear();
 				if(result == "-1"){
 					CustomWidgets.createAlert(messages.copyUser(), messages.errorCopyUser());
 				}else{

@@ -31,9 +31,10 @@ public abstract class Constants {
 		serverListAll.add(server_name_jboss_5);
 	}
 	
+	public static final String REGEX_CYR_CHAR = "^\\p{IsCyrillic}+$";
 	public static final String PANEL_MAIN_NORTH = "panelMainNorth";
 	public static final String GRID_RAILWAY_GROUP_PROXY = "gridRailwayGroupProxy";
-	public static final String REGEX_LATIN_CHAR_WITH_DOP = "[A-Za-z-.]+";
+	public static final String REGEX_LATIN_CHAR_WITH_DOP = "[A-Za-z-\\.\\_]+";
 	public static final String REGEX_LATIN_CHAR = "[A-Za-z]+";
 	
 	public final static String[] ARRAY_DOP_CHAR = new String[]{"-","."};

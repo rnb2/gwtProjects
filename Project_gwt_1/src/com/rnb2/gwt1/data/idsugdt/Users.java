@@ -36,6 +36,7 @@ import org.hibernate.annotations.FetchMode;
 @Table(schema="IDS_UGDT",name = "GD_USERS")
 @SequenceGenerator(name = "seq_users", sequenceName = "seq_ora_users", initialValue = 1, allocationSize = 0)
 @NamedQueries( {
+
 	@NamedQuery(name = "getUserIdsByLogin", query = "select o from Users as o where o.name = ?1 "),
 	
 	@NamedQuery(name = "getUserStationByLogin", 
@@ -62,7 +63,7 @@ public class Users implements Serializable {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -1342775039701650474L;
+	private static final long serialVersionUID = -1037962601311013258L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_users")
@@ -79,7 +80,7 @@ public class Users implements Serializable {
 	private Long version;
 
 	@OneToMany(cascade = {})
-	@JoinTable(name = "GD_USERSSTATIONS", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = { @JoinColumn(name = "railwaygroup_id") })
+	@JoinTable(schema= "IDS_UGDT", name = "GD_USERSSTATIONS", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = { @JoinColumn(name = "railwaygroup_id") })
 	@OrderBy("fullName asc")
 	private Set<RailwayGroup> railwayGroup = new HashSet<RailwayGroup>();
 

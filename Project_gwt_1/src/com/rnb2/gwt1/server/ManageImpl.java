@@ -103,6 +103,8 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 	private Map<String, Object> params = new HashMap<String, Object>(2);
 
 	private final String queryNativeAclPermissionBylogin = "select * from ACL_PERMISSION where PRINCIPAL = :param1";
+
+	private final String getUserIdsByLoginFetch = "	select o from Users as o join fetch o.railwayGroup rg where o.name = :param1";
 	
 	
 	/**
@@ -398,6 +400,64 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 		System.out.println("add user: " + userName + " to serve: " + serverName);
 		addEntityPm(user, serverName);
 	}
+	
+	/**
+	 * 05.10.2015
+	 * Копирование пользователя в табл. ИДС УЖДТ
+	 * @param name
+	 * @param fio
+	 * @return
+	 */
+	private boolean copyUserIds(String userNameNew, String userNameOld, String serverName){
+	
+		Session session = null;
+		boolean result = false;
+		try {
+			params.clear();
+			params.put("param1", userNameOld);
+			List<Users> resultList = executeHibernateNamedQueryAll(getUserIdsByLoginFetch,
+					null, params, serverName, TypeSessionFactory.FACTORY_IDS);
+		
+			System.out.println("copyUserIds: resultList=" + resultList.size());
+		
+			if(resultList.isEmpty()){
+				System.err.println("copy UserIds: " + userNameOld + ", user is not found!!!");
+				return result;
+			}
+
+			
+			Users userOld = resultList.get(0);
+			
+			SessionFactory factory = getSessionFactoryIDSByServer(serverName);
+			session = factory.getCurrentSession();
+
+			session.beginTransaction();
+
+			Users users = new Users();
+			users.setName(userNameNew);
+			users.setFio(userOld.getFio());
+			users.setUsername(userOld.getUsername());
+			users.getRailwayGroup().addAll(userOld.getRailwayGroup());
+			users.getUsersDepartment().addAll(userOld.getUsersDepartment());
+			users.getUsersDocumentPermitions().addAll(userOld.getUsersDocumentPermitions());
+			users.getUsersEntityPermitions().addAll(userOld.getUsersEntityPermitions());
+			
+			session.save(users);
+			session.getTransaction().commit();
+			result = true;
+		} catch (Exception e) {
+			result = false;
+			e.printStackTrace();
+			System.err.println("error in copy UserIds userOld:" + userNameOld +" to new user: "+userNameNew);
+		} finally {
+			if (session != null && session.isOpen()) {
+				session.close();
+			}
+		}
+	
+		return result;
+
+	}
 
 	/**
 	 * 28.09.2015
@@ -426,18 +486,18 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 		userNew.setWorkPhone(userOld.getWorkPhone());
 		userNew.setEmployeeID(userOld.getEmployeeID());
 		userNew.getProfiles().addAll(userOld.getProfiles());
-		//userNew.getPermissions().addAll(userOld.getPermissions());
 	
 		addUserPm(userOld, userNew, serverName);
 
 		System.out.println(userNameOld + " was copied to new name: " + userNameNew);
 		
-		if(userOld.getAclPermissions().isEmpty()){
-			return "1";
+		if(!userOld.getAclPermissions().isEmpty()){
+			addUserPmAclPermissionNative(userNameNew, userOld, serverName);
 		}
-				
-		addUserPmAclPermissionNative(userNameNew, userOld, serverName);
 		
+		//copy user IDS
+			copyUserIds(userNameNew, userNameOld, serverName);
+		//--
 		
 		
 		return "1";
@@ -477,12 +537,15 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 		addUserPm(userOld, userNew, serverName);
 
 		
-		if(userOld.getAclPermissions().isEmpty()){
-			return "1";
+		if(!userOld.getAclPermissions().isEmpty()){
+			addUserPmAclPermissionNative(userNameNew, userOld, serverName);
 		}
-				
-		addUserPmAclPermissionNative(userNameNew, userOld, serverName);
 		
+		//IDS
+		System.out.println("ids copy...");
+			copyUserIds(userNameNew, userNameOld, serverName);
+		//--
+		System.out.println("ids copy.");
 
 		return "1";
 	}
@@ -943,6 +1006,7 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 	public List<UserProxy> getUserPmList(String login, int param2, String serverName){
 		List<UserProxy> list = new ArrayList<UserProxy>();
 		params.clear();
+		System.out.println("getUserPmList: param2="+ param2);
 		if(param2 == 0){
 			list =	executeHibernateNamedQueryAll(getUserPMLite, UserProxy.class, params, serverName);
 		}else{
@@ -953,7 +1017,9 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 			}else if(param2 == 2){
 				query = getUserPMLitebyFullName;
 			}
-			list = executeHibernateNamedQueryAll(query, UserProxy.class, params, serverName);
+			System.out.println("getUserPmList: query=" + query + " param=" + params);
+			list = executeHibernateNamedQueryAll(query, UserProxy.class, params, serverName, TypeSessionFactory.FACTORY_PM);
+			System.out.println("getUserPmList: found=" + list.size());
 		}
 		return list;
 	}
@@ -1039,9 +1105,27 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 	 */
 	private <T> List<T> executeHibernateNamedQueryAll(String namedQuery,
 			Class<T> clazz, Map<String, Object> parameters, String serverName) {
-		return runHibernateNamedQuery(namedQuery, clazz, parameters, false, serverName);
+		return runHibernateNamedQuery(namedQuery, clazz, parameters, false, serverName, TypeSessionFactory.FACTORY_PM);
+	}
+
+	/**
+	 * 05.10.2015
+	 * @param query
+	 * @param clazz
+	 * @param parameters
+	 * @param serverName схема JBoss
+	 * @return
+	 */
+	private <T> List<T> executeHibernateNamedQueryAll(String query,
+			Class<T> clazz, Map<String, Object> parameters, String serverName, TypeSessionFactory typFactory) {
+		return runHibernateNamedQuery(query, clazz, parameters, false, serverName, typFactory);
 	}
 	
+	
+	private enum TypeSessionFactory{
+		FACTORY_IDS,
+		FACTORY_PM
+	}
 	
 	/**
 	 * 11.09.2015
@@ -1053,14 +1137,24 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 	 * @return
 	 */
 	private <T> List<T> runHibernateNamedQuery(String namedQuery,
-			Class<T> clazz, Map<String, Object> parameters, boolean isMaxResult, String serverName) {
+			Class<T> clazz, Map<String, Object> parameters, boolean isMaxResult, String serverName, TypeSessionFactory typeFactory) {
 	
 		List<T> list = new ArrayList<T>();
 		SessionFactory sessionFactory = null;
 		Session session = null;
 		try {
 			
-			sessionFactory = getSessionFactoryByServer(serverName);
+			switch (typeFactory) {
+			case FACTORY_IDS:
+				sessionFactory = getSessionFactoryIDSByServer(serverName);
+				break;
+			case FACTORY_PM:
+				sessionFactory = getSessionFactoryByServer(serverName);
+				break;
+			default:
+				break;
+			}
+				
 
 			session = sessionFactory.getCurrentSession();
 			final Transaction transaction = session.beginTransaction();
@@ -1537,6 +1631,8 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 		
 		return result;
 	}
+	
+	
 	
 	/**
 	 * Добавление пользователя в табл. ИДС УЖДТ

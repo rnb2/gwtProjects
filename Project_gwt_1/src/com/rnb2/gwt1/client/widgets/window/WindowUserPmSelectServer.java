@@ -65,7 +65,7 @@ public class WindowUserPmSelectServer extends Window {
 		add(p);
 		
 		List<ServerProxy> serversList = new ArrayList<ServerProxy>();
-		int i=1;
+		int i=0;
 		for(String server : Constants.serverList){
 			serversList.add(new ServerProxy(i, server));
 			i++;

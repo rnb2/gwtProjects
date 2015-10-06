@@ -23,7 +23,6 @@ import com.rnb2.gwt1.client.widgets.window.WindowUserPmAdd;
 import com.rnb2.gwt1.client.widgets.window.WindowUserPmAddCopy;
 import com.rnb2.gwt1.data.pm.proxy.ApplicationProxy;
 import com.rnb2.gwt1.data.pm.proxy.UserProxy;
-import com.rnb2.gwt1.shared.ServerProxy;
 import com.sencha.gxt.cell.core.client.form.ComboBoxCell.TriggerAction;
 import com.sencha.gxt.core.client.resources.ThemeStyles;
 import com.sencha.gxt.core.client.util.Margins;
@@ -59,7 +58,7 @@ public class TableUserPm implements IsWidget {
 	private ContentPanel root;
 	private final UserPmProperties props = GWT.create(UserPmProperties.class);
 	private Collection<? extends UserProxy> items;
-	private Status status;
+	private Status status, statusBusy;
 	private UserProxy selectedElement;
 	private MyMessages messages;
 	private VerticalLayoutContainer container;
@@ -71,7 +70,11 @@ public class TableUserPm implements IsWidget {
 	private TextButton buttonAdd, buttonEdit, buttonDelete, buttonCopy;
 	private String headingText, serverName;
 	private boolean isFromAD = false;
+	public static TableUserPm instance;
 	
+	public static TableUserPm getInstance(){
+		return instance;
+	}
 	
 	interface ApplicationsProperties extends PropertyAccess<ApplicationProxy>{
 		@Path("id")
@@ -95,6 +98,8 @@ public class TableUserPm implements IsWidget {
 		this.isFromAD = isFromAD;
 		this.serverName = serverName;
 		
+		instance = this;
+		
 		if(isFromAD){
 			this.headingText = messages.titleUserAD();
 		}else{
@@ -115,6 +120,8 @@ public class TableUserPm implements IsWidget {
 	    buttonDelete = new TextButton(messages.delete());
 	    buttonCopy = new TextButton(messages.copy());
 	    buttonCopy.setToolTip(messages.copyUser());
+	    
+	    statusBusy = new Status();
 	}
 
 	@Override
@@ -172,14 +179,6 @@ public class TableUserPm implements IsWidget {
 			 combo.setTriggerAction(TriggerAction.ALL);
 			 ApplicationProxy findModelWithKey = combo.getStore().findModelWithKey(Constants.ID_APPLICATION_IDS.toString());
 			 combo.setValue(findModelWithKey);
-			
-
-			 List<ServerProxy> serversList = new ArrayList<ServerProxy>();
-				int i=1;
-				for(String server : Constants.serverList){
-					serversList.add(new ServerProxy(i, server));
-					i++;
-				}
 					 
 							
 			 VerticalLayoutData layoutData = new VerticalLayoutData();
@@ -217,6 +216,13 @@ public class TableUserPm implements IsWidget {
 		    toolBar2.add(buttonEdit);
 		    toolBar2.add(buttonDelete);
 		    toolBar2.add(buttonCopy);
+		    
+		    statusBusy.setText("");
+
+		    
+		    toolBar2.add(new SeparatorToolItem());
+		    toolBar2.add(statusBusy);
+			toolBar2.forceLayout();
 
 		    buttonEdit.setEnabled(false);
 		    buttonDelete.setEnabled(false);
@@ -231,6 +237,14 @@ public class TableUserPm implements IsWidget {
 		    new QuickTip(grid);		    
 		}		
 		return root;
+	}
+	
+	public void setStatusBusy(){
+		statusBusy.setBusy(messages.loadData());
+	}
+
+	public void setStatusClear(){
+		statusBusy.clearStatus("");
 	}
 	
 	/**
