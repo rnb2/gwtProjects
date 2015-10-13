@@ -123,6 +123,20 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 			return emIds;
 		}
 	}
+	
+	/**
+	 * Синхранизация полей пользователй из AD
+	 * 06.10.2015
+	 */
+	public String syncUsersFromAD(){
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			
+			e.printStackTrace();
+		}
+		return "1";
+	}
 		
 	/**
 	 * 

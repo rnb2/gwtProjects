@@ -45,6 +45,7 @@ import com.sencha.gxt.cell.core.client.form.ComboBoxCell.TriggerAction;
 import com.sencha.gxt.core.client.util.Margins;
 import com.sencha.gxt.data.shared.ListStore;
 import com.sencha.gxt.widget.core.client.ContentPanel;
+import com.sencha.gxt.widget.core.client.Status;
 import com.sencha.gxt.widget.core.client.box.MessageBox;
 import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.button.ToggleButton;
@@ -63,6 +64,10 @@ import com.sencha.gxt.widget.core.client.form.FileUploadField;
 import com.sencha.gxt.widget.core.client.form.FormPanel;
 import com.sencha.gxt.widget.core.client.form.TextField;
 import com.sencha.gxt.widget.core.client.info.Info;
+import com.sencha.gxt.widget.core.client.menu.Item;
+import com.sencha.gxt.widget.core.client.menu.Menu;
+import com.sencha.gxt.widget.core.client.menu.MenuItem;
+import com.sencha.gxt.widget.core.client.menu.SeparatorMenuItem;
 import com.sencha.gxt.widget.core.client.toolbar.FillToolItem;
 import com.sencha.gxt.widget.core.client.toolbar.LabelToolItem;
 import com.sencha.gxt.widget.core.client.toolbar.SeparatorToolItem;
@@ -98,6 +103,7 @@ public class Mainwidget2 implements IsWidget{
 	private FormPanel fileformPanel;
 	private FileUploadField file;
 	protected List<UserProxy> usersFomXls = new ArrayList<UserProxy>();
+	private Status statusBusy;
 	
 	public Mainwidget2(String userName2, String loginName2) {
 		this.userName = userName2;
@@ -170,7 +176,8 @@ public class Mainwidget2 implements IsWidget{
 	}
 	
 	private ToolBar findWidget2(){
-		ToolBar bar = new ToolBar();
+		toolBar = new ToolBar();
+		statusBusy = new Status();
 		
 		LabelToolItem labelToolItem = new LabelToolItem(messages.login_Fio()+": ");
 		labelToolItem.setStylePrimaryName("textBold");
@@ -202,28 +209,93 @@ public class Mainwidget2 implements IsWidget{
 		buttonFind.setTitle(messages.toolTipFindUserPm());
 		buttonFind.setIcon(Images.INSTANCE.search());
 		
-		bar.add(labelToolItem);
-		bar.add(textField);
-		bar.add(new SeparatorToolItem());
-		bar.add(comboServer);
-		bar.add(new SeparatorToolItem());
-		bar.add(buttonFind);
-		bar.add(new SeparatorToolItem());
+		toolBar.add(labelToolItem);
+		toolBar.add(textField);
+		toolBar.add(new SeparatorToolItem());
+		toolBar.add(comboServer);
+		toolBar.add(new SeparatorToolItem());
+		toolBar.add(buttonFind);
+		toolBar.add(new SeparatorToolItem());
 		
-		TextButton submitButton = new TextButton("", handlerSettingUserXls());
-		submitButton.setTitle(messages.titleUsersXlsImport());
-	    submitButton.setIcon(Images.INSTANCE.excel_imports());
-	    bar.add(submitButton);
+	    
+	    MenuItem menuItem1 = new MenuItem(messages.titleUsersXlsImportShort());
+	    menuItem1.addSelectionHandler(handlerSettingUserXls());
+	    menuItem1.setIcon(Images.INSTANCE.excel_imports());
+
+	    MenuItem menuItem2 = new MenuItem("Syncronise with AD");
+	    menuItem2.addSelectionHandler(handlerSyncFromAD());
+	    menuItem2.setIcon(Images.INSTANCE.tree());
+	    
+	    Menu menu1 = new Menu();
+	    menu1.add(menuItem1);
+	    menu1.add(new SeparatorMenuItem());
+	    menu1.add(menuItem2);
+	
+	 
+	    TextButton buttonSettings = new TextButton(messages.settingsDop());
+	    buttonSettings.setIcon(Images.INSTANCE.gear());
+	    buttonSettings.setMenu(menu1);
+	    
+	    toolBar.add(buttonSettings);
+	    toolBar.add(statusBusy);  
 		
-		bar.add(new FillToolItem());
+		toolBar.add(new FillToolItem());
 		StringBuilder sb = new StringBuilder();
 		sb.append(messages.loginName());
 		sb.append(": ");
 		sb.append(userName);
-		bar.add(new Label(sb.toString()));		
+		toolBar.add(new Label(sb.toString()));		
 		
-		bar.forceLayout();
-		return bar;
+		toolBar.forceLayout();
+		return toolBar;
+	}
+
+	/**
+	 * Отображение настроек импорта из Xsl	
+	 * @return
+	 */
+	public SelectionHandler<Item> handlerSettingUserXls(){
+		return new SelectionHandler<Item>() {
+			@Override
+			public void onSelection(SelectionEvent<Item> event) {
+					WindowUserPmXlsImport pmSearch = new WindowUserPmXlsImport(messages.titleUsersXlsImport(), messages);
+					pmSearch.show();
+				
+			}
+		};
+	}
+	
+	/**
+	 * Синхранизация полей пользователй из AD
+	 * 06.10.2015
+	 * @return
+	 */
+	private SelectionHandler<Item> handlerSyncFromAD() {
+		return new SelectionHandler<Item>() {
+			
+			@Override
+			public void onSelection(SelectionEvent<Item> event) {
+				statusBusy.setBusy(messages.loadData());
+				manageService.syncUsersFromAD(callbackSyncUsersFromAD());
+			}
+		};
+	}
+	
+		
+	protected AsyncCallback<String> callbackSyncUsersFromAD() {
+		return new AsyncCallback<String>() {
+			
+			@Override
+			public void onSuccess(String result) {
+				Info.display("Sync from AD", "OK");
+				statusBusy.clearStatus("");
+			}
+			
+			@Override
+			public void onFailure(Throwable caught) {
+				statusBusy.clearStatus("");
+			}
+		};
 	}
 
 	private SelectionHandler<ServerProxy> handlerComboServer() {
@@ -591,21 +663,7 @@ public class Mainwidget2 implements IsWidget{
 	
 	protected List<ApplicationProxy> applicationProxyAllList = new ArrayList<ApplicationProxy>();
 	
-	/**
-	 * Отображение настроек импорта из Xsl	
-	 * @return
-	 */
-	public SelectHandler handlerSettingUserXls(){
-		SelectHandler handler = new SelectHandler() {
-			@Override
-			public void onSelect(SelectEvent event) {
-					WindowUserPmXlsImport pmSearch = new WindowUserPmXlsImport(messages.titleUsersXlsImport(), messages);
-					pmSearch.show();
-				
-			}
-		};
-		return handler;
-	}
+
 
 	public SelectHandler handlerFindUsersPm(){
 		SelectHandler handler = new SelectHandler() {
@@ -998,6 +1056,7 @@ public class Mainwidget2 implements IsWidget{
 			new MessageBox("callbackDetailUserPm", "error - " + caught.getLocalizedMessage()).show();
 		}
 	};
+	private ToolBar toolBar;
 
 
 

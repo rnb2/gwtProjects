@@ -37,6 +37,12 @@ import com.rnb2.gwt1.server.utils.Constants;
 public interface ManageService extends RemoteService {
 	
 	/**
+	 * Синхранизация полей пользователй из AD
+	 * 06.10.2015
+	 */
+	public String syncUsersFromAD();
+	
+	/**
 	 * 
 	 * Копирование пользователей
 	 * @param list

@@ -193,4 +193,10 @@ public interface ManageServiceAsync {
 	void addUserCopyPmAll(List<UserProxy> list, String serverName,
 			AsyncCallback<String> callback);
 
+	/**
+	 * Синхранизация полей пользователй из AD
+	 * 06.10.2015
+	 */
+	void syncUsersFromAD(AsyncCallback<String> callback);
+
 }

@@ -411,6 +411,12 @@ public interface MyMessages extends Messages {
 	 * @return
 	 */
 	String titleUsersXlsImport();
+
+	/**
+	 *Импрот пользователей
+	 * @return
+	 */
+	String titleUsersXlsImportShort();
 	
 	/**
 	 * Пользователи из Excel
@@ -468,4 +474,10 @@ public interface MyMessages extends Messages {
 	
 	/**Пользователи скопированы*/
 	String usersCopied();
+
+	/**
+	 * Доп.функции
+	 * @return
+	 */
+	String settingsDop();
 }

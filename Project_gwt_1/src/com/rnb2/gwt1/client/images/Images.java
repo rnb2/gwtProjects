@@ -39,4 +39,8 @@ public interface Images extends ClientBundle {
 	ImageResource key();
 
 	ImageResource excel_imports();
+
+	ImageResource gear();
+
+	ImageResource tree();
 }
