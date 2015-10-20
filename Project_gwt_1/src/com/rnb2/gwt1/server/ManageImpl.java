@@ -1,6 +1,7 @@
 package com.rnb2.gwt1.server;
 
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.security.Principal;
 import java.util.ArrayList;
@@ -75,6 +76,8 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 	@PersistenceContext(unitName = "ugdtEmTest")
 	private EntityManager emIdsTest;
 			
+	private final String getUserPMEmptyEmploee = "select o from User o where o.employeeID is null";
+	private final String getUserPMbyName = "select o from User o where o.loginName = :param1";
 	private final String getUserPMbyname = "select o from User o left join fetch o.permissions where o.loginName = :param1";
 	private final String getUserPMbynameFetch = "select o from User o "
 			+ "left join fetch o.permissions "
@@ -106,6 +109,10 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 
 	private final String getUserIdsByLoginFetch = "	select o from Users as o join fetch o.railwayGroup rg where o.name = :param1";
 	
+	private final String ad_Azovstal = "AZ-DC1.corp.azovstal.ua";
+	private final String ad_MIH = "Dc01-adds-01.metinvest.ua";
+
+	
 	
 	/**
 	 * 
@@ -125,16 +132,88 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 	}
 	
 	/**
-	 * Синхранизация полей пользователй из AD
-	 * 06.10.2015
+	 * Синхранизация полей пользователя из AD
+	 * @param loginName
+	 * @param serverName
+	 * @return
 	 */
-	public String syncUsersFromAD(){
-		try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e) {
+	public String syncUsersFromAD(String loginName, String serverName){
+		SessionFactory factory = getSessionFactoryByServer(serverName);
+		
+		params.clear();
+		params.put("param1", loginName);
+		List<User> users = runHibernateNamedQuery(getUserPMbyName, null, params, false, factory.getCurrentSession());
+		
+		int i=0;
+				
+		for (User user : users) {
+			System.out.println("user... "+ user.getLoginName());
+			List<UserProxy> list = searchUserAd(user.getLoginName(), ad_Azovstal);
+			if(list.isEmpty()){
+				System.out.println("user... " + user.getLoginName()  +" not found in AD!!!");
+				continue;
+			}
+			if(list.size() > 1){
+			System.out.println("--	!!!!!!	--");
+				System.out.println(">1 user in AD for:"+ user.getLoginName());
+				for(UserProxy pr: list){
+					System.out.println(" ...user " + pr.getLoginName());
+				}
+			System.out.println("--/	!!!!!!	--");	
+			}
 			
-			e.printStackTrace();
+			UserProxy userProxy = list.get(0);
+			user.setEmployeeID(userProxy.getEmployeeID());
+			user.setFullName(userProxy.getFullName());
+			user.setWorkPhone(userProxy.getWorkPhone());
+			mergeUserPm(user, user.getId().longValue(), factory.getCurrentSession());
+			i++;
 		}
+		System.out.println("user updated: " + i);
+	
+	return "1";
+	}
+	
+	/**
+	 * Синхранизация полей пользователй из AD(EmployeeID, FullName)
+	 * 06.10.2015
+	 * @param serverName
+	 * @return
+	 */
+	public String syncUsersFromAD(String serverName){
+			SessionFactory factory = getSessionFactoryByServer(serverName);
+		
+		
+			List<User> users = runHibernateNamedQuery(getUserPMEmptyEmploee, null, null, false, factory.getCurrentSession());
+			System.out.println("users with no emploee: " + users.size());
+			int i=0;
+					
+			for (User user : users) {
+				//System.out.println("user... "+ user.getLoginName());
+				List<UserProxy> list = searchUserAd(user.getLoginName(), ad_Azovstal);
+				if(list.isEmpty()){
+					System.out.println("user... " + user.getLoginName()  +" not found in AD!!!");
+					continue;
+				}
+				if(list.size() > 1){
+				System.out.println("--	!!!!!!	--");
+					System.out.println(">1 user in AD for:"+ user.getLoginName());
+					for(UserProxy pr: list){
+						System.out.println(" ...user " + pr.getLoginName());
+					}
+				System.out.println("--/	!!!!!!	--");	
+				}
+				
+				UserProxy userProxy = list.get(0);
+				user.setEmployeeID(userProxy.getEmployeeID());
+				user.setFullName(userProxy.getFullName());
+				mergeUserPm(user, user.getId().longValue(), factory.getCurrentSession());
+				i++;
+			}
+			System.out.println("users updated: " + i);
+		
+		
+		
 		return "1";
 	}
 		
@@ -146,9 +225,10 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 	 * @return
 	 */
 	public String addUserCopyPmAll(List<UserProxy> list, String serverName){
-		String result ="-1"; 
+		String result ="-1";
+		SessionFactory sessionFactory = getSessionFactoryByServer(serverName);
 		for (UserProxy p : list) {
-			result = addUserCopyPm(p.getFullName(), p.getLoginName(), serverName);
+			result = addUserCopyPm(p.getFullName(), p.getLoginName(), serverName, sessionFactory);
 			System.out.println(result);
 		}
 		
@@ -170,13 +250,9 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 		InputStream inputStream = (InputStream) attribute;
 		
         List<UserProxy> proxyList = new ArrayList<UserProxy>();	
-        
+        Workbook workbook = null;
         try {
-			//System.out.println("222  stream=" + inputStream);
-			Workbook workbook = new HSSFWorkbook(inputStream);
-			
-			//System.out.println("222  book=" + workbook.getSheetName(1));
-			//System.out.println("222  books=" + workbook.getNumberOfSheets());
+			workbook = new HSSFWorkbook(inputStream);
 			
 			int numberOfSheets = 1;//workbook.getNumberOfSheets();
 			for (int i = 0; i < numberOfSheets; i++) {
@@ -185,12 +261,14 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 				feelFromXls(proxyList, iteratorRow, rangeBegin, rangeEnd, columnIndexLoginNameOld, columnIndexLoginNameNew);
 			}
 		} catch (Exception e) {
-			//System.out.println("222  ex: " + e.getLocalizedMessage());
 			e.printStackTrace();
 		}finally{
               if(inputStream != null)
                  {   
                     try{ 
+                    	if(workbook != null)
+                    		workbook.close();
+                    	
                     	inputStream.close();
                     	System.out.println("readFileXls.");
                     } catch(Exception e){ e.printStackTrace(); } 
@@ -206,11 +284,11 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
        InputStream inputStream = ClassLoader.getSystemClassLoader().getResourceAsStream(fileName);
 		
         List<UserProxy> proxyList = new ArrayList<UserProxy>();	
-        
+        Workbook workbook = null;
         try {
 			//inputStream = new FileInputStream(fileName);
 			System.out.println("222  stream=" + inputStream);
-			Workbook workbook = new HSSFWorkbook(inputStream);
+			workbook = new HSSFWorkbook(inputStream);
 			
 			System.out.println("222  book=" + workbook.getSheetName(1));
 			System.out.println("222  books=" + workbook.getNumberOfSheets());
@@ -225,6 +303,12 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 			System.out.println("222  ex: " + e.getLocalizedMessage());
 			e.printStackTrace();
 		}finally{
+			try {
+				if(workbook != null)
+					workbook.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			getServletContext().removeAttribute("com.rnb2.gwt1.streamFile.xls");
 		}
         
@@ -473,17 +557,17 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 
 	}
 
+
+	
 	/**
 	 * 28.09.2015
 	 * Копирование пользователя
 	 */
-	private String addUserCopyPm(String userNameNew, String userNameOld, String serverName) {
-		//System.out.println("param1=" + userNameOld);
+	private String addUserCopyPm(String userNameNew, String userNameOld, String serverName, SessionFactory sessionFactory) {
+						
 		params.clear();
 		params.put("param1", userNameOld);
-		List<User> list = executeHibernateNamedQueryAll(getUserPMbynameFetch,
-				null, params, serverName);
-		
+		List<User> list = runHibernateNamedQuery(getUserPMbynameFetch, null, params, false, sessionFactory.getCurrentSession()); //executeHibernateNamedQueryAll(getUserPMbynameFetch, null, params, serverName);		
 
 		if (list.isEmpty()) {
 			return "User not found: " + userNameOld;
@@ -501,12 +585,12 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 		userNew.setEmployeeID(userOld.getEmployeeID());
 		userNew.getProfiles().addAll(userOld.getProfiles());
 	
-		addUserPm(userOld, userNew, serverName);
+		addUserPm(userOld, userNew, sessionFactory);
 
 		System.out.println(userNameOld + " was copied to new name: " + userNameNew);
 		
 		if(!userOld.getAclPermissions().isEmpty()){
-			addUserPmAclPermissionNative(userNameNew, userOld, serverName);
+			addUserPmAclPermissionNative(userNameNew, userOld, sessionFactory.getCurrentSession());
 		}
 		
 		//copy user IDS
@@ -523,11 +607,13 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 	 */
 	public String addUserCopyPm(String userNameNew, String fio, String phone, String employeeId, 
 			String userNameOld, String serverName) {
+		
+		SessionFactory sessionFactory = getSessionFactoryByServer(serverName);
+		
 		System.out.println("param1=" + userNameOld);
 		params.clear();
 		params.put("param1", userNameOld);
-		List<User> list = executeHibernateNamedQueryAll(getUserPMbynameFetch,
-				null, params, serverName);
+		List<User> list = runHibernateNamedQuery(getUserPMbynameFetch, null, params, false, sessionFactory.getCurrentSession()); //executeHibernateNamedQueryAll(getUserPMbynameFetch, null, params, serverName);
 		
 		System.out.println("list=" + list.size());
 
@@ -548,11 +634,11 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 		userNew.getProfiles().addAll(userOld.getProfiles());
 		//userNew.getPermissions().addAll(userOld.getPermissions());
 	
-		addUserPm(userOld, userNew, serverName);
+		addUserPm(userOld, userNew, sessionFactory);
 
 		
 		if(!userOld.getAclPermissions().isEmpty()){
-			addUserPmAclPermissionNative(userNameNew, userOld, serverName);
+			addUserPmAclPermissionNative(userNameNew, userOld, sessionFactory.getCurrentSession());
 		}
 		
 		//IDS
@@ -570,17 +656,11 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 	 * @param userNameNew
 	 * @param userOld
 	 */
-	private void addUserPmAclPermissionNative(String userNameNew, User userOld, String serverName) {
-		SessionFactory sessionFactory = null;
-		Session session = null;
-		try {
-			sessionFactory = getSessionFactoryByServer(serverName);
-			session = sessionFactory.getCurrentSession();
-			final Transaction transaction = session.beginTransaction();
-
-			try {
+	private void addUserPmAclPermissionNative(String userNameNew, User userOld, Session session) {
 		
-				
+		try {
+			final Transaction transaction = session.beginTransaction();
+			try {
 			    // The real work is here
 				for (AclPermission aclPermission : userOld.getAclPermissions()) {
 					String nativeQuery = "INSERT INTO ACL_PERMISSION (principal, entity_id, app_id, access_type, property, operation_type, permissiom_value) "
@@ -618,11 +698,61 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 		}
 	}
 	
-	
+	/**
+	 * 13.10.2015
+	 * @param userOld
+	 * @param userNew
+	 * @param session
+	 */
+	private void addUserPm(User userOld, User userNew, SessionFactory sessionFactory) {
+		List<ApplicationProxy> userAppList = getApplicationPmList(userOld.getLoginName(), sessionFactory.getCurrentSession());
+		
+		Session session = sessionFactory.getCurrentSession();
+		try{
+			session.beginTransaction();
+		
+			List<Integer> userAppLongList = new ArrayList<Integer>(userAppList.size());
+			for(ApplicationProxy pr: userAppList){
+				userAppLongList.add(pr.getId());
+			}
 
+			
+			for(Integer id: userAppLongList){
+				Application application = (Application) session.get(Application.class, id);
+				//System.out.println("addUserPm: found application=" + application.getId() + " application.getPermissions()=" + application.getPermissions().size());
+				for(Permission p : application.getPermissions()){
+				
+					if(userOld.getPermissions().contains(p)){
+						//System.out.println("addUserPm: add p=" + p.getId());		
+						userNew.getPermissions().add(p);
+					}
+				}
+			}
+			session.save(userNew);
+			session.getTransaction().commit();
+			System.out.println("addUserPm: commit.");	
+		} catch (Exception e) {
+			System.out.println("addUserPm error:");
+			e.printStackTrace();
+		}finally {
+			if (session != null && session.isOpen()) {
+				session.close();
+				System.out.println("addUserPm session.close();");
+			}
+		}
+	}
+
+	/**
+	 * use addUserPm(User userOld, User userNew, Session session)
+	 * @param userOld
+	 * @param userNew
+	 * @param serverName
+	 */
+	@Deprecated
 	private void addUserPm(User userOld, User userNew, String serverName) {
+		
 		List<ApplicationProxy> userAppList = getApplicationPmList(userOld.getLoginName(), serverName);
-System.out.println("addUserPm: userAppList=" + userAppList.size());
+
 		SessionFactory factory = getSessionFactoryByServer(serverName);
 		Session session = factory.getCurrentSession();
 		try{
@@ -632,15 +762,15 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 			for(ApplicationProxy pr: userAppList){
 				userAppLongList.add(pr.getId());
 			}
-			System.out.println("addUserPm: userAppLongList=" + userAppLongList.size());
+
 			
 			for(Integer id: userAppLongList){
 				Application application = (Application) session.get(Application.class, id);
-				System.out.println("addUserPm: found application=" + application.getId() + " application.getPermissions()=" + application.getPermissions().size());
+				//System.out.println("addUserPm: found application=" + application.getId() + " application.getPermissions()=" + application.getPermissions().size());
 				for(Permission p : application.getPermissions()){
 				
 					if(userOld.getPermissions().contains(p)){
-						System.out.println("addUserPm: add p=" + p.getId());		
+						//System.out.println("addUserPm: add p=" + p.getId());		
 						userNew.getPermissions().add(p);
 					}
 				}
@@ -664,7 +794,7 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 	 * Добавление приложения пользователю 
 	 */
 	public String addUserApplication(String login, String shortName, List<ApplicationProxy> list, String serverName){
-		
+		//TODO переделать инициализацию SessionFactory
 		params.clear();
 		params.put("param1", login);
 		User user = (User) executeHibernateNamedQueryAll(getUserPMbyname, null, params, serverName).get(0);
@@ -897,6 +1027,20 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 		return list;
 	}
 	
+	/**
+	 * 13.10.2015
+	 * @param login
+	 * @param session
+	 * @return
+	 */
+	private List<ApplicationProxy> getApplicationPmList(String login, Session session){
+		params.clear();
+		params.put("param1", login);
+		List<ApplicationProxy> list = new ArrayList<ApplicationProxy>();
+		list = runHibernateNamedQuery(getApplicationPm, ApplicationProxy.class, params, false, session); //executeHibernateNamedQueryAll(getApplicationPm, ApplicationProxy.class, params, serverName);
+		return list;
+	}
+	
 	public List<ApplicationProxy> getApplicationPmList(String login, String serverName){
 		params.clear();
 		params.put("param1", login);
@@ -1020,20 +1164,20 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 	public List<UserProxy> getUserPmList(String login, int param2, String serverName){
 		List<UserProxy> list = new ArrayList<UserProxy>();
 		params.clear();
-		System.out.println("getUserPmList: param2="+ param2);
+		//System.out.println("getUserPmList: param2="+ param2);
 		if(param2 == 0){
 			list =	executeHibernateNamedQueryAll(getUserPMLite, UserProxy.class, params, serverName);
 		}else{
 			params.put("param1", "%" + login.toUpperCase() + "%");
 			String query = "";
-			if(param2 == 1){		
+			if(param2 == Constants.CODE_LOGIN_NAME){		
 				query = getUserPMLitebyname;
-			}else if(param2 == 2){
+			}else if(param2 ==  Constants.CODE_FULL_NAME){
 				query = getUserPMLitebyFullName;
 			}
-			System.out.println("getUserPmList: query=" + query + " param=" + params);
+			//System.out.println("getUserPmList: query=" + query + " param=" + params);
 			list = executeHibernateNamedQueryAll(query, UserProxy.class, params, serverName, TypeSessionFactory.FACTORY_PM);
-			System.out.println("getUserPmList: found=" + list.size());
+			//System.out.println("getUserPmList: found=" + list.size());
 		}
 		return list;
 	}
@@ -1139,6 +1283,60 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 	private enum TypeSessionFactory{
 		FACTORY_IDS,
 		FACTORY_PM
+	}
+	
+	
+	/**
+	 * 13.10.2015
+	 * @param namedQuery
+	 * @param clazz
+	 * @param parameters
+	 * @param isMaxResult
+	 * @param session
+	 * @return
+	 */
+	private <T> List<T> runHibernateNamedQuery(String namedQuery,
+			Class<T> clazz, Map<String, Object> parameters, boolean isMaxResult, Session session) {
+		List<T> list = new ArrayList<T>();
+
+			final Transaction transaction = session.beginTransaction();
+			try {
+			    // The real work is here
+				org.hibernate.Query query = session.createQuery(namedQuery);
+				
+				if(parameters != null && !parameters.isEmpty()){
+					for (String p : parameters.keySet()) {
+
+						if (parameters.get(p) instanceof Collection<?>) {
+							query.setParameterList(p, (Collection<?>) parameters.get(p));
+						} else if (parameters.get(p) instanceof Date) {
+							query.setTimestamp(p, (Date) parameters.get(p));
+						} else {
+							query.setParameter(p, parameters.get(p));
+						}
+					}
+				}
+				if(clazz != null)
+					query.setResultTransformer(Transformers.aliasToBean(clazz));
+				
+				if (isMaxResult)
+					query.setMaxResults(maxResults);
+				
+				list = query.list();
+				
+			    transaction.commit();
+			  } catch (Exception ex) {
+				  transaction.rollback();
+				  ex.printStackTrace();
+				  System.err.println("runHibernateNamedQuery: " + ex.getMessage());
+			} finally {
+				if (session != null && session.isOpen()) {
+					session.close();
+					System.out.println("runHibernateNamedQuery: session.close();");
+				}
+			}	
+		
+		return list;
 	}
 	
 	/**
@@ -1258,13 +1456,41 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 		return sessionFactory;
 	}
 	
-			
+	/**
+	 * 13.10.2015
+	 * 
+	 * @param entity
+	 * @param id
+	 * @param session
+	 */
+	private <T> void mergeUserPm(User entity, Long id, Session session) {
+		try {
+			session.beginTransaction();
+
+			User user = (User) session.get(entity.getClass(), id.intValue());
+			user.setFullName(entity.getFullName());
+			user.setLoginName(entity.getLoginName());
+			user.setWorkPhone(entity.getWorkPhone());
+			user.setEmployeeID(entity.getEmployeeID());
+			session.flush();
+
+			session.getTransaction().commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (session != null && session.isOpen()) {
+				session.close();
+				System.out.println("mergeUserPm: session.close();");
+			}
+		}
+	}
+	
 	private <T> void mergeUserPm(User entity, Long id, String serverName) {
 		Session session = null;
 		try {
 			SessionFactory factory = getSessionFactoryByServer(serverName);
 			session = factory.getCurrentSession();
-
+			
 			session.beginTransaction();
 			
 			User user = (User) session.get(entity.getClass(), id.intValue());
@@ -1276,7 +1502,7 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 			
 			session.getTransaction().commit();
 		} catch (Exception e) {
-				e.printStackTrace();
+			e.printStackTrace();
 		} finally {
 			if (session != null && session.isOpen()) {
 				session.close();
@@ -1369,15 +1595,15 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 		final String pm_shortName = "PM";
 		final String pm_roleName = "use";
 		
-		List<UserProxy> searchUserAdList = searchUserAd(loginName, null, null);
+		List<UserProxy> searchUserAdList = searchUserAd(loginName, ad_Azovstal);
 		
 		if(searchUserAdList.isEmpty()){
-			System.out.println("searchUserAd return isEmpty for: " + loginName);
+			System.out.println("autorizationByLoginName: return 0 in AD, for: " + loginName);
 			return null;
 		}
 		
 		if(searchUserAdList.size() > 1){
-			System.out.println("searchUserAd return more then 1 user for: " + loginName);
+			System.out.println("autorizationByLoginName: return > 1 in AD, for: " + loginName);
 			return null;
 		}	
 		
@@ -1387,7 +1613,7 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 		
 		List<PermissionProxy> applicationPmPermission = getApplicationPmPermission(loginName, pm_shortName, serverName);
 		for (PermissionProxy pm : applicationPmPermission) {
-			System.out.println("applicationPmPermission for: " + loginName + " pm_shortName: " + pm.getShortName());
+			//System.out.println("applicationPmPermission for: " + loginName + " pm_shortName: " + pm.getShortName());
 			if(pm.getName().equals(pm_roleName)){
 				sb.append(searchUserAdList.get(0).getFullName());
 				sb.append("(");
@@ -1400,17 +1626,43 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 		if(sb.length() > 0)
 			return sb.toString();
 		
-		System.out.println("autorizationByLoginName no found pm_roleName for: " + loginName);
+		System.out.println("autorizationByLoginName: no found pm_roleName for: " + loginName);
 		
 		return null;
+	}
+	
+		
+	/**
+	 * Поиск пользователя в AD
+	 * 13.10.2015
+	 * @param loginName 
+	 * @param ad
+	 * @return
+	 */
+	private List<UserProxy> searchUserAd(String loginName, String ad) {
+		List<UserProxy> result = new ArrayList<UserProxy>();
+		Hashtable<String, String> environment = getEnvironment(ad);
+
+		try {
+     		LdapContext ldap = new InitialLdapContext(environment, null);
+			
+     		String filter = "(&(objectclass=user) (sAMAccountName="+loginName+"))";   		
+			String filterBase ="DC=corp,DC=azovstal,DC=ua";
+     		
+			feelUserProxy(result, ldap, filter, filterBase);
+			//System.out.println("searchUserAd: result=" + result.size());
+     		
+     	} catch (Exception e) {
+     		e.printStackTrace();
+     	} 
+
+		return result;
 	}
 	
 	/** Поиск пользователей в AD*/
 	@Override
 	public List<UserProxy> searchUserAd(String loginName, String fio, String employeeID) {
 		List<UserProxy> result = new ArrayList<UserProxy>();
-		String ad_Azovstal = "AZ-DC1.corp.azovstal.ua";
-		String ad_MIH = "Dc01-adds-01.metinvest.ua";
 		Hashtable<String, String> environment = getEnvironment(ad_Azovstal);
 
 		try {
@@ -1431,7 +1683,7 @@ System.out.println("addUserPm: userAppList=" + userAppList.size());
 
      		
 			feelUserProxy(result, ldap, filter, filterBase);
-			System.out.println("result_1: " + result.size());
+			System.out.println("searchUserAd: result=" + result.size());
 
 			/*filterBase = "DC=metinvest,DC=ua";
 			//result = new ArrayList<UserProxy>();

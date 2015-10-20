@@ -9,6 +9,10 @@ package com.rnb2.gwt1.server.utils;
  */
 public interface Constants {
 	
+
+	public final static int CODE_LOGIN_NAME = 1;
+	public final static int CODE_FULL_NAME = 2;
+	
 	final static String  contextAttributeStreamXlsFile = "com.rnb2.gwt1.streamFile.xls";
 	
 	final static String server_name_jboss = "JBOSS"; 

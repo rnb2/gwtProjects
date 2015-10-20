@@ -222,9 +222,11 @@ public class Mainwidget2 implements IsWidget{
 	    menuItem1.addSelectionHandler(handlerSettingUserXls());
 	    menuItem1.setIcon(Images.INSTANCE.excel_imports());
 
-	    MenuItem menuItem2 = new MenuItem("Syncronise with AD");
+	    MenuItem menuItem2 = new MenuItem(messages.syncWithAd());
 	    menuItem2.addSelectionHandler(handlerSyncFromAD());
 	    menuItem2.setIcon(Images.INSTANCE.tree());
+	    menuItem2.setToolTip(messages.toolTipSyncWithAd());
+	 
 	    
 	    Menu menu1 = new Menu();
 	    menu1.add(menuItem1);
@@ -249,7 +251,7 @@ public class Mainwidget2 implements IsWidget{
 		toolBar.forceLayout();
 		return toolBar;
 	}
-
+	
 	/**
 	 * Отображение настроек импорта из Xsl	
 	 * @return
@@ -258,8 +260,8 @@ public class Mainwidget2 implements IsWidget{
 		return new SelectionHandler<Item>() {
 			@Override
 			public void onSelection(SelectionEvent<Item> event) {
-					WindowUserPmXlsImport pmSearch = new WindowUserPmXlsImport(messages.titleUsersXlsImport(), messages);
-					pmSearch.show();
+				WindowUserPmXlsImport pmSearch = new WindowUserPmXlsImport(messages.titleUsersXlsImport(), messages);
+				pmSearch.show();
 				
 			}
 		};
@@ -275,8 +277,13 @@ public class Mainwidget2 implements IsWidget{
 			
 			@Override
 			public void onSelection(SelectionEvent<Item> event) {
+				if(comboServer.getCurrentValue() == null){
+					CustomWidgets.createAlert(messages.error(), messages.errorSelectServer());
+					return;
+				}
+				
 				statusBusy.setBusy(messages.loadData());
-				manageService.syncUsersFromAD(callbackSyncUsersFromAD());
+				manageService.syncUsersFromAD(getSelectedServerName(), callbackSyncUsersFromAD());
 			}
 		};
 	}
@@ -287,7 +294,7 @@ public class Mainwidget2 implements IsWidget{
 			
 			@Override
 			public void onSuccess(String result) {
-				Info.display("Sync from AD", "OK");
+				Info.display(messages.syncWithAd(), "Ok");
 				statusBusy.clearStatus("");
 			}
 			
@@ -697,10 +704,10 @@ public class Mainwidget2 implements IsWidget{
 			if(!Character.isDigit(currentValue.charAt(0))){
 				currentValue = currentValue.trim();
 				param2 = 1;
-				if(UtilString.isCyrillicCharacter(currentValue)){
-					param2 = 2;
+				if(UtilString.isLatinCharacter(currentValue)){
+					param2 = Constants.CODE_LOGIN_NAME;
 				}else{
-					param2 = 1;
+					param2 = Constants.CODE_FULL_NAME;
 				}
 			}
 		}
@@ -867,7 +874,7 @@ public class Mainwidget2 implements IsWidget{
 		containerApplication.clear();
 		
 				
-		widgetTableUserPM = new TableUserPm(result, applicationProxyAllList, messages, isFromAD, comboServer.getCurrentValue().getShortName());
+		widgetTableUserPM = new TableUserPm(result, applicationProxyAllList, messages, isFromAD, comboServer.getCurrentValue().getShortName(), manageService);
 		widgetTableUserPM.addHandlerButtonDetail(handlerDetailUserIds());
 
 		widgetTableUserPM.addHandlerButtonAcl(handlerDetailAcl());

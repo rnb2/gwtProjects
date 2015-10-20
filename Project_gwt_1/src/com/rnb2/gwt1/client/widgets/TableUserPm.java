@@ -13,8 +13,10 @@ import com.google.gwt.editor.client.Editor.Path;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
+import com.rnb2.gwt1.client.ManageServiceAsync;
 import com.rnb2.gwt1.client.images.Images;
 import com.rnb2.gwt1.client.messages.MyMessages;
 import com.rnb2.gwt1.client.model.UserPmProperties;
@@ -43,6 +45,9 @@ import com.sencha.gxt.widget.core.client.grid.ColumnConfig;
 import com.sencha.gxt.widget.core.client.grid.ColumnModel;
 import com.sencha.gxt.widget.core.client.grid.Grid;
 import com.sencha.gxt.widget.core.client.info.Info;
+import com.sencha.gxt.widget.core.client.menu.Item;
+import com.sencha.gxt.widget.core.client.menu.Menu;
+import com.sencha.gxt.widget.core.client.menu.MenuItem;
 import com.sencha.gxt.widget.core.client.tips.QuickTip;
 import com.sencha.gxt.widget.core.client.toolbar.FillToolItem;
 import com.sencha.gxt.widget.core.client.toolbar.SeparatorToolItem;
@@ -70,6 +75,7 @@ public class TableUserPm implements IsWidget {
 	private TextButton buttonAdd, buttonEdit, buttonDelete, buttonCopy;
 	private String headingText, serverName;
 	private boolean isFromAD = false;
+	private ManageServiceAsync manageService;
 	public static TableUserPm instance;
 	
 	public static TableUserPm getInstance(){
@@ -90,13 +96,15 @@ public class TableUserPm implements IsWidget {
 	 * @param result
 	 * @param applications
 	 * @param messages2
+	 * @param manageService 
 	 */
-	public TableUserPm(List<UserProxy> result, List<ApplicationProxy> applications, MyMessages messages2, boolean isFromAD, String serverName) {
+	public TableUserPm(List<UserProxy> result, List<ApplicationProxy> applications, MyMessages messages2, boolean isFromAD, String serverName, ManageServiceAsync manageService) {
 		this.items = result;
 		this.messages = messages2;
 		this.applications = applications;
 		this.isFromAD = isFromAD;
 		this.serverName = serverName;
+		this.manageService = manageService;
 		
 		instance = this;
 		
@@ -157,6 +165,24 @@ public class TableUserPm implements IsWidget {
 			
 			grid.getSelectionModel().addSelectionHandler(selection);
 			grid.setLoadMask(true);
+			
+			Menu contextMenu = new Menu();
+		    MenuItem item = new MenuItem();
+		    item.setText(messages.syncWithAd());
+		    item.setIcon(Images.INSTANCE.tree());
+		    item.addSelectionHandler(new SelectionHandler<Item>() {
+		      @Override
+		      public void onSelection(SelectionEvent<Item> event) {
+		    	if(selectedElement !=null){ 
+		    	  setStatusBusy();
+		    	  manageService.syncUsersFromAD(selectedElement.getLoginName(), serverName, callbackSyncUser());
+		    	}
+		      }
+		    });
+		 
+		    contextMenu.add(item);
+		    
+		    grid.setContextMenu(contextMenu);
 		    
 			container = new VerticalLayoutContainer();
 			
@@ -239,6 +265,22 @@ public class TableUserPm implements IsWidget {
 		return root;
 	}
 	
+	protected AsyncCallback<String> callbackSyncUser() {
+		return new AsyncCallback<String>() {
+			
+			@Override
+			public void onSuccess(String result) {
+				setStatusClear();
+				Info.display(messages.syncWithAd(), messages.allDone());
+			}
+			
+			@Override
+			public void onFailure(Throwable caught) {
+				setStatusClear();			
+			}
+		};
+	}
+
 	public void setStatusBusy(){
 		statusBusy.setBusy(messages.loadData());
 	}
@@ -322,6 +364,7 @@ public class TableUserPm implements IsWidget {
 		@Override
 		public void onSelection(SelectionEvent<UserProxy> event) {
 			selectedElement = event.getSelectedItem();
+			
 			//UserProxy obj = event.getSelectedItem();
 			//status.setText(obj.getFullName() + " (" + obj.getLoginName()+")");
 		}

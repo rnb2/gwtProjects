@@ -194,9 +194,19 @@ public interface ManageServiceAsync {
 			AsyncCallback<String> callback);
 
 	/**
-	 * Синхранизация полей пользователй из AD
+	 * Синхранизация полей пользователей из AD
 	 * 06.10.2015
+	 * @param serverName
 	 */
-	void syncUsersFromAD(AsyncCallback<String> callback);
+	void syncUsersFromAD(String serverName, AsyncCallback<String> callback);
+
+	/**
+	 * 20.10.2015
+	 * Синхранизация полей пользователя из AD(в контектсном)
+	 * @param loginName
+	 * @param serverName
+	 * @return
+	 */
+	void syncUsersFromAD(String loginName, String serverName, AsyncCallback<String> callback);
 
 }

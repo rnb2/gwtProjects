@@ -1,7 +1,6 @@
 package com.rnb2.gwt1.client.messages;
 
 import com.google.gwt.i18n.client.Messages;
-import com.sencha.gxt.widget.core.client.form.FieldLabel.FieldLabelAppearance;
 
 public interface MyMessages extends Messages {
 
@@ -480,4 +479,22 @@ public interface MyMessages extends Messages {
 	 * @return
 	 */
 	String settingsDop();
+
+	/**
+	 * Синхронизация полей пользователя с Active Directory
+	 * @return
+	 */
+	String toolTipSyncWithAd();
+
+	/**
+	 * Синхронизация с AD
+	 * @return
+	 */
+	String syncWithAd();
+
+	/**
+	 * Успешно завершена!
+	 * @return
+	 */
+	String allDone();
 }
