@@ -17,6 +17,7 @@
 		<class>com.rnb2.gwt1.data.idsugdt.Users</class>
 		<class>com.rnb2.gwt1.data.idsugdt.DocumentPermission</class>
 		<class>com.rnb2.gwt1.data.idsugdt.UsersDepartment</class>
+		<class>com.rnb2.gwt1.data.idsugdt.UsersDepartmentUz</class>
 		<class>com.rnb2.gwt1.data.idsugdt.DocumentDictionary</class>
 		<class>com.rnb2.gwt1.data.idsugdt.DocumentRoles</class>
 		<class>com.rnb2.gwt1.data.idsugdt.EdcPermissionRoles</class>
@@ -49,6 +50,7 @@
 		<class>com.rnb2.gwt1.data.idsugdt.Users</class>
 		<class>com.rnb2.gwt1.data.idsugdt.DocumentPermission</class>
 		<class>com.rnb2.gwt1.data.idsugdt.UsersDepartment</class>
+		<class>com.rnb2.gwt1.data.idsugdt.UsersDepartmentUz</class>
 		<class>com.rnb2.gwt1.data.idsugdt.DocumentDictionary</class>
 		<class>com.rnb2.gwt1.data.idsugdt.DocumentRoles</class>
 		<class>com.rnb2.gwt1.data.idsugdt.EdcPermissionRoles</class>

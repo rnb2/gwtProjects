@@ -51,7 +51,7 @@ public class WindowUserPmSelectServer extends Window {
 	 * 28 сент. 2015 г.	
 	 *
 	 */
-	public WindowUserPmSelectServer(String title, final MyMessages messages, final List<UserProxy> list) {
+	public WindowUserPmSelectServer(String title, final MyMessages messages, final List<UserProxy> list, final String loginName) {
 		this.messages = messages;
 			
 		setModal(true);
@@ -102,7 +102,7 @@ public class WindowUserPmSelectServer extends Window {
 				}
 				CustomWidgets.showWaitCursor();
 				TableUsersXls.getInstance().setStatusBusy();
-				manageService.addUserCopyPmAll(list, comboServer.getCurrentValue().getShortName(), callbackCopyAll());
+				manageService.addUserCopyPmAll(list, comboServer.getCurrentValue().getShortName(), loginName, callbackCopyAll());
 
 				isOkclicked = true;
 				

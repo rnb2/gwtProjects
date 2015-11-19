@@ -125,8 +125,8 @@ public class WindowLogin extends Window {
 					Info.display(messages.authorization(), messages.authorizationOk());
 					hide();
 					
-					String ss = userName.substring(userName.indexOf("(")+1, userName.indexOf(")"));
-					Mainwidget2 con = new Mainwidget2(userName, ss);					    	    
+					String loginName = userName.substring(userName.indexOf("(")+1, userName.indexOf(")"));
+					Mainwidget2 con = new Mainwidget2(userName, loginName);					    	    
 					Viewport viewport = new Viewport();
 					viewport.add(con);							
 					RootPanel.get().add(viewport);

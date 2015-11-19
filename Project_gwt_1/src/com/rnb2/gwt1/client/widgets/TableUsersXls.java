@@ -58,6 +58,7 @@ public class TableUsersXls implements IsWidget {
 	private HorizontalLayoutContainer containerH;
 	private TextButton buttonCopy, buttonCopyAll;
 	private String headingText;
+	private String loginName;
 	private static TableUsersXls instance;
 
 	/**
@@ -66,7 +67,7 @@ public class TableUsersXls implements IsWidget {
 	 */
 	public static TableUsersXls getInstance() {
 		if (instance == null) {
-			instance = new TableUsersXls(new ArrayList<UserProxy>(), null);
+			instance = new TableUsersXls(new ArrayList<UserProxy>(), null, "");
 		}
 		return instance;
 	}
@@ -76,10 +77,11 @@ public class TableUsersXls implements IsWidget {
 	 * @param result
 	 * @param messages2
 	 */
-	public TableUsersXls(List<UserProxy> result, MyMessages messages2) {
+	public TableUsersXls(List<UserProxy> result, MyMessages messages2, final String loginName) {
 		this.items = result;
 		this.messages = messages2;
 		this.headingText = messages.titleUsersXls();
+		this.loginName = loginName;
 		instance = this;
 		
 		containerH = new HorizontalLayoutContainer();
@@ -194,7 +196,7 @@ public class TableUsersXls implements IsWidget {
 					return;
 				}
 				
-				WindowUserPmAddCopy user = new WindowUserPmAddCopy(messages.copyUser(), selectedElement, messages, null);
+				WindowUserPmAddCopy user = new WindowUserPmAddCopy(messages.copyUser(), selectedElement, messages, null, loginName);
 				user.show();
 			}
 		};
@@ -210,7 +212,7 @@ public class TableUsersXls implements IsWidget {
 			
 			@Override
 			public void onSelect(SelectEvent event) {
-				WindowUserPmSelectServer user = new WindowUserPmSelectServer(messages.copyAllUsers2(), messages, new ArrayList<UserProxy>(items));
+				WindowUserPmSelectServer user = new WindowUserPmSelectServer(messages.copyAllUsers2(), messages, new ArrayList<UserProxy>(items), loginName);
 				user.show();
 				
 			}

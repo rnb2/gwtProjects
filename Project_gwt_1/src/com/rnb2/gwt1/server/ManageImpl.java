@@ -22,6 +22,7 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.servlet.http.HttpSession;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -222,13 +223,15 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 	 * Копирование пользователей
 	 * @param list
 	 * @param serverName
+	 * @param userNameCreated пользователь выполняющий операцию
 	 * @return
 	 */
-	public String addUserCopyPmAll(List<UserProxy> list, String serverName){
+	public String addUserCopyPmAll(List<UserProxy> list, String serverName, String userNameCreated){
 		String result ="-1";
-		SessionFactory sessionFactory = getSessionFactoryByServer(serverName);
+		SessionFactory sessionFactoryPm = getSessionFactoryByServer(serverName);
+		SessionFactory sessionFactoryIDS = getSessionFactoryIDSByServer(serverName);
 		for (UserProxy p : list) {
-			result = addUserCopyPm(p.getFullName(), p.getLoginName(), serverName, sessionFactory);
+			result = addUserCopyPm(p.getFullName(), p.getLoginName(), serverName, sessionFactoryPm, sessionFactoryIDS, userNameCreated);
 			System.out.println(result);
 		}
 		
@@ -362,6 +365,11 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 		String ss = System.getProperty("user.name");
 		System.out.println("ss:"+ss);
 		
+		HttpSession session = getThreadLocalRequest().getSession(false);
+		if(session != null){
+			Object attribute = session.getAttribute("loged_user");
+			System.out.println("attribute: loged_user=" + attribute);
+		}
 				
 		ss = getThreadLocalRequest().getRemoteUser();
 		final String localName = getThreadLocalRequest().getLocalName();
@@ -499,46 +507,60 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 		addEntityPm(user, serverName);
 	}
 	
+
+	
 	/**
+	 * 19.11.2015 updated, add - sessionFactoryIDS, remove - servername  
 	 * 05.10.2015
 	 * Копирование пользователя в табл. ИДС УЖДТ
-	 * @param name
-	 * @param fio
+	 * @param userNameNew
+	 * @param userNameOld
+	 * @param sessionFactoryIDS
+	 * @param userNameCreated 
 	 * @return
 	 */
-	private boolean copyUserIds(String userNameNew, String userNameOld, String serverName){
-	
+	private boolean copyUserIds(String userNameNew, String userNameOld, SessionFactory sessionFactoryIDS, String userNameCreated){
+		System.out.println("copyUserIds... userNameNew=" + userNameNew + " userNameOld=" + userNameOld + ", by user=" + userNameCreated);
 		Session session = null;
 		boolean result = false;
 		try {
 			params.clear();
 			params.put("param1", userNameOld);
-			List<Users> resultList = executeHibernateNamedQueryAll(getUserIdsByLoginFetch,
-					null, params, serverName, TypeSessionFactory.FACTORY_IDS);
+			//List<Users> resultList = executeHibernateNamedQueryAll(getUserIdsByLoginFetch, null, params, serverName, TypeSessionFactory.FACTORY_IDS);
+			List<Users> resultList = runHibernateNamedQuery(getUserIdsByLoginFetch, null, params, true, sessionFactoryIDS.getCurrentSession());
 		
-			System.out.println("copyUserIds: resultList=" + resultList.size());
+			System.out.println("copyUserIds: found old user resultList=" + resultList.size());
 		
 			if(resultList.isEmpty()){
 				System.err.println("copy UserIds: " + userNameOld + ", user is not found!!!");
 				return result;
 			}
-
+			
+			//check for dublicate user by userNameNew
+			params.clear();
+			params.put("param1", userNameNew);
+			List<Users> resultList2 = runHibernateNamedQuery(getUserIdsByLoginFetch, null, params, true, sessionFactoryIDS.getCurrentSession());
+			if(!resultList2.isEmpty()){
+				System.err.println("copy UserIds: found userNameNew=" +resultList2.get(0).getName() +" in IDS. User:" + userNameNew + " not will be added to IDS!!!");
+				return result;
+			}
+			//--
 			
 			Users userOld = resultList.get(0);
-			
-			SessionFactory factory = getSessionFactoryIDSByServer(serverName);
-			session = factory.getCurrentSession();
+	
+			session = sessionFactoryIDS.getCurrentSession();
 
 			session.beginTransaction();
 
 			Users users = new Users();
 			users.setName(userNameNew);
 			users.setFio(userOld.getFio());
-			users.setUsername(userOld.getUsername());
+			users.setUsername(userNameCreated);
 			users.getRailwayGroup().addAll(userOld.getRailwayGroup());
 			users.getUsersDepartment().addAll(userOld.getUsersDepartment());
 			users.getUsersDocumentPermitions().addAll(userOld.getUsersDocumentPermitions());
 			users.getUsersEntityPermitions().addAll(userOld.getUsersEntityPermitions());
+			users.getUsersDepartmentUz().addAll(userOld.getUsersDepartmentUz());
 			
 			session.save(users);
 			session.getTransaction().commit();
@@ -552,7 +574,7 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 				session.close();
 			}
 		}
-	
+		System.out.println("copyUserIds.");
 		return result;
 
 	}
@@ -560,22 +582,43 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 
 	
 	/**
+	 * @param sessionFactoryIDS 
+	 */
+	/**
+	 * update 19.11.2015
 	 * 28.09.2015
 	 * Копирование пользователя
+	 * @param userNameNew
+	 * @param userNameOld
+	 * @param serverName
+	 * @param sessionFactoryPm
+	 * @param sessionFactoryIDS
+	 * @param userNameCreated 
+	 * @return
 	 */
-	private String addUserCopyPm(String userNameNew, String userNameOld, String serverName, SessionFactory sessionFactory) {
+	private String addUserCopyPm(String userNameNew, String userNameOld, String serverName, SessionFactory sessionFactoryPm, SessionFactory sessionFactoryIDS, String userNameCreated) {
 						
 		params.clear();
 		params.put("param1", userNameOld);
-		List<User> list = runHibernateNamedQuery(getUserPMbynameFetch, null, params, false, sessionFactory.getCurrentSession()); //executeHibernateNamedQueryAll(getUserPMbynameFetch, null, params, serverName);		
+		List<User> list = runHibernateNamedQuery(getUserPMbynameFetch, null, params, false, sessionFactoryPm.getCurrentSession()); //executeHibernateNamedQueryAll(getUserPMbynameFetch, null, params, serverName);		
 
 		if (list.isEmpty()) {
-			return "User not found: " + userNameOld;
+			return "addUserCopyPm: User not found: " + userNameOld + " on server=" + serverName;
 		};
+		
+		//check for dublicate user by userNameNew
+		params.clear();
+		params.put("param1", userNameNew);
+		List<User> list2 = runHibernateNamedQuery(getUserPMbyName, null, params, false, sessionFactoryPm.getCurrentSession());
+		if (!list2.isEmpty()) {
+			return "addUserCopyPm: found userNameNew=" +list2.get(0).getLoginName() +" in PM. User:" + userNameNew + " not will be added to " + serverName + " !!!";
+		};
+		//--
+		
 
 		User userOld = list.get(0);
 		
-		System.out.println("Found old user=" + userOld.getLoginName());
+		System.out.println("addUserCopyPm: Found old user=" + userOld.getLoginName());
 				
 
 		User userNew = new User();
@@ -585,16 +628,18 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 		userNew.setEmployeeID(userOld.getEmployeeID());
 		userNew.getProfiles().addAll(userOld.getProfiles());
 	
-		addUserPm(userOld, userNew, sessionFactory);
+		addUserPm(userOld, userNew, sessionFactoryPm);
 
-		System.out.println(userNameOld + " was copied to new name: " + userNameNew);
+		System.out.println("addUserCopyPm: " + userNameOld + " was copied to new name: " + userNameNew);
 		
 		if(!userOld.getAclPermissions().isEmpty()){
-			addUserPmAclPermissionNative(userNameNew, userOld, sessionFactory.getCurrentSession());
+			addUserPmAclPermissionNative(userNameNew, userOld, sessionFactoryPm.getCurrentSession());
 		}
 		
 		//copy user IDS
-			copyUserIds(userNameNew, userNameOld, serverName);
+		if(serverName.equals(Constants.server_name_jboss_5) || serverName.equals(Constants.server_name_jboss_01)){
+			copyUserIds(userNameNew, userNameOld, sessionFactoryIDS, userNameCreated);
+		}	
 		//--
 		
 		
@@ -602,20 +647,30 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 	}
 
 	/**
+	 * 19.11.2015 updated add - userNameCreated
 	 * 08.09.2015
 	 * Копирование пользователя
+	 * @param userNameNew
+	 * @param fio
+	 * @param phone
+	 * @param employeeId
+	 * @param userNameOld
+	 * @param serverName
+	 * @param userNameCreated
+	 * @return
 	 */
 	public String addUserCopyPm(String userNameNew, String fio, String phone, String employeeId, 
-			String userNameOld, String serverName) {
+			String userNameOld, String serverName, String userNameCreated) {
 		
-		SessionFactory sessionFactory = getSessionFactoryByServer(serverName);
+		SessionFactory sessionFactoryPM = getSessionFactoryByServer(serverName);
+		SessionFactory sessionFactoryIDS = getSessionFactoryIDSByServer(serverName);
 		
-		System.out.println("param1=" + userNameOld);
+		System.out.println("addUserCopyPm: userNameOld=" + userNameOld);
 		params.clear();
 		params.put("param1", userNameOld);
-		List<User> list = runHibernateNamedQuery(getUserPMbynameFetch, null, params, false, sessionFactory.getCurrentSession()); //executeHibernateNamedQueryAll(getUserPMbynameFetch, null, params, serverName);
+		List<User> list = runHibernateNamedQuery(getUserPMbynameFetch, null, params, false, sessionFactoryPM.getCurrentSession()); //executeHibernateNamedQueryAll(getUserPMbynameFetch, null, params, serverName);
 		
-		System.out.println("list=" + list.size());
+		System.out.println("addUserCopyPm: list=" + list.size());
 
 		if (list.isEmpty()) {
 			return "-1";
@@ -634,18 +689,19 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 		userNew.getProfiles().addAll(userOld.getProfiles());
 		//userNew.getPermissions().addAll(userOld.getPermissions());
 	
-		addUserPm(userOld, userNew, sessionFactory);
+		addUserPm(userOld, userNew, sessionFactoryPM);
 
 		
 		if(!userOld.getAclPermissions().isEmpty()){
-			addUserPmAclPermissionNative(userNameNew, userOld, sessionFactory.getCurrentSession());
+			addUserPmAclPermissionNative(userNameNew, userOld, sessionFactoryPM.getCurrentSession());
 		}
 		
 		//IDS
-		System.out.println("ids copy...");
-			copyUserIds(userNameNew, userNameOld, serverName);
+		
+		if(serverName.equals(Constants.server_name_jboss_5) || serverName.equals(Constants.server_name_jboss_01)){
+			copyUserIds(userNameNew, userNameOld, sessionFactoryIDS, userNameCreated);
+		}	
 		//--
-		System.out.println("ids copy.");
 
 		return "1";
 	}

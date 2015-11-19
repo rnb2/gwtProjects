@@ -92,6 +92,11 @@ public class Users implements Serializable {
 	private String username;
 
 	@OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.EAGER)
+	@JoinColumn(name = "USER_ID")
+	@Fetch(FetchMode.SUBSELECT)
+	private List<UsersDepartmentUz> usersDepartmentUz = new ArrayList<UsersDepartmentUz>();
+	
+	@OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.EAGER)
 	@JoinColumn(name = "USERS_ID")
 	@Fetch(FetchMode.SUBSELECT)
 	private List<UsersDepartment> usersDepartment = new ArrayList<UsersDepartment>();
@@ -213,6 +218,14 @@ public class Users implements Serializable {
 	public void setUsersDocumentPermitions(
 			List<DocumentPermission> usersDocumentPermitions) {
 		this.usersDocumentPermitions = usersDocumentPermitions;
+	}
+
+	public List<UsersDepartmentUz> getUsersDepartmentUz() {
+		return usersDepartmentUz;
+	}
+
+	public void setUsersDepartmentUz(List<UsersDepartmentUz> usersDepartmentUz) {
+		this.usersDepartmentUz = usersDepartmentUz;
 	}
 
 	@Override

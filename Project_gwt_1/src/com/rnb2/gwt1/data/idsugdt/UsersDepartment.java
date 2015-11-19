@@ -17,7 +17,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 @Entity
-@Table(name="GD_USERSDEPARTMENT")
+@Table(schema="IDS_UGDT", name="GD_USERSDEPARTMENT")
 @SequenceGenerator(name="seq_usersdepartment", sequenceName="seq_ora_usersdepartment", initialValue=1, allocationSize=0)
 public class UsersDepartment implements Serializable{
 	/**

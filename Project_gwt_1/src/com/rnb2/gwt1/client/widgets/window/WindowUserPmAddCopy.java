@@ -52,7 +52,7 @@ public class WindowUserPmAddCopy extends Window {
 	 * 08 сент. 2015 г.	
 	 *
 	 */
-	public WindowUserPmAddCopy(String title, final UserProxy userProxy,  final MyMessages messages, final String serverName) {
+	public WindowUserPmAddCopy(String title, final UserProxy userProxy,  final MyMessages messages, final String serverName, final String userNameCreated) {
 		this.messages = messages;
 			
 		setModal(true);
@@ -142,9 +142,9 @@ public class WindowUserPmAddCopy extends Window {
 						CustomWidgets.createAlert(messages.error(), messages.errorSelectServer());
 						return;
 					}
-					manageService.addUserCopyPm(loginName.getCurrentValue(), fullName.getCurrentValue(), phone.getCurrentValue(), employeeId.getCurrentValue(), loginNameOld.getValue(), comboServer.getCurrentValue().getShortName(), callbackAddUser());
+					manageService.addUserCopyPm(loginName.getCurrentValue(), fullName.getCurrentValue(), phone.getCurrentValue(), employeeId.getCurrentValue(), loginNameOld.getValue(), comboServer.getCurrentValue().getShortName(), userNameCreated, callbackAddUser());
 				}else{	
-					manageService.addUserCopyPm(loginName.getCurrentValue(), fullName.getCurrentValue(), phone.getCurrentValue(), employeeId.getCurrentValue(), loginNameOld.getValue(), serverName, callbackAddUser());
+					manageService.addUserCopyPm(loginName.getCurrentValue(), fullName.getCurrentValue(), phone.getCurrentValue(), employeeId.getCurrentValue(), loginNameOld.getValue(), serverName,  userNameCreated, callbackAddUser());
 				}	
 
 				isOkclicked = true;

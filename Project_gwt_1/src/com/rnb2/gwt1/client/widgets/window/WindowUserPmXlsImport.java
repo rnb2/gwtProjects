@@ -8,10 +8,8 @@ import com.rnb2.gwt1.client.Mainwidget2;
 import com.rnb2.gwt1.client.ManageService;
 import com.rnb2.gwt1.client.ManageServiceAsync;
 import com.rnb2.gwt1.client.messages.MyMessages;
-import com.rnb2.gwt1.client.utils.Constants;
 import com.rnb2.gwt1.client.utils.CustomWidgets;
 import com.rnb2.gwt1.data.pm.proxy.UserProxy;
-import com.sencha.gxt.widget.core.client.Status;
 import com.sencha.gxt.widget.core.client.Window;
 import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.container.MarginData;
@@ -23,7 +21,6 @@ import com.sencha.gxt.widget.core.client.event.SubmitCompleteEvent;
 import com.sencha.gxt.widget.core.client.event.SubmitCompleteEvent.SubmitCompleteHandler;
 import com.sencha.gxt.widget.core.client.form.FieldLabel;
 import com.sencha.gxt.widget.core.client.form.FileUploadField;
-import com.sencha.gxt.widget.core.client.form.FileUploadField.FileUploadFieldMessages;
 import com.sencha.gxt.widget.core.client.form.FormPanel;
 import com.sencha.gxt.widget.core.client.form.FormPanel.Encoding;
 import com.sencha.gxt.widget.core.client.form.FormPanel.Method;
@@ -68,7 +65,7 @@ public class WindowUserPmXlsImport extends Window {
 	    final TextField column1 = new TextField();
 	    column1.setAllowBlank(false);
 	    column1.setEmptyText(messages.inputValue());
-	    column1.setValue("1");
+	    column1.setValue("0");
 
 	    final TextField column2 = new TextField();
 	    column2.setAllowBlank(false);
@@ -83,7 +80,7 @@ public class WindowUserPmXlsImport extends Window {
 	    
 	    final TextField rowEnd = new TextField();
 	    rowEnd.setAllowBlank(false);
-	    rowEnd.setValue("4");
+	    rowEnd.setValue("100");
 	    
 	    final FileUploadField file = new FileUploadField();
 	    file.setName("uploadedfile");

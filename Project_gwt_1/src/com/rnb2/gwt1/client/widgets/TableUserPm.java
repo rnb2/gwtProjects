@@ -76,6 +76,7 @@ public class TableUserPm implements IsWidget {
 	private String headingText, serverName;
 	private boolean isFromAD = false;
 	private ManageServiceAsync manageService;
+	private String loginName;
 	public static TableUserPm instance;
 	
 	public static TableUserPm getInstance(){
@@ -97,15 +98,16 @@ public class TableUserPm implements IsWidget {
 	 * @param applications
 	 * @param messages2
 	 * @param manageService 
+	 * @param loginName 
 	 */
-	public TableUserPm(List<UserProxy> result, List<ApplicationProxy> applications, MyMessages messages2, boolean isFromAD, String serverName, ManageServiceAsync manageService) {
+	public TableUserPm(List<UserProxy> result, List<ApplicationProxy> applications, MyMessages messages2, boolean isFromAD, String serverName, ManageServiceAsync manageService, String loginName) {
 		this.items = result;
 		this.messages = messages2;
 		this.applications = applications;
 		this.isFromAD = isFromAD;
 		this.serverName = serverName;
 		this.manageService = manageService;
-		
+		this.loginName = loginName;
 		instance = this;
 		
 		if(isFromAD){
@@ -352,7 +354,7 @@ public class TableUserPm implements IsWidget {
 					return;
 				}
 				
-				WindowUserPmAddCopy user = new WindowUserPmAddCopy(messages.copyUser(), selectedElement, messages, serverName);
+				WindowUserPmAddCopy user = new WindowUserPmAddCopy(messages.copyUser(), selectedElement, messages, serverName, loginName);
 				user.show();
 			}
 		};

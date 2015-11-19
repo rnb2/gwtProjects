@@ -58,9 +58,10 @@ public interface ManageService extends RemoteService {
 	 * Копирование пользователей
 	 * @param list
 	 * @param serverName
+	 * @param userNameCreated - пользователь выполняющий операцию
 	 * @return
 	 */
-	public String addUserCopyPmAll(List<UserProxy> list, String serverName);		
+	public String addUserCopyPmAll(List<UserProxy> list, String serverName, String userNameCreated);		
 
 	/**
 	 * 
@@ -99,9 +100,10 @@ public interface ManageService extends RemoteService {
 	 * @param employeeId
 	 * @param userNameOld - старый логин пользователя
 	 * @param serverName
+	 * @param userNameCreated - пользователь выполняющий операцию
 	 * @return
 	 */
-	public String addUserCopyPm(String userNameNew, String fio, String phone, String employeeId, String userNameOld, String serverName);
+	public String addUserCopyPm(String userNameNew, String fio, String phone, String employeeId, String userNameOld, String serverName, String userNameCreated);
 	
 	/**
 	 * Удаление пользователя из ИДС УЖДТ

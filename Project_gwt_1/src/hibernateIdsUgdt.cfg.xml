@@ -16,6 +16,7 @@
   <mapping class="com.rnb2.gwt1.data.idsugdt.RailwayObject"/>
   <mapping class="com.rnb2.gwt1.data.idsugdt.RailwayObjectType"/>
   <mapping class="com.rnb2.gwt1.data.idsugdt.UsersDepartment"/>
+  <mapping class="com.rnb2.gwt1.data.idsugdt.UsersDepartmentUz"/>
   <mapping class="com.rnb2.gwt1.data.idsugdt.EntityPermission"/>
   <mapping class="com.rnb2.gwt1.data.idsugdt.DocumentPermission"/>
   <mapping class="com.rnb2.gwt1.data.idsugdt.Department"/>

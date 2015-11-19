@@ -839,7 +839,7 @@ public class Mainwidget2 implements IsWidget{
 			containerHtop = new HorizontalLayoutContainer();
 			containerHtop.setLayoutData(layoutData);
 					
-			final TableUsersXls widget = new TableUsersXls(result, messages);
+			final TableUsersXls widget = new TableUsersXls(result, messages, loginName);
 			//widget.setStatusBusy();
 			
 			HorizontalLayoutData layoutData2 = new HorizontalLayoutData(0.5, 1, new Margins(5));
@@ -874,7 +874,7 @@ public class Mainwidget2 implements IsWidget{
 		containerApplication.clear();
 		
 				
-		widgetTableUserPM = new TableUserPm(result, applicationProxyAllList, messages, isFromAD, comboServer.getCurrentValue().getShortName(), manageService);
+		widgetTableUserPM = new TableUserPm(result, applicationProxyAllList, messages, isFromAD, comboServer.getCurrentValue().getShortName(), manageService, loginName);
 		widgetTableUserPM.addHandlerButtonDetail(handlerDetailUserIds());
 
 		widgetTableUserPM.addHandlerButtonAcl(handlerDetailAcl());

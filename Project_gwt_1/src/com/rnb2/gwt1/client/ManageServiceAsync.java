@@ -147,9 +147,19 @@ public interface ManageServiceAsync {
 	void deleteUserIds(Long idUser, String serverName,
 			AsyncCallback<Boolean> callback);
 
-	void addUserCopyPm(String userNameNew, String fio, String phone,
-			String employeeId, String userNameOld, String serverName,
-			AsyncCallback<String> callback);
+	/**
+	 * Копирование пользователя
+	 * @param userNameNew - новое имя пользователя
+	 * @param fio - ФИО
+	 * @param phone - 
+	 * @param employeeId - таб №
+	 * @param userNameOld - старое имя пользователя
+	 * @param serverName - сервер, на котором осущ. копирование  
+	 * @param userNameCreated - пользователь выполняющий операцию
+	 * @param callback
+	 */
+	void addUserCopyPm(String userNameNew, String fio, String phone, String employeeId, String userNameOld,
+			String serverName, String userNameCreated, AsyncCallback<String> callback);
 
 	/**
 	 * Удаление пользователя из схемы JBoss, c Aclpermission (native) 10.09.2015
@@ -185,12 +195,14 @@ public interface ManageServiceAsync {
 
 	/**
 	 * 
+	 * 
 	 * Копирование пользователей
 	 * @param list
 	 * @param serverName
-	 * @return
+	 * @param userNameCreated пользователь выполняющий операцию
+	 * @param callback
 	 */
-	void addUserCopyPmAll(List<UserProxy> list, String serverName,
+	void addUserCopyPmAll(List<UserProxy> list, String serverName, String userNameCreated,
 			AsyncCallback<String> callback);
 
 	/**
