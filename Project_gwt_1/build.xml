@@ -5,6 +5,7 @@
 
   <!-- Configure path to GWT SDK -->
   <property name="gwt.sdk" location="d:/Distrib/JAVA/GWT/gwt-2.5.1/" />
+  <property name="wildfly.dir" location="d:/JAVASOFT/wildfly-9.0.2.Final/standalone/deployments/" />
 
   <path id="project.class.path" >
     <pathelement location="war/WEB-INF/classes"/>
@@ -24,12 +25,12 @@
 	
 	
 <target name="2clean 9.0" description="Cleans this project">
-	 <delete file="d:\JAVASOFT\wildfly-9.0.0.Final\standalone\deployments\gwt-pm-app.war" failonerror="false" />
+	 <delete file="${wildfly.dir}/gwt-pm-app.war" failonerror="false" />
      <delete file="war/gwt-pm-app.war" failonerror="false" />
 </target>
 	
 <target name="2deploy 9.0" depends="2clean 9.0, 2wwar 2">
-	<copy todir="d:\JAVASOFT\wildfly-9.0.0.Final\standalone\deployments\"  
+	<copy todir="${wildfly.dir}"  
 			file="war/gwt-pm-app.war"></copy>
 		
 </target>	

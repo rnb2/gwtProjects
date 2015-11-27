@@ -603,45 +603,53 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 		List<User> list = runHibernateNamedQuery(getUserPMbynameFetch, null, params, false, sessionFactoryPm.getCurrentSession()); //executeHibernateNamedQueryAll(getUserPMbynameFetch, null, params, serverName);		
 
 		if (list.isEmpty()) {
-			return "addUserCopyPm: User not found: " + userNameOld + " on server=" + serverName;
+			//return "addUserCopyPm: User not found: " + userNameOld + " on server=" + serverName;
+			System.out.println("addUserCopyPm: User not found: " + userNameOld + " on server=" + serverName);
+			System.out.println("addUserCopyPm: ----- add to IDS...: " + userNameOld + " on server=" + serverName);
+			boolean copyUserIds = false;
+			if(serverName.equals(Constants.server_name_jboss_5) || serverName.equals(Constants.server_name_jboss_01)){
+				copyUserIds = copyUserIds(userNameNew, userNameOld, sessionFactoryIDS, userNameCreated);
+			}
+			return "addUserCopyPm: ----- add to IDS = " + copyUserIds;
 		};
 		
-		//check for dublicate user by userNameNew
-		params.clear();
-		params.put("param1", userNameNew);
-		List<User> list2 = runHibernateNamedQuery(getUserPMbyName, null, params, false, sessionFactoryPm.getCurrentSession());
-		if (!list2.isEmpty()) {
-			return "addUserCopyPm: found userNameNew=" +list2.get(0).getLoginName() +" in PM. User:" + userNameNew + " not will be added to " + serverName + " !!!";
-		};
-		//--
-		
-
-		User userOld = list.get(0);
-		
-		System.out.println("addUserCopyPm: Found old user=" + userOld.getLoginName());
-				
-
-		User userNew = new User();
-		userNew.setLoginName(userNameNew);
-		userNew.setFullName(userOld.getFullName());
-		userNew.setWorkPhone(userOld.getWorkPhone());
-		userNew.setEmployeeID(userOld.getEmployeeID());
-		userNew.getProfiles().addAll(userOld.getProfiles());
+		if (!list.isEmpty()) {
+			//check for dublicate user by userNameNew
+			params.clear();
+			params.put("param1", userNameNew);
+			List<User> list2 = runHibernateNamedQuery(getUserPMbyName, null, params, false, sessionFactoryPm.getCurrentSession());
+			if (!list2.isEmpty()) {
+				return "addUserCopyPm: found userNameNew=" +list2.get(0).getLoginName() +" in PM. User:" + userNameNew + " not will be added to " + serverName + " !!!";
+			};
+			//--
+			
 	
-		addUserPm(userOld, userNew, sessionFactoryPm);
-
-		System.out.println("addUserCopyPm: " + userNameOld + " was copied to new name: " + userNameNew);
+			User userOld = list.get(0);
+			
+			System.out.println("addUserCopyPm: Found old user=" + userOld.getLoginName());
+					
+	
+			User userNew = new User();
+			userNew.setLoginName(userNameNew);
+			userNew.setFullName(userOld.getFullName());
+			userNew.setWorkPhone(userOld.getWorkPhone());
+			userNew.setEmployeeID(userOld.getEmployeeID());
+			userNew.getProfiles().addAll(userOld.getProfiles());
 		
-		if(!userOld.getAclPermissions().isEmpty()){
-			addUserPmAclPermissionNative(userNameNew, userOld, sessionFactoryPm.getCurrentSession());
+			addUserPm(userOld, userNew, sessionFactoryPm);
+	
+			System.out.println("addUserCopyPm: " + userNameOld + " was copied to new name: " + userNameNew);
+			
+			if(!userOld.getAclPermissions().isEmpty()){
+				addUserPmAclPermissionNative(userNameNew, userOld, sessionFactoryPm.getCurrentSession());
+			}
+			
+			//copy user IDS
+			if(serverName.equals(Constants.server_name_jboss_5) || serverName.equals(Constants.server_name_jboss_01)){
+				copyUserIds(userNameNew, userNameOld, sessionFactoryIDS, userNameCreated);
+			}	
+			//--
 		}
-		
-		//copy user IDS
-		if(serverName.equals(Constants.server_name_jboss_5) || serverName.equals(Constants.server_name_jboss_01)){
-			copyUserIds(userNameNew, userNameOld, sessionFactoryIDS, userNameCreated);
-		}	
-		//--
-		
 		
 		return "1";
 	}
@@ -668,40 +676,51 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 		System.out.println("addUserCopyPm: userNameOld=" + userNameOld);
 		params.clear();
 		params.put("param1", userNameOld);
-		List<User> list = runHibernateNamedQuery(getUserPMbynameFetch, null, params, false, sessionFactoryPM.getCurrentSession()); //executeHibernateNamedQueryAll(getUserPMbynameFetch, null, params, serverName);
+		List<User> list = runHibernateNamedQuery(getUserPMbynameFetch, null, params, false, sessionFactoryPM.getCurrentSession()); 
 		
 		System.out.println("addUserCopyPm: list=" + list.size());
 
 		if (list.isEmpty()) {
-			return "-1";
+			//return "-1";
+			System.out.println("addUserCopyPm: User not found: " + userNameOld + " on server=" + serverName);
+			System.out.println("addUserCopyPm: ----- add to IDS...: " + userNameOld + " on server=" + serverName);
+			boolean copyUserIds = false;
+			if(serverName.equals(Constants.server_name_jboss_5) || serverName.equals(Constants.server_name_jboss_01)){
+				copyUserIds = copyUserIds(userNameNew, userNameOld, sessionFactoryIDS, userNameCreated);
+			}
+			System.out.println("addUserCopyPm: ----- add to IDS = " + copyUserIds);
+			return "1";
 		};
 
-		User userOld = list.get(0);
-		
-		System.out.println("userOld=" + userOld.getLoginName());
-				
-
-		User userNew = new User();
-		userNew.setLoginName(userNameNew);
-		userNew.setFullName(fio);
-		userNew.setWorkPhone(phone);
-		userNew.setEmployeeID(employeeId);
-		userNew.getProfiles().addAll(userOld.getProfiles());
-		//userNew.getPermissions().addAll(userOld.getPermissions());
+		if (!list.isEmpty()) {
+			
+			User userOld = list.get(0);
+			
+			System.out.println("userOld=" + userOld.getLoginName());
+					
 	
-		addUserPm(userOld, userNew, sessionFactoryPM);
-
+			User userNew = new User();
+			userNew.setLoginName(userNameNew);
+			userNew.setFullName(fio);
+			userNew.setWorkPhone(phone);
+			userNew.setEmployeeID(employeeId);
+			userNew.getProfiles().addAll(userOld.getProfiles());
+			//userNew.getPermissions().addAll(userOld.getPermissions());
 		
-		if(!userOld.getAclPermissions().isEmpty()){
-			addUserPmAclPermissionNative(userNameNew, userOld, sessionFactoryPM.getCurrentSession());
+			addUserPm(userOld, userNew, sessionFactoryPM);
+	
+			
+			if(!userOld.getAclPermissions().isEmpty()){
+				addUserPmAclPermissionNative(userNameNew, userOld, sessionFactoryPM.getCurrentSession());
+			}
+			
+			//IDS
+			
+			if(serverName.equals(Constants.server_name_jboss_5) || serverName.equals(Constants.server_name_jboss_01)){
+				copyUserIds(userNameNew, userNameOld, sessionFactoryIDS, userNameCreated);
+			}	
+			//--
 		}
-		
-		//IDS
-		
-		if(serverName.equals(Constants.server_name_jboss_5) || serverName.equals(Constants.server_name_jboss_01)){
-			copyUserIds(userNameNew, userNameOld, sessionFactoryIDS, userNameCreated);
-		}	
-		//--
 
 		return "1";
 	}
