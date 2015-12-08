@@ -899,7 +899,7 @@ public class Mainwidget2 implements IsWidget{
 		
 		
 		HorizontalLayoutData layoutData3 = new HorizontalLayoutData(0.5, 1, new Margins(5, 5, 5, 0));
-		TableApplicationPm applicationPm = new TableApplicationPm(new ArrayList<ApplicationProxy>(), null, messages, getSelectedServerName());
+		TableApplicationPm applicationPm = new TableApplicationPm(new ArrayList<ApplicationProxy>(), null, messages, getSelectedServerName(), "");
 		containerApplication.add(applicationPm, new VerticalLayoutData(1, 1));
 		   
 		containerHtop.add(containerApplication, layoutData3);
@@ -1048,7 +1048,7 @@ public class Mainwidget2 implements IsWidget{
 			widgetTableUserPM.getButtonCopy().setEnabled(true);
 			widgetTableUserPM.getButtonEdit().setEnabled(true);
 			
-			TableApplicationPm applicationPm = new TableApplicationPm(result, widgetTableUserPM.getReturnedvalue().getLoginName(), messages, getSelectedServerName());
+			TableApplicationPm applicationPm = new TableApplicationPm(result, widgetTableUserPM.getReturnedvalue().getLoginName(), messages, getSelectedServerName(),  widgetTableUserPM.getReturnedvalue().getFullName());
 			containerApplication.add(applicationPm, new VerticalLayoutData(1, 1));
 			containerApplication.forceLayout();
 			////applicationPm.addSelectionToTable();

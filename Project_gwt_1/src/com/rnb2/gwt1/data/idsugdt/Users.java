@@ -59,11 +59,10 @@ import org.hibernate.annotations.FetchMode;
 	
 })
 public class Users implements Serializable {
-
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -1037962601311013258L;
+	private static final long serialVersionUID = -2814277688143001664L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_users")
@@ -85,7 +84,7 @@ public class Users implements Serializable {
 	private Set<RailwayGroup> railwayGroup = new HashSet<RailwayGroup>();
 
 	@Column
-	@Temporal(TemporalType.DATE)
+	@Temporal(TemporalType.TIMESTAMP)
 	private Date dateInput = new Date();
 
 	@Column

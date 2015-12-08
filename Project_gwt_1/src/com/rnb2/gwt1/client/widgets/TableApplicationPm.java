@@ -49,7 +49,7 @@ public class TableApplicationPm implements IsWidget {
 	
 	private String login = null;
 	private String shortname = null;
-	private String serverName;
+	private String serverName, fio;
 	
 	
 	private SelectionHandler<ApplicationProxy> selectionHandler = new SelectionHandler<ApplicationProxy>() {
@@ -60,18 +60,23 @@ public class TableApplicationPm implements IsWidget {
 			//new MessageBox("0 select record", "shortname = " + shortname + " login="+ login).show();
 		}
 	};
-	
+
+
 	/**
+	 * 
 	 * ѕриложени€ у пользовател€
 	 * @param result
 	 * @param login
 	 * @param messages
+	 * @param serverName
+	 * @param fio пользовател€
 	 */
-	public TableApplicationPm(List<ApplicationProxy> result, String login,  MyMessages messages,  String serverName) {
+	public TableApplicationPm(List<ApplicationProxy> result, String login,  MyMessages messages,  String serverName, String fio) {
 		this.items = result;
 		this.messages = messages;
 		this.login = login;
 		this.serverName  = serverName;
+		this.fio = fio;
 	}
 	
 	@Override
@@ -222,7 +227,7 @@ public class TableApplicationPm implements IsWidget {
 			@Override
 			public void onSelect(SelectEvent event) {
 
-				WindowUserPmAddRole widget = new WindowUserPmAddRole(login, shortname, messages, serverName);
+				WindowUserPmAddRole widget = new WindowUserPmAddRole(login, shortname, fio, messages, serverName);
 				widget.show();
 			}
 		};

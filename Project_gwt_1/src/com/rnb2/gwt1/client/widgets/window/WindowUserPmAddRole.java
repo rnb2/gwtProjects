@@ -55,8 +55,7 @@ public class WindowUserPmAddRole extends Window {
 	private ListStore<PermissionProxy> store1;
 	private ListStore<ApplicationProxy> storeApp;
 	private MyMessages messages;
-	private String login;
-	private String shortName;
+	private String login, shortName;
 	protected ApplicationProxy selectedApp;
 
 			
@@ -72,12 +71,12 @@ public class WindowUserPmAddRole extends Window {
 	 * Добавление ролей пользователю
 	 * 
 	 */
-	public WindowUserPmAddRole(final String login, final String shortname, MyMessages messages, final String serverName) {
+	public WindowUserPmAddRole(final String login, final String shortname, final String fio, MyMessages messages, final String serverName) {
 		
 		this.messages = messages;
 		this.login = login;
 		this.shortName = shortname;
-		
+				
 		setModal(true);
 		setBlinkModal(true);
 		setHeadingText(messages.permisions());
@@ -166,7 +165,7 @@ public class WindowUserPmAddRole extends Window {
 					break;
 				}
 				if(isAddUserIds){
-					manageService.addUserIds(login, shortName, Mainwidget2.getInstance().getLoginName(), serverName, null);
+					manageService.addUserIds(login, fio, Mainwidget2.getInstance().getLoginName(), serverName, null);
 				}	
 				//
 								
