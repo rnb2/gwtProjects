@@ -676,6 +676,9 @@ public class Mainwidget2 implements IsWidget{
 		SelectHandler handler = new SelectHandler() {
 			@Override
 			public void onSelect(SelectEvent event) {
+				
+				manageService.getUserName(null);
+				
 				if(comboServer.getCurrentValue() == null){
 					CustomWidgets.createAlert(messages.error(), messages.errorSelectServer());
 					return;

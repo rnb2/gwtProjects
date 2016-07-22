@@ -81,9 +81,9 @@ public class WindowUserPmAddRole extends Window {
 		setBlinkModal(true);
 		setHeadingText(messages.permisions());
 		setBodyStyle("padding: 5px");
-		setWidth(500);
+		setWidth(700);
 		setHeight(400);
-		setResizable(false);
+		setResizable(true);
 		
 		VerticalLayoutContainer p = new VerticalLayoutContainer();
 		add(p);
@@ -95,7 +95,7 @@ public class WindowUserPmAddRole extends Window {
 		ComboBox<ApplicationProxy> comboApp = new ComboBox<ApplicationProxy>(storeApp, propsApp.fullName());
 	    addHandlersForEventObservation(comboApp, propsApp.fullName(), serverName);
 	    comboApp.setEmptyText(messages.selectRecord()+"...");
-	    comboApp.setWidth(470);
+	    comboApp.setWidth(670);
 	    comboApp.setTypeAhead(true);
 	    comboApp.setTriggerAction(TriggerAction.ALL);
 	    
@@ -123,13 +123,17 @@ public class WindowUserPmAddRole extends Window {
 		
 		manageService.getApplicationPmPermissionFull(login, this.shortName, serverName, callbackGetPermisions1());
 		
-		p.add(new LabelPanel(messages.allRoles()+":", messages.userRoles()+":", 190));
+		p.add(new LabelPanel(messages.allRoles()+":", messages.userRoles()+":", 290));
         
 		final DualListField<PermissionProxy, String> dualList = new DualListField<PermissionProxy, String>(store1, store2, props.fullName(), new TextCell());
 	    dualList.addValidator(new EmptyValidator<List<PermissionProxy>>());
 	    dualList.setEnableDnd(true);
 	    dualList.setMode(Mode.INSERT);
+	   
 	  
+	  /* ContentPanel contentPanel = new ContentPanel();
+	   contentPanel.setHeadingText(messages.allRoles()+":");
+	   contentPanel.add(dualList);*/
 	  
 	      
 	    p.add(dualList, new VerticalLayoutData(1, 1));

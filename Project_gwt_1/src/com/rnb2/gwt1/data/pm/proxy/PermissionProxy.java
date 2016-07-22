@@ -27,8 +27,15 @@ public class PermissionProxy implements Serializable {
 	}
 	
 	public String getFullName(){
-		if(description != null)
-			return name + " (" + description +")";
+		if(description != null){
+			StringBuilder stringBuilder = new StringBuilder();
+			stringBuilder.append(name);
+			stringBuilder.append(" (");
+			//stringBuilder.append("<br/>");
+			stringBuilder.append(description);
+			stringBuilder.append(")");
+			return stringBuilder.toString();
+		}
 		return name;
 	}
 

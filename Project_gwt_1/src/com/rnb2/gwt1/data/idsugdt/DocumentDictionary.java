@@ -20,7 +20,7 @@ import javax.persistence.Table;
  * 
  */
 @Entity
-@Table(name = "GD_DOCUMENTDICTIONARY")
+@Table(schema="IDS_UGDT", name = "GD_DOCUMENTDICTIONARY")
 @SequenceGenerator(name = "seq_documentdictionary", sequenceName = "seq_ora_documentdictionary", initialValue = 1, allocationSize = 0)
 
 @NamedQueries( {

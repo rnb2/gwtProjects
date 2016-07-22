@@ -1,10 +1,6 @@
 package com.rnb2.gwt1.server;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -14,16 +10,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileItemIterator;
-import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 
 import com.rnb2.gwt1.server.utils.Constants;
 
@@ -38,37 +28,37 @@ public class FileUploadServlet extends HttpServlet {
 	 */
 	public FileUploadServlet() {
 		super();
-		System.out.println("servlet counstr()");
+		//System.out.println("servlet counstr()");
 	}
 
 	@Override
 	protected void service(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
-		System.out.println("do service...");
+		//System.out.println("do service...");
 	
 		ServletFileUpload servletFileUpload = new ServletFileUpload();
 		
 		boolean isMultipart = ServletFileUpload.isMultipartContent(request);
-        System.out.println("Status : "+isMultipart);
+        //System.out.println("Status : "+isMultipart);
 		if (isMultipart) {
 			InputStream inputStream2 = null;
 			try {
 				DiskFileItemFactory factory = new DiskFileItemFactory();
 				ServletContext servletContext = this.getServletConfig().getServletContext();
 				
-				System.out.println(servletContext.getAttribute("javax.servlet.context.tempdir"));
+				//System.out.println(servletContext.getAttribute("javax.servlet.context.tempdir"));
 				
 				File repository = (File) servletContext.getAttribute("javax.servlet.context.tempdir");
 				factory.setRepository(repository);
 				servletFileUpload = new ServletFileUpload(factory);
 				
 				List<FileItem> listFileItems = servletFileUpload.parseRequest(request);
-				System.out.println("listFileItems=" + listFileItems.size());
+				//System.out.println("listFileItems=" + listFileItems.size());
 				for (FileItem fileItem : listFileItems) {
-					System.out.println("fileItem=" + fileItem.getFieldName());
+					//System.out.println("fileItem=" + fileItem.getFieldName());
 					inputStream2 = fileItem.getInputStream();
 				}
-				System.out.println("inputStream2=" + inputStream2);
+				//System.out.println("inputStream2=" + inputStream2);
 				
 				/*FileItemIterator iter = servletFileUpload.getItemIterator(request);
 
@@ -125,9 +115,9 @@ public class FileUploadServlet extends HttpServlet {
 			}
 
 			catch (Exception e) {
-				System.out.print("Servlet Exception...");
+				//System.out.print("Servlet Exception...");
 				e.printStackTrace();
-				System.out.print("Servlet Exception.");
+				//System.out.print("Servlet Exception.");
 				throw new RuntimeException(e);
 			}
 			
@@ -141,7 +131,6 @@ public class FileUploadServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
-		System.out.println("do get...");
 		doPost(request, response);
 	}
 
@@ -151,10 +140,6 @@ public class FileUploadServlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
-		System.out.println("do post...");
-
-		
-	
 	}
 
 }

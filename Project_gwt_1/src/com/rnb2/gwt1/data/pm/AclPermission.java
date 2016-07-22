@@ -7,15 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
 import javax.persistence.Table;
-
-
-import com.rnb2.gwt1.data.pm.AclPermissionPK.AccessType;
 
 
 @Entity
@@ -31,7 +23,7 @@ public class AclPermission implements Serializable{
 
 
 	public enum OperationType{
-		EQ, LIKE
+		EQ, LIKE, IN
 	}
 	
 	@Id

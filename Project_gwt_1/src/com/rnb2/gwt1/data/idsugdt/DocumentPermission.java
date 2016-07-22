@@ -28,7 +28,7 @@ import javax.persistence.Version;
  * 
  */
 @Entity
-@Table(name = "GD_DOCUMENTPERMISSION")
+@Table(schema="IDS_UGDT", name = "GD_DOCUMENTPERMISSION")
 @SequenceGenerator(name = "seq_documentpermission", sequenceName = "seq_ora_documentpermission", initialValue = 1, allocationSize = 0)
 public class DocumentPermission implements Serializable {
 
