@@ -96,7 +96,7 @@ public class Mainwidget2 implements IsWidget{
 	private DialogDelete2 dialogDelete;
 	private static Mainwidget2 instance;
 	private String userName, loginName;
-	private VerticalLayoutData layoutDataHalf;
+	private VerticalLayoutData layoutDataFull;
 	private TestTabPanel testTabPanel;
 	private UsersProxy usersProxy;
 	private ComboBox<ServerProxy> comboServer;
@@ -114,9 +114,9 @@ public class Mainwidget2 implements IsWidget{
 		
 		instance = this;
 		
-		layoutDataHalf = new VerticalLayoutData();
-		layoutDataHalf.setHeight(0.5);
-		layoutDataHalf.setWidth(1);
+		layoutDataFull = new VerticalLayoutData();
+		layoutDataFull.setHeight(1);
+		layoutDataFull.setWidth(1);
 	}
 	
 	@Override
@@ -513,7 +513,7 @@ public class Mainwidget2 implements IsWidget{
 			VerticalLayoutContainer container = testTabPanel.getContainerDepartments();
 			container.clear();
 
-			container.add(new TableUsersDepartment(usersProxy, result, getSelectedServerName()), layoutDataHalf);
+			container.add(new TableUsersDepartment(usersProxy, result, getSelectedServerName()), layoutDataFull);
 			container.forceLayout();
 		}
 		
@@ -532,7 +532,7 @@ public class Mainwidget2 implements IsWidget{
 			VerticalLayoutContainer container = testTabPanel.getContainerForm();
 			container.clear();
 
-			container.add(new TableDocumentPermis(usersProxy, result, getSelectedServerName()), layoutDataHalf);
+			container.add(new TableDocumentPermis(usersProxy, result, getSelectedServerName()), layoutDataFull);
 			container.forceLayout();
 		}
 		
@@ -550,7 +550,7 @@ public class Mainwidget2 implements IsWidget{
 			VerticalLayoutContainer container = testTabPanel.getContainerSpr();
 			container.clear();
 
-			container.add(new TableEntityPermis(usersProxy, result, getSelectedServerName()), layoutDataHalf);
+			container.add(new TableEntityPermis(usersProxy, result, getSelectedServerName()), layoutDataFull);
 			container.forceLayout();
 			
 		}
@@ -569,7 +569,8 @@ public class Mainwidget2 implements IsWidget{
 			VerticalLayoutContainer containerStation = testTabPanel.getContainerStation();
 			containerStation.clear();
 
-			containerStation.add(new TableRailwayGroup(usersProxy, result, getSelectedServerName()), layoutDataHalf);
+				
+			containerStation.add(new TableRailwayGroup(usersProxy, result, getSelectedServerName()), layoutDataFull);
 			containerStation.forceLayout();
 		}
 		
