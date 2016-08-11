@@ -1,6 +1,8 @@
 package com.rnb2.gwt1.client;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
@@ -37,13 +39,31 @@ import com.rnb2.gwt1.server.utils.Constants;
 public interface ManageService extends RemoteService {
 	
 	/**
+	 * Поиск пользователей в AD
+	 * 11.08.2016
+	 * @param environment2
+	 * @param loginName
+	 * @param fio
+	 * @param employeeID
+	 * @return
+	 */
+	public List<UserProxy> searchUserAd(Map<String, String> environment2, String loginName, String fio, String employeeID);
+	/**
+	 * 11.08.2016
+	 * возвращает имя пользователя из AD
+	 * @param loginName
+	 * @return
+	 */
+	public String autorizationByLoginName(Map<String, String> environment, String loginName, String serverName);
+	
+	/**
 	 * 20.10.2015
 	 * Синхранизация полей пользователя из AD(в контектсном)
 	 * @param loginName
 	 * @param serverName
 	 * @return
 	 */
-	public String syncUsersFromAD(String loginName, String serverName);
+	public String syncUsersFromAD(Map<String, String> environment, String loginName, String serverName);
 	
 	/**
 	 * Синхранизация полей пользователtй из AD
@@ -51,7 +71,7 @@ public interface ManageService extends RemoteService {
 	 * @param serverName
 	 * @return
 	 */
-	public String syncUsersFromAD(String serverName);
+	public String syncUsersFromAD(Map<String, String> environment, String serverName);
 	
 	/**
 	 * 
@@ -118,7 +138,7 @@ public interface ManageService extends RemoteService {
 	 * @param loginName
 	 * @return
 	 */
-	public String autorizationByLoginName(String loginName, String serverName);
+	/*public String autorizationByLoginName(String loginName, String serverName);*/
 	
 	/**
 	 * Добавление Доступн. подразделений ЭГД у пользователя ИДС УЖДТ  
@@ -212,8 +232,8 @@ public interface ManageService extends RemoteService {
 	 */
 	List<RailwayGroup> getStationList(String syscode, List<Long> usersList, String serverName);
 	
-	/** Поиск пользователей в AD*/
-	List<UserProxy> searchUserAd(String loginName, String fio, String employeeID); 
+	///** Поиск пользователей в AD*/
+	//List<UserProxy> searchUserAd(String loginName, String fio, String employeeID); 
 	
 	/**разрешения у приложения*/
 	PermissionProxyFull getApplicationPmPermissionFull(String login, String shortName, String serverName);

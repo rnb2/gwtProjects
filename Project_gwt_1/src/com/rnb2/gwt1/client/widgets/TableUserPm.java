@@ -6,6 +6,7 @@ package com.rnb2.gwt1.client.widgets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.core.shared.GWT;
@@ -77,6 +78,7 @@ public class TableUserPm implements IsWidget {
 	private boolean isFromAD = false;
 	private ManageServiceAsync manageService;
 	private String loginName;
+	private Map<String, String> enviromentTable;
 	public static TableUserPm instance;
 	
 	public static TableUserPm getInstance(){
@@ -99,8 +101,9 @@ public class TableUserPm implements IsWidget {
 	 * @param messages2
 	 * @param manageService 
 	 * @param loginName 
+	 * @param enviromentTable 
 	 */
-	public TableUserPm(List<UserProxy> result, List<ApplicationProxy> applications, MyMessages messages2, boolean isFromAD, String serverName, ManageServiceAsync manageService, String loginName) {
+	public TableUserPm(List<UserProxy> result, List<ApplicationProxy> applications, MyMessages messages2, boolean isFromAD, String serverName, ManageServiceAsync manageService, String loginName, Map<String, String> enviromentTable) {
 		this.items = result;
 		this.messages = messages2;
 		this.applications = applications;
@@ -108,6 +111,8 @@ public class TableUserPm implements IsWidget {
 		this.serverName = serverName;
 		this.manageService = manageService;
 		this.loginName = loginName;
+		this.enviromentTable = enviromentTable;
+		
 		instance = this;
 		
 		if(isFromAD){
@@ -177,7 +182,7 @@ public class TableUserPm implements IsWidget {
 		      public void onSelection(SelectionEvent<Item> event) {
 		    	if(selectedElement !=null){ 
 		    	  setStatusBusy();
-		    	  manageService.syncUsersFromAD(selectedElement.getLoginName(), serverName, callbackSyncUser());
+		    	  manageService.syncUsersFromAD(enviromentTable, selectedElement.getLoginName(), serverName, callbackSyncUser());
 		    	}
 		      }
 		    });
@@ -403,6 +408,8 @@ public class TableUserPm implements IsWidget {
 		ColumnConfig<UserProxy, String> col2 = new ColumnConfig<UserProxy, String>(props2.fullName(), 150, messages.fullName());
 		ColumnConfig<UserProxy, String> col3 = new ColumnConfig<UserProxy, String>(props2.workPhone(), 80, messages.workPhone());
 		ColumnConfig<UserProxy, String> col4 = new ColumnConfig<UserProxy, String>(props2.employeeID(), 80, messages.employeIDshort());
+		ColumnConfig<UserProxy, String> col5 = new ColumnConfig<UserProxy, String>(props2.company(), 80, messages.company());
+		ColumnConfig<UserProxy, String> col6 = new ColumnConfig<UserProxy, String>(props2.department(), 80, messages.department());
 		
 		col1.setCell(new AbstractCell<String>(){
 			@Override
@@ -419,6 +426,8 @@ public class TableUserPm implements IsWidget {
 		configList.add(col2);
 		configList.add(col3);
 		configList.add(col4);
+		configList.add(col5);
+		configList.add(col6);
 		return configList;
 	}
 

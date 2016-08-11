@@ -1,6 +1,7 @@
 package com.rnb2.gwt1.client.widgets.window;
 
 import java.util.List;
+import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -37,8 +38,9 @@ public class WindowUserPmSearch extends Window {
 		
 	/**
 	 *  Поиск пользователей в AD
+	 * @param enviromentTable 
 	 */
-	public WindowUserPmSearch(String title, MyMessages messages) {
+	public WindowUserPmSearch(final Map<String,String> enviromentTable, String title, MyMessages messages) {
 		this.messages = messages;
 				
 		setModal(true);
@@ -107,7 +109,7 @@ public class WindowUserPmSearch extends Window {
 				if(login !=null || fio !=null)
 					CustomWidgets.showWaitCursor(); 
 				
-				manageService.searchUserAd(login, fio, employeeID, callbackSearch());
+				manageService.searchUserAd(enviromentTable, login, fio, employeeID, callbackSearch());
 				
 			}
 		});

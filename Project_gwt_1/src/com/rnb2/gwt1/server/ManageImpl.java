@@ -12,7 +12,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
@@ -68,6 +67,8 @@ import com.rnb2.gwt1.server.utils.Constants;
 
 public class ManageImpl extends RemoteServiceServlet implements ManageService {
 	
+	private static final String COM_RNB2_FILTER_BASE_KEY = "com.rnb2.filterBase.key";
+
 	private static final int maxResults = 250;
 
 	@PersistenceContext(unitName = "ugdtEm")
@@ -109,10 +110,6 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 
 	private final String getUserIdsByLoginFetch = "	select o from Users as o join fetch o.railwayGroup rg where o.name = :param1";
 	
-	private final String ad_Azovstal = "AZ-DC1.corp.azovstal.ua";
-	private final String ad_MIH = "Dc01-adds-01.metinvest.ua";
-
-	
 	
 	/**
 	 * 
@@ -137,39 +134,27 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 	 * @param serverName
 	 * @return
 	 */
-	public String syncUsersFromAD(String loginName, String serverName){
+	public String syncUsersFromAD(Map<String, String> environment, String loginName, String serverName){
 		SessionFactory factory = getSessionFactoryByServer(serverName);
 		
 		params.clear();
 		params.put("param1", loginName);
 		List<User> users = runHibernateNamedQuery(getUserPMbyName, null, params, false, factory.getCurrentSession());
-		
-		int i=0;
-				
+						
 		for (User user : users) {
-			//System.out.println("user... "+ user.getLoginName());
-			List<UserProxy> list = searchUserAd(user.getLoginName(), ad_Azovstal);
+			List<UserProxy> list = searchUserAd(environment, user.getLoginName(), null, null);
 			if(list.isEmpty()){
 				//System.out.println("user... " + user.getLoginName()  +" not found in AD!!!");
 				continue;
 			}
-			//if(list.size() > 1){
-			//System.out.println("--	!!!!!!	--");
-				//System.out.println(">1 user in AD for:"+ user.getLoginName());
-				//for(UserProxy pr: list){
-					//System.out.println(" ...user " + pr.getLoginName());
-				//}
-			//System.out.println("--/	!!!!!!	--");	
-			//}
-			
+						
 			UserProxy userProxy = list.get(0);
 			user.setEmployeeID(userProxy.getEmployeeID());
 			user.setFullName(userProxy.getFullName());
 			user.setWorkPhone(userProxy.getWorkPhone());
 			mergeUserPm(user, user.getId().longValue(), factory.getCurrentSession());
-			i++;
+			
 		}
-		//System.out.println("user updated: " + i);
 	
 	return "1";
 	}
@@ -180,38 +165,24 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 	 * @param serverName
 	 * @return
 	 */
-	public String syncUsersFromAD(String serverName){
+	public String syncUsersFromAD(Map<String, String> environment, String serverName){
 			SessionFactory factory = getSessionFactoryByServer(serverName);
-		
-		
 			List<User> users = runHibernateNamedQuery(getUserPMEmptyEmploee, null, null, false, factory.getCurrentSession());
-			//System.out.println("users with no emploee: " + users.size());
-			int i=0;
-					
+
 			for (User user : users) {
-				//System.out.println("user... "+ user.getLoginName());
-				List<UserProxy> list = searchUserAd(user.getLoginName(), ad_Azovstal);
+				List<UserProxy> list = searchUserAd(environment, user.getLoginName(), null, null);
 				if(list.isEmpty()){
 					//System.out.println("user... " + user.getLoginName()  +" not found in AD!!!");
 					continue;
 				}
-				//if(list.size() > 1){
-				//System.out.println("--	!!!!!!	--");
-					//System.out.println(">1 user in AD for:"+ user.getLoginName());
-					//for(UserProxy pr: list){
-					//	System.out.println(" ...user " + pr.getLoginName());
-					//}
-				//System.out.println("--/	!!!!!!	--");	
-				//}
 				
 				UserProxy userProxy = list.get(0);
 				user.setEmployeeID(userProxy.getEmployeeID());
 				user.setFullName(userProxy.getFullName());
 				mergeUserPm(user, user.getId().longValue(), factory.getCurrentSession());
-				i++;
+				
 			}
-			//System.out.println("users updated: " + i);
-		
+	
 		
 		
 		return "1";
@@ -231,7 +202,6 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 		SessionFactory sessionFactoryIDS = getSessionFactoryIDSByServer(serverName);
 		for (UserProxy p : list) {
 			result = addUserCopyPm(p.getFullName(), p.getLoginName(), serverName, sessionFactoryPm, sessionFactoryIDS, userNameCreated);
-			//System.out.println(result);
 		}
 		
 		return result;
@@ -242,7 +212,6 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 	 */
 	public List<UserProxy> readFileXls(String fileName, int rangeBegin, int rangeEnd, 
 			int columnIndexLoginNameOld, int columnIndexLoginNameNew){
-		//System.out.println("readFileXls.....");
 				
 		Object attribute = getServletContext().getAttribute(Constants.contextAttributeStreamXlsFile);
 		
@@ -272,7 +241,7 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
                     		workbook.close();
                     	
                     	inputStream.close();
-                    	//System.out.println("readFileXls.");
+                  
                     } catch(Exception e){ e.printStackTrace(); } 
                  }
 			getServletContext().removeAttribute(Constants.contextAttributeStreamXlsFile);
@@ -288,12 +257,7 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
         List<UserProxy> proxyList = new ArrayList<UserProxy>();	
         Workbook workbook = null;
         try {
-			//inputStream = new FileInputStream(fileName);
-			//System.out.println("222  stream=" + inputStream);
 			workbook = new HSSFWorkbook(inputStream);
-			
-			//System.out.println("222  book=" + workbook.getSheetName(1));
-			//System.out.println("222  books=" + workbook.getNumberOfSheets());
 			
 			int numberOfSheets = 1;//workbook.getNumberOfSheets();
 			for (int i = 0; i < numberOfSheets; i++) {
@@ -302,7 +266,6 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 				feelFromXls(proxyList, iteratorRow, rangeBegin, rangeEnd, columnIndexLoginNameOld, columnIndexLoginNameNew);
 			}
 		} catch (Exception e) {
-			//System.out.println("222  ex: " + e.getLocalizedMessage());
 			e.printStackTrace();
 		}finally{
 			try {
@@ -331,7 +294,7 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 			UserProxy proxy = new UserProxy();
 			Row row = iteratorRow.next();
 			Iterator<Cell> cellIterator = row.cellIterator();
-			////System.out.println("row=" + row.getRowNum());
+
 			if(row.getRowNum() > rangeEnd -1){
 				break;
 			}
@@ -340,10 +303,9 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 			
 				while (cellIterator.hasNext()) {
 					Cell cell = cellIterator.next();
-					//System.out.println("cellType=" + cell.getCellType());
+
 
 			        if (Cell.CELL_TYPE_STRING == cell.getCellType()) {
-			        	//System.out.println("cell.getStringCellValue()=" + cell.getStringCellValue());
 			        	
 			            if (cell.getColumnIndex() == columnIndexLoginNameOld) {
 			            	proxy.setLoginName(cell.getStringCellValue());
@@ -362,7 +324,6 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 	
 	public String getUserName(){
 		String ss = System.getProperty("user.name");
-		//System.out.println("ss:"+ss);
 		
 		HttpSession session = getThreadLocalRequest().getSession(false);
 		//if(session != null){
@@ -462,9 +423,7 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 			try {
 				String nativeQuery = "DELETE FROM ACL_PERMISSION WHERE PRINCIPAL = :param1";									
 				org.hibernate.Query query = session.createSQLQuery(nativeQuery).setParameter("param1", userName);
-				
-				int i = query.executeUpdate();
-				//System.out.println("deleteUserPmAclPermission: delete acl: for" + userName + " rows=" + i);	
+				query.executeUpdate();
 		
 				transaction.commit();
 			   
@@ -476,7 +435,6 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 		} finally {
 			if (session != null && session.isOpen()) {
 				session.close();
-				//System.out.println("deleteUserPmAclPermission: session.close();");
 			}
 		}
 	}
@@ -502,7 +460,7 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 		user.setFullName(fio);
 		user.setEmployeeID(employeeID);;
 		user.setWorkPhone(phone);
-		//System.out.println("add user: " + userName + " to serve: " + serverName);
+
 		addEntityPm(user, serverName);
 	}
 	
@@ -519,16 +477,14 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 	 * @return
 	 */
 	private boolean copyUserIds(String userNameNew, String userNameOld, SessionFactory sessionFactoryIDS, String userNameCreated){
-		//System.out.println("copyUserIds... userNameNew=" + userNameNew + " userNameOld=" + userNameOld + ", by user=" + userNameCreated);
+
 		Session session = null;
 		boolean result = false;
 		try {
 			params.clear();
 			params.put("param1", userNameOld);
-			//List<Users> resultList = executeHibernateNamedQueryAll(getUserIdsByLoginFetch, null, params, serverName, TypeSessionFactory.FACTORY_IDS);
 			List<Users> resultList = runHibernateNamedQuery(getUserIdsByLoginFetch, null, params, true, sessionFactoryIDS.getCurrentSession());
 		
-			//System.out.println("copyUserIds: found old user resultList=" + resultList.size());
 		
 			if(resultList.isEmpty()){
 				System.err.println("copy UserIds: " + userNameOld + ", user is not found!!!");
@@ -573,7 +529,6 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 				session.close();
 			}
 		}
-		//System.out.println("copyUserIds.");
 		return result;
 
 	}
@@ -602,9 +557,6 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 		List<User> list = runHibernateNamedQuery(getUserPMbynameFetch, null, params, false, sessionFactoryPm.getCurrentSession()); //executeHibernateNamedQueryAll(getUserPMbynameFetch, null, params, serverName);		
 
 		if (list.isEmpty()) {
-			//return "addUserCopyPm: User not found: " + userNameOld + " on server=" + serverName;
-			//System.out.println("addUserCopyPm: User not found: " + userNameOld + " on server=" + serverName);
-			//System.out.println("addUserCopyPm: ----- add to IDS...: " + userNameOld + " on server=" + serverName);
 			boolean copyUserIds = false;
 			if(serverName.equals(Constants.server_name_jboss_5) || serverName.equals(Constants.server_name_jboss_01)){
 				copyUserIds = copyUserIds(userNameNew, userNameOld, sessionFactoryIDS, userNameCreated);
@@ -624,9 +576,6 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 			
 	
 			User userOld = list.get(0);
-			
-			//System.out.println("addUserCopyPm: Found old user=" + userOld.getLoginName());
-					
 	
 			User userNew = new User();
 			userNew.setLoginName(userNameNew);
@@ -637,7 +586,6 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 		
 			addUserPm(userOld, userNew, sessionFactoryPm);
 	
-			//System.out.println("addUserCopyPm: " + userNameOld + " was copied to new name: " + userNameNew);
 			
 			if(!userOld.getAclPermissions().isEmpty()){
 				addUserPmAclPermissionNative(userNameNew, userOld, sessionFactoryPm.getCurrentSession());
@@ -672,31 +620,25 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 		SessionFactory sessionFactoryPM = getSessionFactoryByServer(serverName);
 		SessionFactory sessionFactoryIDS = getSessionFactoryIDSByServer(serverName);
 		
-		//System.out.println("addUserCopyPm: userNameOld=" + userNameOld);
+
 		params.clear();
 		params.put("param1", userNameOld);
 		List<User> list = runHibernateNamedQuery(getUserPMbynameFetch, null, params, false, sessionFactoryPM.getCurrentSession()); 
 		
-		//System.out.println("addUserCopyPm: list=" + list.size());
+
 
 		if (list.isEmpty()) {
-			//return "-1";
-			//System.out.println("addUserCopyPm: User not found: " + userNameOld + " on server=" + serverName);
-			//System.out.println("addUserCopyPm: ----- add to IDS...: " + userNameOld + " on server=" + serverName);
 			boolean copyUserIds = false;
 			if(serverName.equals(Constants.server_name_jboss_5) || serverName.equals(Constants.server_name_jboss_01)){
 				copyUserIds = copyUserIds(userNameNew, userNameOld, sessionFactoryIDS, userNameCreated);
 			}
-			//System.out.println("addUserCopyPm: ----- add to IDS = " + copyUserIds);
+
 			return "1";
 		};
 
 		if (!list.isEmpty()) {
 			
 			User userOld = list.get(0);
-			
-			//System.out.println("userOld=" + userOld.getLoginName());
-					
 	
 			User userNew = new User();
 			userNew.setLoginName(userNameNew);
@@ -740,11 +682,9 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 					String nativeQuery = "INSERT INTO ACL_PERMISSION (principal, entity_id, app_id, access_type, property, operation_type, permissiom_value) "
 									+ "VALUES (:param1, :param2, :param3, :param4, :param5, :param6, :param7)";
 					
-					 String accessType = aclPermission.getId().getAccessType().toString();
-					//System.out.println("getAccessType=" + accessType.trim() + " " + accessType.length());
+					String accessType = aclPermission.getId().getAccessType().toString();
 
 					String opertationType = aclPermission.getOperationType().toString();
-					//System.out.println("opertationType=" + opertationType + " " + opertationType.length() +" after trim=" +opertationType.trim().length());
 					 
 					org.hibernate.Query query = session.createSQLQuery(nativeQuery);
 						query.setParameter("param1", userNameNew);
@@ -755,7 +695,7 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 						query.setParameter("param6", opertationType.trim());
 						query.setParameter("param7", aclPermission.getPermissionValue());
 						query.executeUpdate();
-					//System.out.println("add acl: for" + userNameNew + " ent_id=" + aclPermission.getId().getEntityId());	
+	
 				}
 			    transaction.commit();
 			   
@@ -767,7 +707,6 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 		} finally {
 			if (session != null && session.isOpen()) {
 				session.close();
-				//System.out.println("session.close();");
 			}
 		}
 	}
@@ -793,25 +732,23 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 			
 			for(Integer id: userAppLongList){
 				Application application = (Application) session.get(Application.class, id);
-				//System.out.println("addUserPm: found application=" + application.getId() + " application.getPermissions()=" + application.getPermissions().size());
+
 				for(Permission p : application.getPermissions()){
 				
 					if(userOld.getPermissions().contains(p)){
-						//System.out.println("addUserPm: add p=" + p.getId());		
 						userNew.getPermissions().add(p);
 					}
 				}
 			}
 			session.save(userNew);
 			session.getTransaction().commit();
-			//System.out.println("addUserPm: commit.");	
+	
 		} catch (Exception e) {
-			//System.out.println("addUserPm error:");
+
 			e.printStackTrace();
 		}finally {
 			if (session != null && session.isOpen()) {
 				session.close();
-				//System.out.println("addUserPm session.close();");
 			}
 		}
 	}
@@ -840,25 +777,25 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 			
 			for(Integer id: userAppLongList){
 				Application application = (Application) session.get(Application.class, id);
-				//System.out.println("addUserPm: found application=" + application.getId() + " application.getPermissions()=" + application.getPermissions().size());
+
 				for(Permission p : application.getPermissions()){
 				
 					if(userOld.getPermissions().contains(p)){
-						//System.out.println("addUserPm: add p=" + p.getId());		
+		
 						userNew.getPermissions().add(p);
 					}
 				}
 			}
 			session.save(userNew);
 			session.getTransaction().commit();
-			//System.out.println("addUserPm: commit.");	
+	
 		} catch (Exception e) {
-			//System.out.println("addUserPm error:");
+
 			e.printStackTrace();
 		}finally {
 			if (session != null && session.isOpen()) {
 				session.close();
-				//System.out.println("addUserPm session.close();");
+
 			}
 		}
 		
@@ -1238,7 +1175,7 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 	public List<UserProxy> getUserPmList(String login, int param2, String serverName){
 		List<UserProxy> list = new ArrayList<UserProxy>();
 		params.clear();
-		//System.out.println("getUserPmList: param2="+ param2);
+
 		if(param2 == 0){
 			list =	executeHibernateNamedQueryAll(getUserPMLite, UserProxy.class, params, serverName);
 		}else{
@@ -1249,9 +1186,9 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 			}else if(param2 ==  Constants.CODE_FULL_NAME){
 				query = getUserPMLitebyFullName;
 			}
-			//System.out.println("getUserPmList: query=" + query + " param=" + params);
+
 			list = executeHibernateNamedQueryAll(query, UserProxy.class, params, serverName, TypeSessionFactory.FACTORY_PM);
-			//System.out.println("getUserPmList: found=" + list.size());
+
 		}
 		return list;
 	}
@@ -1320,7 +1257,6 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 		} finally {
 			if (session != null && session.isOpen()) {
 				session.close();
-				//System.out.println("session.close();");
 			}
 		}
 
@@ -1406,7 +1342,6 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 			} finally {
 				if (session != null && session.isOpen()) {
 					session.close();
-					//System.out.println("runHibernateNamedQuery: session.close();");
 				}
 			}	
 		
@@ -1477,7 +1412,6 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 		} finally {
 			if (session != null && session.isOpen()) {
 				session.close();
-				//System.out.println("session.close();");
 			}
 		}
 
@@ -1554,7 +1488,6 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 		} finally {
 			if (session != null && session.isOpen()) {
 				session.close();
-				//System.out.println("mergeUserPm: session.close();");
 			}
 		}
 	}
@@ -1598,7 +1531,7 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 				User user = (User) entity;
 				System.err.println("error in addEntity: user " + user.getLoginName()
 						+ " has already been added!");
-				//e.printStackTrace();
+				
 				user = null;
 			}
 			if(entity instanceof Application){
@@ -1625,7 +1558,7 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 			}else{
 				 object = session.get(obj.getClass(), id);
 			}
-			//Object object = session.get(obj.getClass(), id);
+			
 			session.delete(object);
 			session.getTransaction().commit();
 		} catch (Exception e) {
@@ -1659,73 +1592,59 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 		return findEntityPm(Application.class, id, serverName);
 	}
 	
+		
 	/**
-	 * јвторизаци€ пользовател€ в AD, затем поиск роли в "PM"
+	 * возвращает им€ пользовател€ из AD
 	 * @param loginName
 	 * @return
 	 */
-	public String autorizationByLoginName(String loginName, String serverName){
+	public String autorizationByLoginName(Map<String, String> environment, String loginName, String serverName){
 		StringBuilder sb = new StringBuilder();
-		final String pm_shortName = "PM";
-		final String pm_roleName = "use";
 		
-		List<UserProxy> searchUserAdList = searchUserAd(loginName, ad_Azovstal);
+		String filterBase = environment.get(COM_RNB2_FILTER_BASE_KEY);
+		
+		List<UserProxy> searchUserAdList = searchUserAdAuth(environment, loginName, filterBase);//ad_Azovstal, filterBaseAzovstal);
 		
 		if(searchUserAdList.isEmpty()){
-			//System.out.println("autorizationByLoginName: return 0 in AD, for: " + loginName);
+			System.out.println("autorizationByLoginName: return 0 in AD, for: " + loginName);
 			return null;
 		}
 		
 		if(searchUserAdList.size() > 1){
-			//System.out.println("autorizationByLoginName: return > 1 in AD, for: " + loginName);
+			System.out.println("autorizationByLoginName: return > 1 in AD, for: " + loginName);
 			return null;
 		}	
 		
 		
 		loginName = searchUserAdList.get(0).getLoginName();
 		
+		sb.append(searchUserAdList.get(0).getFullName());
+		sb.append("(");
+		sb.append(loginName);				
+		sb.append(")");
 		
-		List<PermissionProxy> applicationPmPermission = getApplicationPmPermission(loginName, pm_shortName, serverName);
-		for (PermissionProxy pm : applicationPmPermission) {
-			//System.out.println("applicationPmPermission for: " + loginName + " pm_shortName: " + pm.getShortName());
-			if(pm.getName().equals(pm_roleName)){
-				sb.append(searchUserAdList.get(0).getFullName());
-				sb.append("(");
-				sb.append(loginName);				
-				sb.append(")");
-				break;
-			}
-		}
-
 		if(sb.length() > 0)
 			return sb.toString();
-		
-		//System.out.println("autorizationByLoginName: no found pm_roleName for: " + loginName);
 		
 		return null;
 	}
 	
-		
 	/**
 	 * ѕоиск пользовател€ в AD
-	 * 13.10.2015
-	 * @param loginName 
-	 * @param ad
+	 * 11.08.2016
+	 * @param environment
+	 * @param loginName
+	 * @param filterBase
 	 * @return
 	 */
-	private List<UserProxy> searchUserAd(String loginName, String ad) {
+	private List<UserProxy> searchUserAdAuth(Map<String, String> environment2, String loginName, String filterBase) {
 		List<UserProxy> result = new ArrayList<UserProxy>();
-		Hashtable<String, String> environment = getEnvironment(ad);
-
 		try {
-     		LdapContext ldap = new InitialLdapContext(environment, null);
+			Hashtable<String, String> environment  = new Hashtable<>(environment2);
 			
+     		LdapContext ldap = new InitialLdapContext(environment, null);
      		String filter = "(&(objectclass=user) (sAMAccountName="+loginName+"))";   		
-			String filterBase ="DC=corp,DC=azovstal,DC=ua";
-     		
 			feelUserProxy(result, ldap, filter, filterBase);
-			//System.out.println("searchUserAd: result=" + result.size());
-     		
      	} catch (Exception e) {
      		e.printStackTrace();
      	} 
@@ -1733,18 +1652,28 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 		return result;
 	}
 	
-	/** ѕоиск пользователей в AD*/
+	/**
+	 * ѕоиск пользователей в AD
+	 * 11.08.2016
+	 * @param environment2
+	 * @param loginName
+	 * @param fio
+	 * @param employeeID
+	 * @return
+	 */
 	@Override
-	public List<UserProxy> searchUserAd(String loginName, String fio, String employeeID) {
+	public List<UserProxy> searchUserAd(Map<String, String> environment2, String loginName, String fio, String employeeID) {
 		List<UserProxy> result = new ArrayList<UserProxy>();
-		Hashtable<String, String> environment = getEnvironment(ad_Azovstal);
-
+		Hashtable<String, String> environment = new Hashtable<>(environment2); //= getEnvironment(ad_Azovstal);
+		
+		String filterBase = environment.get(COM_RNB2_FILTER_BASE_KEY);
+		
 		try {
-     		LdapContext ldap = new InitialLdapContext(environment, null);
+			LdapContext ldap = new InitialLdapContext(environment, null);
 			
-     		String filter = "(&(objectclass=user) (sAMAccountName=*"+loginName+"*))";
-     		
-     		//3 по фио
+			String filter = "(&(objectclass=user) (sAMAccountName=*"+loginName+"*))";
+			
+			//3 по фио
 			if(fio != null){
 				filter = "(&(objectclass=user) (displayName="+fio+"*))";
 			}
@@ -1753,45 +1682,27 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 				filter = "(&(objectclass=user) (employeeID="+employeeID+"*))";
 			}
 			
-			String filterBase ="DC=corp,DC=azovstal,DC=ua";
-
-     		
 			feelUserProxy(result, ldap, filter, filterBase);
-			//System.out.println("searchUserAd: result=" + result.size());
-
-			/*filterBase = "DC=metinvest,DC=ua";
-			//result = new ArrayList<UserProxy>();
-			environment = getEnvironment(ad_MIH);
-			ldap = new InitialLdapContext(environment, null);
-			feelUserProxy(result, ldap, filter, filterBase);			
-			System.out.println("result_2: " + result.size());*/
-     		
-			/*System.out.println("------------------------");
-			System.out.println("principal2.getCompany():" + principal2.getCompany());
-			System.out.println("principal2.getDepartment():" + principal2.getDepartment());
-			System.out.println("principal2.getMail():" + principal2.getMail());
-			System.out.println("principal2.getDisplayName():" + principal2.getDisplayName());
-			System.out.println("principal2.getDistinguishedName():" + principal2.getDistinguishedName());
-			System.out.println("principal2.getSn():" + principal2.getSn());
-			System.out.println("principal2.getTelephoneNumber():" + principal2.getTelephoneNumber());*/
-						
-     		
-     	} catch (Exception e) {
-     		e.printStackTrace();
-     	} 
-
+				
+			/*if(!result.isEmpty()){	
+				UserProxy principal2 = result.get(0);				
+				System.out.println("------------------------");
+				System.out.println("principal2.getEmployeeID():" + principal2.getEmployeeID());
+				System.out.println("principal2.getFullName():" + principal2.getFullName());
+				System.out.println("principal2.getLoginName():" + principal2.getLoginName());
+				System.out.println("principal2.getWorkPhone():" + principal2.getWorkPhone());
+				System.out.println("principal2.getMemberOf():" + principal2.getMemberOf());
+				
+			}*/	
+			
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+		
 		return result;
 	}
-	
-	private Hashtable<String, String> getEnvironment(String ad){
-		Hashtable<String, String> environment = new Hashtable<String, String>();
-        environment.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-		environment.put(Context.PROVIDER_URL, "ldap://" + ad + ":389");//10.11.11.3
-        environment.put(Context.SECURITY_AUTHENTICATION, "simple");
-        environment.put(Context.SECURITY_PRINCIPAL, "jboss");
-        environment.put(Context.SECURITY_CREDENTIALS, "JavaSUN1999");
-        return environment;
-	}
+		
 	
 	/**
 	 * 08.07.2015 
@@ -1818,6 +1729,9 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 			userProxy.setFromAD(true);
 			userProxy.setMemberOf(principal2.getMemberOf());
 			userProxy.setEmployeeID(principal2.getEmployeeID());
+			userProxy.setCompany(principal2.getCompany());
+			userProxy.setDepartment(principal2.getDepartment());
+			
 			result.add(userProxy);
 		}
 	}
@@ -1836,12 +1750,11 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 			session = factory.getCurrentSession();
 
 			session.beginTransaction();
-				//System.out.println("addStationUserIds idUser: " + idUser);	
-				//System.out.println("addStationUserIds railwayGroup.getId(): " + railwayGroup.getId());	
-				Users users = (Users) session.get(Users.class, idUser);
+	
+			Users users = (Users) session.get(Users.class, idUser);
 				
-				RailwayGroup railwayGroup2 = (RailwayGroup) session.get(RailwayGroup.class, railwayGroup.getId());
-				result = users.getRailwayGroup().add(railwayGroup2);
+			RailwayGroup railwayGroup2 = (RailwayGroup) session.get(RailwayGroup.class, railwayGroup.getId());
+			result = users.getRailwayGroup().add(railwayGroup2);
 				
 			session.save(users);
 			session.getTransaction().commit();
@@ -1873,12 +1786,11 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 			session = factory.getCurrentSession();
 
 			session.beginTransaction();
-				//System.out.println("-deleteStationIds idUser: " + idUser);	
-				//System.out.println("-deleteStationIds railwayGroup.getId(): " + idStation);	
-				Users users = (Users) session.get(Users.class, idUser);
 				
-				RailwayGroup railwayGroup2 = (RailwayGroup) session.get(RailwayGroup.class, idStation);
-				result = users.getRailwayGroup().remove(railwayGroup2);
+			Users users = (Users) session.get(Users.class, idUser);
+				
+			RailwayGroup railwayGroup2 = (RailwayGroup) session.get(RailwayGroup.class, idStation);
+			result = users.getRailwayGroup().remove(railwayGroup2);
 				
 			session.save(users);
 			session.getTransaction().commit();
@@ -1910,16 +1822,15 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 			session = factory.getCurrentSession();
 
 			session.beginTransaction();
-				//System.out.println("addDocumentsPermission idUser: " + idUser);	
 
-				Users users = (Users) session.get(Users.class, idUser);
+			Users users = (Users) session.get(Users.class, idUser);
 				
-				DocumentPermission documentPermission = new DocumentPermission();
-				documentPermission.setDictionary(documentDictionary);
-				documentPermission.setDocumentRoles(documentRoles);
-				documentPermission.setUsername(userName);
-				result = users.getUsersDocumentPermitions().add(documentPermission);
-			//System.out.println("result: " +result);	
+			DocumentPermission documentPermission = new DocumentPermission();
+			documentPermission.setDictionary(documentDictionary);
+			documentPermission.setDocumentRoles(documentRoles);
+			documentPermission.setUsername(userName);
+			result = users.getUsersDocumentPermitions().add(documentPermission);
+	
 			session.save(users);
 			session.getTransaction().commit();
 		} catch (Exception e) {
@@ -1950,12 +1861,11 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 			session = factory.getCurrentSession();
 
 			session.beginTransaction();
-				//System.out.println("-deleteDocumentPermission idUser: " + idUser);	
-				//System.out.println("-deleteDocumentPermission idDocumentPermiss: " + idDocumentPermiss);	
-				Users users = (Users) session.get(Users.class, idUser);
+
+			Users users = (Users) session.get(Users.class, idUser);
 				
-				DocumentPermission documentPermission = (DocumentPermission) session.get(DocumentPermission.class, idDocumentPermiss);
-				result = users.getUsersDocumentPermitions().remove(documentPermission);
+			DocumentPermission documentPermission = (DocumentPermission) session.get(DocumentPermission.class, idDocumentPermiss);
+			result = users.getUsersDocumentPermitions().remove(documentPermission);
 				
 			session.save(users);
 			session.getTransaction().commit();
@@ -2001,8 +1911,7 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 			users.setName(name);
 			users.setFio(fio);
 			users.setUsername(userName);
-			
-			//System.out.println("result: " +result);	
+		
 			session.save(users);
 			session.getTransaction().commit();
 			result = true;
@@ -2068,7 +1977,7 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 			session = factory.getCurrentSession();
 
 			session.beginTransaction();
-				//System.out.println("addEntityPermission to idUser: " + idUser);	
+					
 
 				Users users = (Users) session.get(Users.class, idUser);
 				
@@ -2077,7 +1986,7 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 				entityPermission.setEntityRoles(entityRoles);
 				entityPermission.setUsername(userName);
 				result = users.getUsersEntityPermitions().add(entityPermission);
-			//System.out.println("result: " +result);	
+	
 			session.save(users);
 			session.getTransaction().commit();
 		} catch (Exception e) {
@@ -2108,12 +2017,11 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 			session = factory.getCurrentSession();
 
 			session.beginTransaction();
-				//System.out.println("-deleteEntityPermission idUser: " + idUser);	
-				//System.out.println("-deleteEntityPermission idEntityPermiss: " + idEntityPermiss);	
-				Users users = (Users) session.get(Users.class, idUser);
 				
-				EntityPermission permission = (EntityPermission) session.get(EntityPermission.class, idEntityPermiss);
-				result = users.getUsersEntityPermitions().remove(permission);
+			Users users = (Users) session.get(Users.class, idUser);
+				
+			EntityPermission permission = (EntityPermission) session.get(EntityPermission.class, idEntityPermiss);
+			result = users.getUsersEntityPermitions().remove(permission);
 				
 			session.save(users);
 			session.getTransaction().commit();
@@ -2145,12 +2053,11 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 			session = factory.getCurrentSession();
 
 			session.beginTransaction();
-				//System.out.println("-deleteDepartmentPermission idUser: " + idUser);	
-				//System.out.println("-deleteDepartmentPermission idDepartmentPermiss: " + idDepartmentPermiss);	
-				Users users = (Users) session.get(Users.class, idUser);
 				
-				UsersDepartment documentPermission = (UsersDepartment) session.get(UsersDepartment.class, idDepartmentPermiss);
-				result = users.getUsersDepartment().remove(documentPermission);
+			Users users = (Users) session.get(Users.class, idUser);
+				
+			UsersDepartment documentPermission = (UsersDepartment) session.get(UsersDepartment.class, idDepartmentPermiss);
+			result = users.getUsersDepartment().remove(documentPermission);
 				
 			session.save(users);
 			session.getTransaction().commit();
@@ -2182,17 +2089,16 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 			session = factory.getCurrentSession();
 
 			session.beginTransaction();
-				//System.out.println("addDepartmentPermission idUser: " + idUser);	
 
-				Users users = (Users) session.get(Users.class, idUser);
+			Users users = (Users) session.get(Users.class, idUser);
 				
-				Department department = (Department) session.get(Department.class, idDepartment);
+			Department department = (Department) session.get(Department.class, idDepartment);
 				
-				UsersDepartment usersDepartment = new UsersDepartment();
-				usersDepartment.setDepartment(department);
-				usersDepartment.setRoles(edcRoles);
-				result = users.getUsersDepartment().add(usersDepartment);
-			//System.out.println("result: " +result);	
+			UsersDepartment usersDepartment = new UsersDepartment();
+			usersDepartment.setDepartment(department);
+			usersDepartment.setRoles(edcRoles);
+			result = users.getUsersDepartment().add(usersDepartment);
+				
 			session.save(users);
 			session.getTransaction().commit();
 		} catch (Exception e) {

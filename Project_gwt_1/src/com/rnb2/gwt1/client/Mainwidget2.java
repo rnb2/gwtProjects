@@ -5,6 +5,7 @@ package com.rnb2.gwt1.client;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.SelectionEvent;
@@ -104,8 +105,10 @@ public class Mainwidget2 implements IsWidget{
 	private FileUploadField file;
 	protected List<UserProxy> usersFomXls = new ArrayList<UserProxy>();
 	private Status statusBusy;
+	private final Map<String, String> enviromentTable;
 	
-	public Mainwidget2(String userName2, String loginName2) {
+	public Mainwidget2(final Map<String,String> enviromentTable, String userName2, String loginName2) {
+		this.enviromentTable = enviromentTable;
 		this.userName = userName2;
 		this.loginName = loginName2;
 		
@@ -139,7 +142,7 @@ public class Mainwidget2 implements IsWidget{
 
 	public static Mainwidget2 getInstance() {
 		if (instance == null) {
-			instance = new Mainwidget2("instance name", "");
+			instance = new Mainwidget2(null,"instance name", "");
 		}
 		return instance;
 	}
@@ -283,7 +286,7 @@ public class Mainwidget2 implements IsWidget{
 				}
 				
 				statusBusy.setBusy(messages.loadData());
-				manageService.syncUsersFromAD(getSelectedServerName(), callbackSyncUsersFromAD());
+				manageService.syncUsersFromAD(enviromentTable, getSelectedServerName(), callbackSyncUsersFromAD());
 			}
 		};
 	}
@@ -688,7 +691,7 @@ public class Mainwidget2 implements IsWidget{
 				if(comboServer.getCurrentValue().getId() > 0){
 					updatePmUserInfo(textField.getCurrentValue(), comboServer.getCurrentValue().getShortName());
 				}else if(comboServer.getCurrentValue().getId() == 0){
-					WindowUserPmSearch pmSearch = new WindowUserPmSearch(messages.findUser(), messages);
+					WindowUserPmSearch pmSearch = new WindowUserPmSearch(enviromentTable, messages.findUser(), messages);
 					pmSearch.show();
 				}
 			}
@@ -729,7 +732,7 @@ public class Mainwidget2 implements IsWidget{
 			@Override
 			public void onSelect(SelectEvent event) {
 				
-				WindowUserPmSearch pmSearch = new WindowUserPmSearch(messages.findUser(), messages);
+				WindowUserPmSearch pmSearch = new WindowUserPmSearch(enviromentTable, messages.findUser(), messages);
 				pmSearch.show();
 			}
 		};
@@ -878,7 +881,7 @@ public class Mainwidget2 implements IsWidget{
 		containerApplication.clear();
 		
 				
-		widgetTableUserPM = new TableUserPm(result, applicationProxyAllList, messages, isFromAD, comboServer.getCurrentValue().getShortName(), manageService, loginName);
+		widgetTableUserPM = new TableUserPm(result, applicationProxyAllList, messages, isFromAD, comboServer.getCurrentValue().getShortName(), manageService, loginName, enviromentTable);
 		widgetTableUserPM.addHandlerButtonDetail(handlerDetailUserIds());
 
 		widgetTableUserPM.addHandlerButtonAcl(handlerDetailAcl());

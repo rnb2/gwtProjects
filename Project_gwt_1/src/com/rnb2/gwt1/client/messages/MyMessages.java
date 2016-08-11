@@ -497,4 +497,26 @@ public interface MyMessages extends Messages {
 	 * @return
 	 */
 	String allDone();
+	
+	/** Введите пароль...
+	 * @return
+	 */
+	String inputPassword();
+
+	/** Пароль
+	 * @return
+	 */
+	String passwordLabel();
+
+	/**
+	 * Предприятие
+	 * @return
+	 */
+	String company();
+
+	/**
+	 * Подразделение
+	 * @return
+	 */
+	String department();
 }

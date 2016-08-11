@@ -26,4 +26,6 @@ public interface UserPmProperties extends PropertyAccess<UserProxy> {
 	ValueProvider<UserProxy, String> fullName();
 	ValueProvider<UserProxy, String> workPhone();
 	ValueProvider<UserProxy, String> employeeID();
+	ValueProvider<UserProxy, String> company();
+	ValueProvider<UserProxy, String> department();
 }

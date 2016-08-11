@@ -21,11 +21,12 @@ public class UserProxy implements Serializable {
 	private String workPhone;
 	private Integer id;
 	private String employeeID;
-	
 	/** ѕризнак, что пользователь найдень из AD*/
 	private boolean isFromAD = false;
-	
 	private List<Object> memberOf;
+	private String company;
+	private String department;
+	
 
 	public UserProxy() {
 	}
@@ -84,6 +85,22 @@ public class UserProxy implements Serializable {
 
 	public void setEmployeeID(String employeeID) {
 		this.employeeID = employeeID;
+	}
+
+	public String getCompany() {
+		return company;
+	}
+
+	public void setCompany(String company) {
+		this.company = company;
+	}
+
+	public String getDepartment() {
+		return department;
+	}
+
+	public void setDepartment(String department) {
+		this.department = department;
 	}
 
 

@@ -1,6 +1,7 @@
 package com.rnb2.gwt1.client;
 
 import java.util.List;
+import java.util.Map;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.rnb2.gwt1.data.idsugdt.Country;
@@ -95,10 +96,7 @@ public interface ManageServiceAsync {
 
 	void getUserName(AsyncCallback<String> callback);
 
-	/** Поиск пользователей в AD */
-	void searchUserAd(String loginName, String fio, String employeeID,
-			AsyncCallback<List<UserProxy>> callback);
-
+	
 	void getStationList(String syscode, List<Long> usersList,
 			String serverName, AsyncCallback<List<RailwayGroup>> callback);
 
@@ -140,9 +138,6 @@ public interface ManageServiceAsync {
 	void addDepartmentPermission(Long idUser, Long department,
 			EdcPermissionRoles edcRoles, String serverName,
 			AsyncCallback<Boolean> callback);
-
-	void autorizationByLoginName(String loginName, String serverName,
-			AsyncCallback<String> callback);
 
 	void deleteUserIds(Long idUser, String serverName,
 			AsyncCallback<Boolean> callback);
@@ -205,20 +200,33 @@ public interface ManageServiceAsync {
 	void addUserCopyPmAll(List<UserProxy> list, String serverName, String userNameCreated,
 			AsyncCallback<String> callback);
 
-	/**
-	 * Синхранизация полей пользователей из AD
-	 * 06.10.2015
-	 * @param serverName
-	 */
-	void syncUsersFromAD(String serverName, AsyncCallback<String> callback);
+	
+	void syncUsersFromAD(Map<String, String> environment, String loginName, String serverName,
+			AsyncCallback<String> callback);
+
+	void syncUsersFromAD(Map<String, String> environment,  String serverName,
+			AsyncCallback<String> callback);
+	
 
 	/**
-	 * 20.10.2015
-	 * Синхранизация полей пользователя из AD(в контектсном)
+	 * 11.08.2016
+	 * возвращает имя пользователя из AD
 	 * @param loginName
-	 * @param serverName
 	 * @return
 	 */
-	void syncUsersFromAD(String loginName, String serverName, AsyncCallback<String> callback);
+	void autorizationByLoginName(Map<String, String> environment, String loginName, String serverName,
+			AsyncCallback<String> callback);
+
+	/**
+	 * Поиск пользователей в AD
+	 * 11.08.2016
+	 * @param environment2
+	 * @param loginName
+	 * @param fio
+	 * @param employeeID
+	 * @return
+	 */
+	void searchUserAd(Map<String, String> environment2, String loginName, String fio, String employeeID,
+			AsyncCallback<List<UserProxy>> callback);
 
 }
