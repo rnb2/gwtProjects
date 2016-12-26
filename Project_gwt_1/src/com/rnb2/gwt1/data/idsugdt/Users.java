@@ -38,6 +38,8 @@ import org.hibernate.annotations.FetchMode;
 @NamedQueries( {
 
 	@NamedQuery(name = "getUserIdsByLogin", query = "select o from Users as o where o.name = ?1 "),
+
+	@NamedQuery(name = "getUserIdsByLogin2", query = "select o from Users as o where o.name like :param1 "),
 	
 	@NamedQuery(name = "getUserStationByLogin", 
 				query = "select gr.id, gr.fullName, t.fullName from Users o "+

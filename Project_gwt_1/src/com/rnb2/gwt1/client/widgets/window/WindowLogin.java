@@ -39,7 +39,7 @@ public class WindowLogin extends Window {
 	private static final String COM_RNB2_FILTER_BASE_KEY = "com.rnb2.filterBase.key";
 	private static final String PREFIX_METINVESTHOLDING_COM = "@metinvestholding.com";
 	private final String ad_Azovstal = "AZ-DC1.corp.azovstal.ua";
-	private final String ad_MIH = "DC03-ADDS-02.metinvest.ua";//"Dc01-adds-01.metinvest.ua";
+	private final String ad_MIH = "DC01-ADDS-01.metinvest.ua";//"Dc01-adds-01.metinvest.ua";
 
 	private final String filterBaseAzovstal = "DC=corp,DC=azovstal,DC=ua";
 	private final String filterBaseMIH = "DC=Metinvest,DC=UA"; //"OU=AZS,OU=AZS,DC=Metinvest,DC=UA";
@@ -51,7 +51,7 @@ public class WindowLogin extends Window {
 	private boolean isOkclicked = false;
 	
 	private String userName = null;
-	private String password = null;
+	
  
 	private Map<String,String> enviromentTable = null;
 		
@@ -81,14 +81,17 @@ public class WindowLogin extends Window {
 	    loginName.setAllowBlank(false);
 	    loginName.setEmptyText(messages.inputValue());
 	    loginName.setValue(loginNameS);
+	
 	    p.add(new FieldLabel(loginName, messages.loginName()), new VerticalLayoutData(1, -1));
 	    
 	    final PasswordField textFieldPass = new PasswordField();
 	    textFieldPass.setAllowBlank(false);
+	    
 	    p.add(new FieldLabel(textFieldPass, messages.passwordLabel()), new VerticalLayoutData(1, -1));
 	      
 	   
 		TextButton bClose = new TextButton(messages.cancel());
+		
 		bClose.addSelectHandler(new SelectHandler() {
 
 			@Override
@@ -130,6 +133,12 @@ public class WindowLogin extends Window {
 			}
 		});
 		bFind.setIcon(Images.INSTANCE.key());
+		
+	    loginName.setTabIndex(0);
+	    loginName.focus();
+		textFieldPass.setTabIndex(1);
+		bFind.setTabIndex(2);
+		bClose.setTabIndex(3);
 		
 		addButton(bFind);
 		addButton(bClose);

@@ -99,6 +99,8 @@ public class ManageImpl extends RemoteServiceServlet implements ManageService {
 	private final String getApplicationPmAll = "select distinct o.id as id, o.fullName as fullName, o.shortName as shortName, o.programmer as programmer, o.architect as architect from Application o";	
 	private final String getApplicationPmAllUser = "select distinct o.id as id, o.fullName as fullName, o.shortName as shortName, o.programmer as programmer, o.architect as architect " +
 							"from Application o where o.id not in(:param1)";
+	
+	private final String findUserIdsQuery = "select o.id as id, o.name as name, o.fio as fio, o.dateInput as dateInput, o.username as userInput from Users as o where o.name like :param1";
 	/**
 	 * 
 	 */
